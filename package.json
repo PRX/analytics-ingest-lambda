@@ -1,0 +1,31 @@
+{
+  "name": "analytics-ingest-lambda",
+  "version": "0.0.0",
+  "description": "Process kinesis metric streams and ship to bigquery",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PRX/analytics-ingest-lambda.git"
+  },
+  "keywords": [
+    "lambda",
+    "kinesis",
+    "bigquery"
+  ],
+  "author": "ryan cavis <ryan@prx.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PRX/analytics-ingest-lambda/issues"
+  },
+  "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
+  "devDependencies": {
+    "node-lambda": "^0.8.13"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^0.7.0",
+    "node-uuid": "^1.4.7"
+  }
+}
