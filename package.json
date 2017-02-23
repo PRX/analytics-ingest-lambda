@@ -4,7 +4,10 @@
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "deploy-dev": "node bin/deploy development",
+    "deploy-staging": "node bin/deploy staging",
+    "deploy-prod": "node bin/deploy production"
   },
   "repository": {
     "type": "git",
@@ -22,6 +25,7 @@
   },
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
   "devDependencies": {
+    "dotenv": "^4.0.0",
     "node-lambda": "^0.8.13"
   },
   "dependencies": {
