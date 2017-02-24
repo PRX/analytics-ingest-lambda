@@ -11,13 +11,25 @@ exports.handler = (event, context, callback) => {
     } else if (errs.length > 1) {
       let msgs = errs.map(e => `${e}`).join(', ');
       return new Error(`Multiple errors: ${msgs}`);
+    } else {
+      return null;
     }
   }
 
   // decode the base64 kinesis records
+  if (!event || !event.Records) {
+    let err = new Error(`Invalid event input: ${JSON.stringify(event)}`);
+    exports.logError(`${err}`);
+    return callback(err);
+  }
   let records = event.Records.map(r => {
-    return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
-  });
+    try {
+      return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
+    } catch (err) {
+      exports.logError(`Invalid record input: ${JSON.stringify(r)}`)
+      return false;
+    }
+  }).filter(r => r);
 
   // input records and check for unrecognized
   let inputs = new Inputs(records);
@@ -35,7 +47,7 @@ exports.handler = (event, context, callback) => {
     counts => {
       inputs.types.forEach((table, idx) => {
         if (counts[idx] > 0) {
-          console.log(`Inserted ${counts[idx]} rows into ${table}`);
+          exports.logSuccess(`Inserted ${counts[idx]} rows into ${table}`);
         }
       });
       let total = counts.reduce((a, b) => a + b, 0);
@@ -51,3 +63,7 @@ exports.handler = (event, context, callback) => {
     }
   );
 };
+
+// break out loggers so tests can silence them
+exports.logSuccess = msg => console.log(msg);
+exports.logError = msg => console.error(msg);
