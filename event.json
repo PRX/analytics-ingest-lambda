@@ -1,5 +1,52 @@
 {
-  "key": "value",
-  "key2": "value2",
-  "other_key": "other_value"
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "e73c5aee6ee846325b5c5ec0244d0add",
+        "sequenceNumber": "49558266616753302169815546155868142499674123319461806162",
+        "data": "eyJhZElkIjoyMjkzMzkzLCJjYW1wYWlnbklkIjo1MzQ4NTEsImNyZWF0aXZlSWQiOjE4OTk2ODUsImZsaWdodElkIjoyNzI1MjcxLCJwYXRoIjoiYTQzZDhlNmMtYjljNS00ODU1LWIxZjYtMDNiYmZkMzY4YTBhL21vdGhfNDMxX21yaF8xNjIxXzRfMTlfMTYubXAzIiwicHJvZ3JhbSI6InRoZW1vdGgiLCJyZW1vdGVBZ2VudCI6ImdQb2RkZXIvMy44LjMgKCtodHRwOi8vZ3BvZGRlci5vcmcvKSIsInJlbW90ZUlwIjoiNzUuMTMyLjI0LjIzNSIsInRpbWVzdGFtcCI6MTQ4NzcwMzY5OTAwMCwiaW1wcmVzc2lvblNlbnQiOmZhbHNlLCJyZXF1ZXN0VXVpZCI6IjJjYThkYzUwLWY4NjgtMTFlNi04NmY5LWJiMWM0NmNiZmQ3OCIsImlzRHVwbGljYXRlIjp0cnVlLCJjYXVzZSI6ImNhbXBhaWduQ2FjaGUifQ==",
+        "approximateArrivalTimestamp": 1487703699.141
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000005:49558266616753302169815546155868142499674123319461806162",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::561178107736:role/lambda_kinesis_execution",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:561178107736:stream/dovetail-metrics-production-6s"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "711a5b2b27993b0fbdf09c9121fa7b23",
+        "sequenceNumber": "49558266616753302169815546155889903164427186644606517330",
+        "data": "eyJhZElkIjoyMzEzMTQ5LCJjYW1wYWlnbklkIjo1Mzc2NzIsImNyZWF0aXZlSWQiOjE5MTQ2MDIsImZsaWdodElkIjoyNzQ3NTMzLCJwYXRoIjoiNzM3NWI4YzUtNTk3Yy00ODE2LTk2M2QtMDdmNzVkZTQ3ZDU4L3NlcmlhbC1zMDItZTExLm1wMyIsInByb2dyYW0iOiJzZXJpYWwiLCJyZW1vdGVBZ2VudCI6IlBvZGNhc3RBZGRpY3QvdjIgLSBEYWx2aWsvMi4xLjAgKExpbnV4OyBVOyBBbmRyb2lkIDYuMC4xOyBTTS1HOTI1VCBCdWlsZC9NTUIyOUspIiwicmVtb3RlSXAiOiIxNzIuNTguMTA3LjE4IiwidGltZXN0YW1wIjoxNDg3NzAzNjk5MDAwLCJpbXByZXNzaW9uU2VudCI6ZmFsc2UsInJlcXVlc3RVdWlkIjoiMmNiNjk3ZjAtZjg2OC0xMWU2LWEwNzAtZDc0MWU3NzdlNWZlIiwiaXNEdXBsaWNhdGUiOnRydWUsImNhdXNlIjoiY2FtcGFpZ25DYWNoZSJ9",
+        "approximateArrivalTimestamp": 1487703699.232
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000005:49558266616753302169815546155889903164427186644606517330",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::561178107736:role/lambda_kinesis_execution",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:561178107736:stream/dovetail-metrics-production-6s"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "bc2c8b7cfc5bc850749905b47c2659a1",
+        "sequenceNumber": "49558266616753302169815546155894738867705645161305342034",
+        "data": "eyJhZElkIjoyMzAzODIyLCJjYW1wYWlnbklkIjo0NzgzNTksImNyZWF0aXZlSWQiOjE4OTkyNjgsImZsaWdodElkIjoyMjE4MzQ0LCJwYXRoIjoiYWIwN2Q2ZGMtNDAxOS00NmM0LWI3M2ItMTE5ZTI4OGE2ZmRmL21vdGhfNDY5XzFfMTBfMTcubXAzIiwicHJvZ3JhbSI6InRoZW1vdGgiLCJyZW1vdGVBZ2VudCI6IkFwcGxlQ29yZU1lZGlhLzEuMC4wLjE0RDI3IChpUGFkOyBVOyBDUFUgT1MgMTBfMl8xIGxpa2UgTWFjIE9TIFg7IGVuX3VzKSIsInJlbW90ZUlwIjoiNjYuMjE1Ljg1LjI1MCIsInRpbWVzdGFtcCI6MTQ4NzcwMzY5OTAwMCwiaW1wcmVzc2lvblNlbnQiOnRydWUsInJlcXVlc3RVdWlkIjoiMmNiZmJmYjAtZjg2OC0xMWU2LWJkZWItZGRjOTQ1M2I4OGY3IiwiaXNEdXBsaWNhdGUiOmZhbHNlfQ==",
+        "approximateArrivalTimestamp": 1487703699.299
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000005:49558266616753302169815546155894738867705645161305342034",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::561178107736:role/lambda_kinesis_execution",
+      "awsRegion": "us-east-1",
+      "eventSourceARN": "arn:aws:kinesis:us-east-1:561178107736:stream/dovetail-metrics-production-6s"
+    }
+  ]
 }

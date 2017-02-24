@@ -4,7 +4,7 @@
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test",
+    "test": "node-lambda run",
     "deploy-dev": "node bin/deploy development",
     "deploy-staging": "node bin/deploy staging",
     "deploy-prod": "node bin/deploy production"
