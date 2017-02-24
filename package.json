@@ -1,6 +1,9 @@
 {
   "name": "analytics-ingest-lambda",
   "version": "0.0.0",
+  "engines": {
+    "node": "4.3.2"
+  },
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
   "scripts": {
@@ -38,6 +41,6 @@
   },
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
-    "node-uuid": "^1.4.7"
+    "uuid": "^3.0.1"
   }
 }
