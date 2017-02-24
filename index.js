@@ -38,8 +38,8 @@ exports.handler = (event, context, callback) => {
   });
 
   // process known inputs
-  let doInserts = inputs.outputsByType().map(([tableName, rows]) => {
-    return bigquery.insert(tableName, rows);
+  let doInserts = inputs.outputsByType().map(tableAndRows => {
+    return bigquery.insert(tableAndRows[0], tableAndRows[1]);
   });
 
   // run in parallel
