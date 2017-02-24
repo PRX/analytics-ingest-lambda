@@ -15,12 +15,12 @@ describe('handler', () => {
 
     inserted = {};
     sinon.stub(bigquery, 'dataset', () => {
-      return {table: tbl => {
+      return Promise.resolve({table: tbl => {
         return {insert: rows => {
           inserted[tbl] = rows;
           return Promise.resolve(rows.length);
         }};
-      }};
+      }});
     });
   });
 
