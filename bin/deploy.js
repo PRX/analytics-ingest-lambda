@@ -21,5 +21,5 @@ lambda.deploy({
   environment: envName,
   region: process.env.AWS_REGION || 'us-east-1',
   functionName: process.env.AWS_FUNCTION_NAME || 'analytics-ingest',
-  excludeGlobs: '.env env-example test'
+  excludeGlobs: '.env env-example *.log .git .gitignore test'
 });

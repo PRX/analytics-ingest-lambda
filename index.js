@@ -6,6 +6,7 @@ const Inputs = require('./lib/inputs');
 exports.handler = (event, context, callback) => {
   let errs = [];
   function concatErrors() {
+    errs.forEach(e => exports.logError(e.message || e));
     if (errs.length === 1) {
       return errs[0];
     } else if (errs.length > 1) {
@@ -26,26 +27,26 @@ exports.handler = (event, context, callback) => {
     try {
       return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
     } catch (err) {
-      exports.logError(`Invalid record input: ${JSON.stringify(r)}`)
+      errs.push(new Error(`Invalid record input: ${JSON.stringify(r)}`));
       return false;
     }
   }).filter(r => r);
 
   // input records and check for unrecognized
   let inputs = new Inputs(records);
-  inputs.unrecognized().forEach(r => {
+  inputs.unrecognized.forEach(r => {
     errs.push(new Error(`Unrecognized input record: ${JSON.stringify(r)}`));
   });
 
   // process known inputs
-  let doInserts = inputs.outputsByType().map(tableAndRows => {
+  let doInserts = inputs.outputs.map(tableAndRows => {
     return bigquery.insert(tableAndRows[0], tableAndRows[1]);
   });
 
   // run in parallel
   Promise.all(doInserts).then(
     counts => {
-      inputs.types.forEach((table, idx) => {
+      inputs.tables.forEach((table, idx) => {
         if (counts[idx] > 0) {
           exports.logSuccess(`Inserted ${counts[idx]} rows into ${table}`);
         }

@@ -1,6 +1,6 @@
 'use strict';
 
-const helper    = require('./support');
+const support   = require('./support');
 const testEvent = require('./support/test-event');
 const bigquery  = require('../lib/bigquery');
 const index     = require('../index');
@@ -9,7 +9,7 @@ const handler   = index.handler;
 describe('handler', () => {
 
   let inserted = {};
-  before(() => {
+  beforeEach(() => {
     sinon.stub(index, 'logSuccess');
     sinon.stub(index, 'logError');
 
@@ -32,37 +32,75 @@ describe('handler', () => {
     });
   });
 
-  it('ignores non-kinesis inputs', done => {
+  it('rejects non-kinesis inputs but still runs the insert', done => {
     handler({Records: [{}]}, null, (err, result) => {
-      expect(err).to.be.null;
+      expect(err).to.be.an.instanceof(Error);
+      expect(err).to.match(/invalid record input/i);
       expect(result).to.match(/inserted 0/i);
       done();
     });
   });
 
-  it('handles the test event', done => {
-    handler(testEvent, null, (err, result) => {
-      expect(err).to.be.null;
-      expect(result).to.match(/inserted 3/i);
+  it('handles kinesis records', done => {
+    let event = support.buildEvent(require('./support/test-records'));
+    handler(event, null, (err, result) => {
+      expect(err).to.be.an.instanceof(Error);
+      expect(err).to.match(/unrecognized input record/i);
+      expect(result).to.match(/inserted 4/i);
 
-      // based on test event contents
-      expect(inserted).to.have.keys('foobar_table');
-      expect(inserted.foobar_table.length).to.equal(3);
-      expect(inserted.foobar_table[0].insertId).to.equal('2ca8dc50-f868-11e6-86f9-bb1c46cbfd78');
-      expect(inserted.foobar_table[0].json).to.eql({
-        ad_id: 2293393,
-        campaign_id: 534851,
-        creative_id: 1899685,
-        flight_id: 2725271,
-        path: 'a43d8e6c-b9c5-4855-b1f6-03bbfd368a0a/moth_431_mrh_1621_4_19_16.mp3',
-        program: 'themoth',
-        remote_agent: 'gPodder/3.8.3 (+http://gpodder.org/)',
-        remote_ip: '75.132.24.235',
-        timestamp: 1487703699000,
-        impression_sent: false,
-        request_uuid: '2ca8dc50-f868-11e6-86f9-bb1c46cbfd78',
-        is_duplicate: true
-      });
+      // based on test-records
+      expect(inserted).to.have.keys(
+        'the_downloads_table$20170221',
+        'the_impressions_table$20170221',
+        'the_impressions_table$20170222'
+      );
+
+      expect(inserted['the_downloads_table$20170221'].length).to.equal(1);
+      expect(inserted['the_downloads_table$20170221'][0].insertId).to.equal('req-uuid');
+      let downloadJson = inserted['the_downloads_table$20170221'][0].json;
+      expect(downloadJson.digest).to.equal('the-digest');
+      expect(downloadJson.program).to.equal('program-name');
+      expect(downloadJson.path).to.equal('the/path/here');
+      expect(downloadJson.feeder_podcast).to.equal(1234);
+      expect(downloadJson.feeder_episode).to.equal('1234-5678');
+      expect(downloadJson.remote_agent).to.equal('some agent string');
+      expect(downloadJson.remote_ip).to.equal('127.0.0.1');
+      expect(downloadJson.timestamp).to.equal(1487703699);
+      expect(downloadJson.request_uuid).to.equal('req-uuid');
+      expect(downloadJson.ad_count).to.equal(2);
+      expect(downloadJson.is_duplicate).to.equal(false);
+      expect(downloadJson.cause).to.be.null;
+
+      expect(inserted['the_impressions_table$20170221'].length).to.equal(2);
+      expect(inserted['the_impressions_table$20170221'][0].insertId).not.to.equal('req-uuid');
+      expect(inserted['the_impressions_table$20170221'][1].insertId).not.to.equal('req-uuid');
+      let impressionJson = inserted['the_impressions_table$20170221'][0].json;
+      expect(impressionJson.digest).to.equal('the-digest');
+      expect(impressionJson.program).to.equal('program-name');
+      expect(impressionJson.path).to.equal('the/path/here');
+      expect(impressionJson.feeder_podcast).to.equal(1234);
+      expect(impressionJson.feeder_episode).to.equal('1234-5678');
+      expect(impressionJson.remote_agent).to.equal('some agent string');
+      expect(impressionJson.remote_ip).to.equal('127.0.0.1');
+      expect(impressionJson.timestamp).to.equal(1487703699);
+      expect(impressionJson.request_uuid).to.equal('req-uuid');
+      expect(impressionJson.ad_id).to.equal(12);
+      expect(impressionJson.campaign_id).to.equal(34);
+      expect(impressionJson.creative_id).to.equal(56);
+      expect(impressionJson.flight_id).to.equal(78);
+      expect(impressionJson.is_duplicate).to.equal(false);
+      expect(impressionJson.cause).to.be.null;
+
+      impressionJson = inserted['the_impressions_table$20170221'][1].json;
+      expect(impressionJson.ad_id).to.equal(98);
+      expect(impressionJson.is_duplicate).to.equal(true);
+      expect(impressionJson.cause).to.equal('something');
+
+      impressionJson = inserted['the_impressions_table$20170222'][0].json;
+      expect(impressionJson.ad_id).to.equal(76);
+      expect(impressionJson.is_duplicate).to.equal(false);
+      expect(impressionJson.cause).to.equal(null);
+
       done();
     });
   });
