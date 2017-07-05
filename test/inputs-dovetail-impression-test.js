@@ -24,7 +24,6 @@ describe('dovetail-impression', () => {
     return impression.format({requestUuid: 'the-uuid', timestamp: 1490827132999}).then(row => {
       expect(row).to.have.keys('insertId', 'json');
       expect(row.insertId).not.to.equal('the-uuid');
-      expect(row.insertId.length).to.equal(36);
       expect(row.json).to.have.keys(
         'digest',
         'program',
@@ -46,6 +45,20 @@ describe('dovetail-impression', () => {
       );
       expect(row.json.timestamp).to.equal(1490827132);
       expect(row.json.request_uuid).to.equal('the-uuid');
+    });
+  });
+
+  it('creates unique insert ids for ads', () => {
+    let formats = [
+      impression.format({requestUuid: 'req1', adId: 1}),
+      impression.format({requestUuid: 'req1', adId: 1}),
+      impression.format({requestUuid: 'req1', adId: 2}),
+      impression.format({requestUuid: 'req2', adId: 1})
+    ];
+    return Promise.all(formats).then(datas => {
+      expect(datas[0].insertId).to.equal(datas[1].insertId);
+      expect(datas[0].insertId).not.to.equal(datas[2].insertId);
+      expect(datas[0].insertId).not.to.equal(datas[3].insertId);
     });
   });
 
