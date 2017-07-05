@@ -7,7 +7,7 @@
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
   "scripts": {
-    "postinstall": "node bin/getmaxmind.js",
+    "geolite": "node bin/getmaxmind.js",
     "start": "node-lambda run -j test/support/test-event.json",
     "test": "mocha test/",
     "ci": "istanbul cover _mocha -- test/ && codecov",
@@ -45,7 +45,6 @@
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
     "aws-sdk": "^2.19.0",
-    "maxmind": "^2.2.0",
-    "uuid": "^3.0.1"
+    "maxmind": "^2.2.0"
   }
 }
