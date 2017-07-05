@@ -19,25 +19,28 @@ describe('dovetail-download', () => {
   });
 
   it('formats table inserts', () => {
-    let row = download.format({requestUuid: 'the-uuid', timestamp: 1490827132999});
-    expect(row).to.have.keys('insertId', 'json');
-    expect(row.insertId).to.equal('the-uuid');
-    expect(row.json).to.have.keys(
-      'digest',
-      'program',
-      'path',
-      'feeder_podcast',
-      'feeder_episode',
-      'remote_agent',
-      'remote_ip',
-      'timestamp',
-      'request_uuid',
-      'ad_count',
-      'is_duplicate',
-      'cause'
-    );
-    expect(row.json.timestamp).to.equal(1490827132);
-    expect(row.json.request_uuid).to.equal('the-uuid');
+    return download.format({requestUuid: 'the-uuid', timestamp: 1490827132999}).then(row => {
+      expect(row).to.have.keys('insertId', 'json');
+      expect(row.insertId).to.equal('the-uuid');
+      expect(row.json).to.have.keys(
+        'digest',
+        'program',
+        'path',
+        'feeder_podcast',
+        'feeder_episode',
+        'remote_agent',
+        'remote_ip',
+        'timestamp',
+        'request_uuid',
+        'ad_count',
+        'is_duplicate',
+        'cause',
+        'city_id',
+        'country_id'
+      );
+      expect(row.json.timestamp).to.equal(1490827132);
+      expect(row.json.request_uuid).to.equal('the-uuid');
+    });
   });
 
 });
