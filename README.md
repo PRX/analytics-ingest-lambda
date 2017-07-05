@@ -22,9 +22,8 @@ we also append the BigQuery date partition to the table name, eg
 
 # Installation
 
-To get started, just `npm install`.  And since you'll need to download the
-[GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), also run
-`npm geolite`.
+To get started, first run an `npm install`.  Then run `npm run geolite` to download
+the [GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/).
 
 ## Unit Tests
 
