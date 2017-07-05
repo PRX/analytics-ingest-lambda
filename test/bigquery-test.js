@@ -61,4 +61,33 @@ describe('bigquery', () => {
 
   });
 
+  describe('with an insert error', () => {
+
+    let thrown;
+    beforeEach(() => {
+      thrown = 0;
+      sinon.stub(bigquery, 'dataset', () => {
+        return Promise.resolve({table: tbl => {
+          return {insert: (rows, opts) => {
+            thrown++;
+            return Promise.reject(new Error(`err${thrown}`));
+          }};
+        }});
+      });
+    });
+
+    it('retries failures 2 times', () => {
+      return bigquery.insert('thetable', [{id: 'foo'}, {id: 'bar'}]).then(
+        count => {
+          throw new Error('Should have gotten an error')
+        },
+        err => {
+          expect(thrown).to.equal(3);
+          expect(err.message).to.equal('err3');
+        }
+      );
+    });
+
+  });
+
 });
