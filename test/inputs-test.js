@@ -17,17 +17,17 @@ describe('inputs', () => {
     expect(inputs.tables).to.contain('the_downloads_table$19700101');
     expect(inputs.tables).to.contain('the_impressions_table$19700101');
 
-    expect(inputs.outputs.length).to.equal(2);
-    expect(inputs.outputs[0][0]).to.equal('the_impressions_table$19700101');
-    expect(inputs.outputs[0][1].length).to.equal(3);
-    expect(inputs.outputs[0][1][0].json.request_uuid).to.equal('i1');
-    expect(inputs.outputs[0][1][1].json.request_uuid).to.equal('i2');
-    expect(inputs.outputs[0][1][2].json.request_uuid).to.equal('i3');
-
-    expect(inputs.outputs[1][0]).to.equal('the_downloads_table$19700101');
-    expect(inputs.outputs[1][1].length).to.equal(2);
-    expect(inputs.outputs[1][1][0].json.request_uuid).to.equal('d1');
-    expect(inputs.outputs[1][1][1].json.request_uuid).to.equal('d2');
+    return inputs.formatRecords().then(recs => {
+      let downs = recs.find(r => r[0] === 'the_downloads_table$19700101')[1];
+      let imps = recs.find(r => r[0] === 'the_impressions_table$19700101')[1];
+      expect(downs.length).to.equal(2);
+      expect(downs[0].json.request_uuid).to.equal('d1');
+      expect(downs[1].json.request_uuid).to.equal('d2');
+      expect(imps.length).to.equal(3);
+      expect(imps[0].json.request_uuid).to.equal('i1');
+      expect(imps[1].json.request_uuid).to.equal('i2');
+      expect(imps[2].json.request_uuid).to.equal('i3');
+    });
   });
 
   it('groups records by date', () => {
@@ -41,13 +41,17 @@ describe('inputs', () => {
     expect(inputs.tables).to.contain('the_impressions_table$20170329');
     expect(inputs.tables).to.contain('the_impressions_table$20170330');
 
-    expect(inputs.outputs.length).to.equal(3);
-    expect(inputs.outputs[0][0]).to.equal('the_impressions_table$20170329');
-    expect(inputs.outputs[0][1][0].json.request_uuid).to.equal('i1');
-    expect(inputs.outputs[1][0]).to.equal('the_downloads_table$20170329');
-    expect(inputs.outputs[1][1][0].json.request_uuid).to.equal('d1');
-    expect(inputs.outputs[2][0]).to.equal('the_impressions_table$20170330');
-    expect(inputs.outputs[2][1][0].json.request_uuid).to.equal('i2');
+    return inputs.formatRecords().then(recs => {
+      let downs = recs.find(r => r[0] === 'the_downloads_table$20170329')[1];
+      let imps1 = recs.find(r => r[0] === 'the_impressions_table$20170329')[1];
+      let imps2 = recs.find(r => r[0] === 'the_impressions_table$20170330')[1];
+      expect(downs.length).to.equal(1);
+      expect(downs[0].json.request_uuid).to.equal('d1');
+      expect(imps1.length).to.equal(1);
+      expect(imps1[0].json.request_uuid).to.equal('i1');
+      expect(imps2.length).to.equal(1);
+      expect(imps2[0].json.request_uuid).to.equal('i2');
+    });
   });
 
   it('handles unrecognized records', () => {

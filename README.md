@@ -10,7 +10,11 @@ various metric records are either recognized by an input source in `lib/inputs`,
 or ignored and logged as an error at the end of the lambda execution.
 
 The records are then parsed into BigQuery table formats, and inserted into their
-corresponding BigQuery tables in parallel.
+corresponding BigQuery tables in parallel.  This is called
+[streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery),
+and in case the insert fails, it will be attempted 2 more times before the Lambda
+fails with an error.  And since each insert includes a unique `insertId`, we
+don't have any data consistency issues with re-running the inserts.
 
 Because the timestamp on the metric may lag behind the lambda execution time,
 we also append the BigQuery date partition to the table name, eg
@@ -18,7 +22,8 @@ we also append the BigQuery date partition to the table name, eg
 
 # Installation
 
-To get started, just `npm install`.
+To get started, first run an `npm install`.  Then run `npm run geolite` to download
+the [GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/).
 
 ## Unit Tests
 
