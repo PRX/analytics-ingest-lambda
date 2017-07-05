@@ -11,11 +11,19 @@ const DB_FILE = `${DB_DIR}/GeoLite2-City.mmdb`;
 // check for existing file
 try {
   fs.mkdirSync(DB_DIR);
-} catch (e) {}
+} catch (e) {
+  if (e.code !== 'EEXIST') {
+    throw e;
+  }
+}
 try {
   fs.statSync(DB_FILE);
-  process.exit(0);
-} catch (e) {}
+  process.exit(0); // nothing to do
+} catch (e) {
+  if (e.code !== 'ENOENT') {
+    throw e;
+  }
+}
 
 // download file
 let file = fs.createWriteStream(GZ_FILE);
