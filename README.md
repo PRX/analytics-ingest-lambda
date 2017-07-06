@@ -62,7 +62,7 @@ AWS_HANDLER=index.handler
 AWS_MEMORY_SIZE=128
 AWS_TIMEOUT=30
 AWS_DESCRIPTION="Process kinesis metric streams and ship to bigquery"
-AWS_RUNTIME=nodejs4.3
+AWS_RUNTIME=nodejs6.10
 EXCLUDE_GLOBS=".env env-example *.log .git .gitignore test"
 PACKAGE_DIRECTORY=build
 ```

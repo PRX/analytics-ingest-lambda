@@ -2,7 +2,7 @@
   "name": "analytics-ingest-lambda",
   "version": "0.0.0",
   "engines": {
-    "node": "4.3.2"
+    "node": "6.10.3"
   },
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
