@@ -45,6 +45,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
     "aws-sdk": "^2.19.0",
-    "maxmind": "^2.2.0"
+    "maxmind": "^2.2.0",
+    "prx-podagent": "0.0.1"
   }
 }
