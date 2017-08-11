@@ -41,7 +41,10 @@ describe('dovetail-impression', () => {
         'is_duplicate',
         'cause',
         'city_id',
-        'country_id'
+        'country_id',
+        'agent_name_id',
+        'agent_type_id',
+        'agent_os_id'
       );
       expect(row.json.timestamp).to.equal(1490827132);
       expect(row.json.request_uuid).to.equal('the-uuid');
