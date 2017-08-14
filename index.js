@@ -6,7 +6,7 @@ const Inputs = require('./lib/inputs');
 exports.handler = (event, context, callback) => {
   let errs = [];
   function concatErrors() {
-    errs.forEach(e => exports.logError(e.message || e));
+    errs.forEach(e => exports.logError(`${e}`));
     if (errs.length === 1) {
       return errs[0];
     } else if (errs.length > 1) {
@@ -57,15 +57,22 @@ exports.handler = (event, context, callback) => {
       callback(concatErrors(), `Inserted ${total} rows`);
     },
     err => {
-      if (err.name === 'PartialFailureError') {
-        errs.concat(err.errors);
-      } else {
-        errs.push(err);
-      }
+      errs = errs.concat(decodeErrors(err));
       callback(concatErrors());
     }
   );
 };
+
+// decode these crazy nested err.errors.errors
+function decodeErrors(err) {
+  if (err.errors) {
+    return [].concat(err.errors.map(e => decodeErrors(e)));
+  } else if (err.reason && err.message) {
+    return new Error(`${err.reason} - ${err.message}`);
+  } else {
+    return err;
+  }
+}
 
 // break out loggers so tests can silence them
 exports.logSuccess = msg => console.log(msg);
