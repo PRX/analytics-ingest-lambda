@@ -14,6 +14,7 @@ beforeEach(() => {
 global.chai = require('chai');
 global.chai.use(require('sinon-chai'));
 global.expect = chai.expect;
+global.nock = require('nock');
 
 // sandbox sinon mocks
 const _sinon = require('sinon');
