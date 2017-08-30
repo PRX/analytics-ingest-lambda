@@ -38,22 +38,16 @@ exports.handler = (event, context, callback) => {
     errs.push(new Error(`Unrecognized input record: ${JSON.stringify(r)}`));
   });
 
-  // format and insert known inputs
-  let doInserts = inputs.formatRecords().then(tableAndRows => {
-    return Promise.all(tableAndRows.map(data => {
-      return bigquery.insert(data[0], data[1])
-    }));
-  });
-
-  // run in parallel
-  doInserts.then(
-    counts => {
-      inputs.tables.forEach((table, idx) => {
-        if (counts[idx] > 0) {
-          exports.logSuccess(`Inserted ${counts[idx]} rows into ${table}`);
+  // run inserts in parallel
+  inputs.insertAll().then(
+    results => {
+      let total = 0;
+      results.forEach(result => {
+        if (result.count > 0) {
+          total += result.count;
+          exports.logSuccess(`Inserted ${result.count} rows into ${result.dest}`);
         }
       });
-      let total = counts.reduce((a, b) => a + b, 0);
       callback(concatErrors(), `Inserted ${total} rows`);
     },
     err => {
