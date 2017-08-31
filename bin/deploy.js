@@ -25,10 +25,17 @@ lambda._params = function(program, buffer) {
   return {FunctionName: params.FunctionName, Code: params.Code};
 };
 
-// minimum config needed to deploy
-lambda.deploy({
-  environment: envName,
-  region: process.env.AWS_REGION || 'us-east-1',
-  functionName: process.env.AWS_FUNCTION_NAME || 'analytics-ingest',
-  excludeGlobs: '.env env-example *.log .git .gitignore test'
+// deploy 2 functions, for bigquery-ingest vs pingbacks:
+const EXCLUDE = 'event.json .env env-example *.log .git .gitignore test';
+['analytics-ingest', 'analytics-pingback'].forEach(name => {
+  let globs = EXCLUDE;
+  if (name === 'analytics-pingback') {
+    globs = `${globs} db`; // don't need maxmind db for pingbacks
+  }
+  lambda.deploy({
+    environment: envName,
+    region: process.env.AWS_REGION || 'us-east-1',
+    functionName: name,
+    excludeGlobs: globs
+  });
 });
