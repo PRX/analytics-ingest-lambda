@@ -1,6 +1,7 @@
 'use strict';
 
 const support = require('./support');
+const logger = require('../lib/logger');
 const pingurl = require('../lib/bigquery');
 const AdzerkImpressions = require('../lib/inputs/adzerk-impressions');
 
@@ -40,10 +41,37 @@ describe('adzerk-impressions', () => {
     ]);
     return adzerk2.insert().then(result => {
       expect(result.length).to.equal(2);
-      expect(result[0].dest).to.equal('bar.foo');
-      expect(result[0].count).to.equal(1);
-      expect(result[1].dest).to.equal('www.foo.bar');
-      expect(result[1].count).to.equal(3);
+      expect(result.map(r => r.dest).sort()).to.eql(['bar.foo', 'www.foo.bar']);
+      expect(result.find(r => r.dest === 'bar.foo').count).to.equal(1);
+      expect(result.find(r => r.dest === 'www.foo.bar').count).to.equal(3);
+    });
+  });
+
+  it('complains about failed pings', () => {
+    let ping1 = nock('http://foo.bar').get('/ping1').reply(404);
+    let ping2a = nock('http://foo.bar').get('/ping2').times(2).reply(502);
+    let ping2b = nock('http://foo.bar').get('/ping2').reply(200);
+    let ping3 = nock('http://bar.foo').get('/ping3').times(3).reply(502);
+    let adzerk3 = new AdzerkImpressions([
+      {isDuplicate: false, impressionUrl: 'http://foo.bar/ping1'},
+      {isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'},
+      {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'}
+    ]);
+
+    let warns = [];
+    sinon.stub(logger, 'warn', msg => warns.push(msg));
+
+    return adzerk3.insert().then(result => {
+      expect(result.length).to.equal(2);
+      expect(result.map(r => r.dest).sort()).to.eql(['bar.foo', 'foo.bar']);
+      expect(result.find(r => r.dest === 'bar.foo').count).to.equal(0);
+      expect(result.find(r => r.dest === 'foo.bar').count).to.equal(1);
+
+      expect(warns.length).to.equal(2);
+      expect(warns.sort()[0]).to.match(/PINGFAIL/);
+      expect(warns.sort()[0]).to.match(/http 404/i);
+      expect(warns.sort()[1]).to.match(/PINGFAIL/);
+      expect(warns.sort()[1]).to.match(/http 502/i);
     });
   });
 

@@ -52,7 +52,7 @@ describe('handler', () => {
     });
   });
 
-  it.only('handles kinesis records', done => {
+  it('handles kinesis records', done => {
     let event = support.buildEvent(require('./support/test-records'));
     handler(event, null, (err, result) => {
       expect(warns.length).to.equal(1);
