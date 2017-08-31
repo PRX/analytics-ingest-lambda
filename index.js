@@ -1,73 +1,45 @@
 'use strict';
 
-const bigquery = require('./lib/bigquery');
+const logger = require('./lib/logger');
 const Inputs = require('./lib/inputs');
 
 exports.handler = (event, context, callback) => {
-  let errs = [];
-  function concatErrors() {
-    errs.forEach(e => exports.logError(`${e}`));
-    if (errs.length === 1) {
-      return errs[0];
-    } else if (errs.length > 1) {
-      let msgs = errs.map(e => `${e}`).join(', ');
-      return new Error(`Multiple errors: ${msgs}`);
-    } else {
-      return null;
-    }
-  }
+  let fatalErr, records;
 
   // decode the base64 kinesis records
   if (!event || !event.Records) {
-    let err = new Error(`Invalid event input: ${JSON.stringify(event)}`);
-    exports.logError(`${err}`);
-    return callback(err);
+    fatalErr = `Invalid event input: ${JSON.stringify(event)}`;
+  } else {
+    records = event.Records.map(r => {
+      try {
+        return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
+      } catch (decodeErr) {
+        fatalErr = `Invalid record input: ${JSON.stringify(r)}`;
+      }
+    });
   }
-  let records = event.Records.map(r => {
-    try {
-      return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
-    } catch (err) {
-      errs.push(new Error(`Invalid record input: ${JSON.stringify(r)}`));
-      return false;
-    }
-  }).filter(r => r);
 
-  // input records and check for unrecognized
-  let inputs = new Inputs(records);
+  // NOTE: callback with errors here will cause the lambda to run indefinitely
+  // on the same kinesis records... so you'd better monitor for errors.
+  if (fatalErr) {
+    logger.error(fatalErr);
+    return callback(new Error(fatalErr));
+  }
+
+  // complain very loudly about unrecognized input records
+  let inputs = new Inputs(records, process.env.PINGBACKS);
   inputs.unrecognized.forEach(r => {
-    errs.push(new Error(`Unrecognized input record: ${JSON.stringify(r)}`));
+    logger.warn(`Unrecognized input record: ${JSON.stringify(r)}`);
   });
 
   // run inserts in parallel
   inputs.insertAll().then(
     results => {
-      let total = 0;
-      results.forEach(result => {
-        if (result.count > 0) {
-          total += result.count;
-          exports.logSuccess(`Inserted ${result.count} rows into ${result.dest}`);
-        }
-      });
-      callback(concatErrors(), `Inserted ${total} rows`);
+      let total = results.reduce((acc, r) => acc + r.count, 0);
+      callback(null, `Inserted ${total} rows`);
     },
     err => {
-      errs = errs.concat(decodeErrors(err));
-      callback(concatErrors());
+      callback(logger.errors(err));
     }
   );
 };
-
-// decode these crazy nested err.errors.errors
-function decodeErrors(err) {
-  if (err.errors) {
-    return [].concat(err.errors.map(e => decodeErrors(e)));
-  } else if (err.reason && err.message) {
-    return new Error(`${err.reason} - ${err.message}`);
-  } else {
-    return err;
-  }
-}
-
-// break out loggers so tests can silence them
-exports.logSuccess = msg => console.log(msg);
-exports.logError = msg => console.error(msg);
