@@ -29,7 +29,7 @@ exports.handler = (event, context, callback) => {
   // complain very loudly about unrecognized input records
   let inputs = new Inputs(records, process.env.PINGBACKS);
   inputs.unrecognized.forEach(r => {
-    logger.warn(`Unrecognized input record: ${JSON.stringify(r)}`);
+    logger.error(`Unrecognized input record: ${JSON.stringify(r)}`);
   });
 
   // run inserts in parallel
