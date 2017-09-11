@@ -1,6 +1,5 @@
 # node-lambda deploy configs
 AWS_REGION=us-east-1
-AWS_FUNCTION_NAME=analytics-ingest
 # runtime configs
 BQ_CLIENT_EMAIL=
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"

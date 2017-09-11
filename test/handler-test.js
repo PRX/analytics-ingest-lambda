@@ -3,15 +3,18 @@
 const support   = require('./support');
 const testEvent = require('./support/test-event');
 const bigquery  = require('../lib/bigquery');
+const logger    = require('../lib/logger');
 const index     = require('../index');
 const handler   = index.handler;
 
 describe('handler', () => {
 
-  let inserted = {};
+  let inserted = {}, errs = [];
   beforeEach(() => {
-    sinon.stub(index, 'logSuccess');
-    sinon.stub(index, 'logError');
+    errs = [];
+    sinon.stub(logger, 'error', msg => errs.push(msg));
+    sinon.stub(logger, 'warn');
+    sinon.stub(logger, 'info');
 
     inserted = {};
     sinon.stub(bigquery, 'dataset', () => {
@@ -32,11 +35,19 @@ describe('handler', () => {
     });
   });
 
-  it('rejects non-kinesis inputs but still runs the insert', done => {
+  it('rejects non-kinesis inputs', done => {
     handler({Records: [{}]}, null, (err, result) => {
       expect(err).to.be.an.instanceof(Error);
       expect(err).to.match(/invalid record input/i);
-      expect(result).to.match(/inserted 0/i);
+      done();
+    });
+  });
+
+  it('complains about unrecognized inputs', done => {
+    let event = support.buildEvent(require('./support/test-records'));
+    handler(event, null, (err, result) => {
+      expect(errs.length).to.equal(1);
+      expect(errs[0]).to.match(/unrecognized input record/i);
       done();
     });
   });
@@ -44,8 +55,7 @@ describe('handler', () => {
   it('handles kinesis records', done => {
     let event = support.buildEvent(require('./support/test-records'));
     handler(event, null, (err, result) => {
-      expect(err).to.be.an.instanceof(Error);
-      expect(err).to.match(/unrecognized input record/i);
+      expect(errs.length).to.equal(1);
       expect(result).to.match(/inserted 4/i);
 
       // based on test-records

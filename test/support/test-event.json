@@ -21,7 +21,7 @@
         "kinesisSchemaVersion": "1.0",
         "partitionKey": "711a5b2b27993b0fbdf09c9121fa7b23",
         "sequenceNumber": "49558266616753302169815546155889903164427186644606517330",
-        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3NzAzNjk5LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6MTIsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6ZmFsc2UsImNhdXNlIjpudWxsfQ==",
+        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3NzAzNjk5LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6MTIsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6ZmFsc2UsImNhdXNlIjpudWxsLCJpbXByZXNzaW9uVXJsIjoiaHR0cDovL2RvdmV0YWlsLnByeHUub3JnIn0=",
         "approximateArrivalTimestamp": 1487703699.232
       },
       "eventSource": "aws:kinesis",
@@ -37,7 +37,7 @@
         "kinesisSchemaVersion": "1.0",
         "partitionKey": "bc2c8b7cfc5bc850749905b47c2659a1",
         "sequenceNumber": "49558266616753302169815546155894738867705645161305342034",
-        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3NzAzNjk5Nzc3LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6OTgsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6dHJ1ZSwiY2F1c2UiOiJzb21ldGhpbmcifQ==",
+        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3NzAzNjk5Nzc3LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6OTgsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6dHJ1ZSwiY2F1c2UiOiJzb21ldGhpbmciLCJpbXByZXNzaW9uVXJsIjoiaHR0cHM6Ly9mb28uYmFyL3RoaXMvc2hvdWxkL25vdC9maXJlIn0=",
         "approximateArrivalTimestamp": 1487703699.299
       },
       "eventSource": "aws:kinesis",
@@ -53,7 +53,7 @@
         "kinesisSchemaVersion": "1.0",
         "partitionKey": "uh84huoedu74d43hu9o8eidbk8o9e74d",
         "sequenceNumber": "59558266616753302169815546155894738867705645161305342034",
-        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3ODAzNjk5LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6NzYsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6ZmFsc2UsImNhdXNlIjpudWxsfQ==",
+        "data": "eyJ0eXBlIjoiaW1wcmVzc2lvbiIsImRpZ2VzdCI6InRoZS1kaWdlc3QiLCJwcm9ncmFtIjoicHJvZ3JhbS1uYW1lIiwicGF0aCI6InRoZS9wYXRoL2hlcmUiLCJmZWVkZXJQb2RjYXN0IjoxMjM0LCJmZWVkZXJFcGlzb2RlIjoiMTIzNC01Njc4IiwicmVtb3RlQWdlbnQiOiJzb21lIGFnZW50IHN0cmluZyIsInJlbW90ZUlwIjoiMTI3LjAuMC4xIiwidGltZXN0YW1wIjoxNDg3ODAzNjk5LCJyZXF1ZXN0VXVpZCI6InJlcS11dWlkIiwiYWRJZCI6NzYsImNhbXBhaWduSWQiOjM0LCJjcmVhdGl2ZUlkIjo1NiwiZmxpZ2h0SWQiOjc4LCJpc0R1cGxpY2F0ZSI6ZmFsc2UsImNhdXNlIjpudWxsLCJpbXByZXNzaW9uVXJsIjoiaHR0cHM6Ly9kb3ZldGFpbC5wcnh1Lm9yZy9waW5nIn0=",
         "approximateArrivalTimestamp": 1487703700.299
       },
       "eventSource": "aws:kinesis",
