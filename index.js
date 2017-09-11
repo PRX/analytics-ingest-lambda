@@ -4,26 +4,25 @@ const logger = require('./lib/logger');
 const Inputs = require('./lib/inputs');
 
 exports.handler = (event, context, callback) => {
-  let fatalErr, records;
+  let records = [];
 
   // decode the base64 kinesis records
   if (!event || !event.Records) {
-    fatalErr = `Invalid event input: ${JSON.stringify(event)}`;
+    logger.error(`Invalid event input: ${JSON.stringify(event)}`);
   } else {
     records = event.Records.map(r => {
       try {
         return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
       } catch (decodeErr) {
-        fatalErr = `Invalid record input: ${JSON.stringify(r)}`;
+        logger.error(`Invalid record input: ${JSON.stringify(r)}`);
+        return null;
       }
-    });
+    }).filter(f => f);
   }
 
-  // NOTE: callback with errors here will cause the lambda to run indefinitely
-  // on the same kinesis records... so you'd better monitor for errors.
-  if (fatalErr) {
-    logger.error(fatalErr);
-    return callback(new Error(fatalErr));
+  // nothing to do
+  if (records.length === 0) {
+    return callback();
   }
 
   // complain very loudly about unrecognized input records

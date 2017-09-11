@@ -27,18 +27,32 @@ describe('handler', () => {
     });
   });
 
-  it('rejects insane inputs', done => {
+  it('complains about insane inputs', done => {
     handler({foo: 'bar'}, null, (err, result) => {
-      expect(err).to.be.an.instanceof(Error);
-      expect(err).to.match(/invalid event input/i);
+      expect(err).to.be.undefined;
+      expect(result).to.be.undefined;
+      expect(errs.length).to.equal(1);
+      expect(errs[0]).to.match(/invalid event input/i);
       done();
     });
   });
 
-  it('rejects non-kinesis inputs', done => {
+  it('complains about non-kinesis inputs', done => {
     handler({Records: [{}]}, null, (err, result) => {
-      expect(err).to.be.an.instanceof(Error);
-      expect(err).to.match(/invalid record input/i);
+      expect(err).to.be.undefined;
+      expect(result).to.be.undefined;
+      expect(errs.length).to.equal(1);
+      expect(errs[0]).to.match(/invalid record input/i);
+      done();
+    });
+  });
+
+  it('complains about json parse errors', done => {
+    handler({Records: [{kinesis: {data: 'not-json'}}]}, null, (err, result) => {
+      expect(err).to.be.undefined;
+      expect(result).to.be.undefined;
+      expect(errs.length).to.equal(1);
+      expect(errs[0]).to.match(/invalid record input/i);
       done();
     });
   });
