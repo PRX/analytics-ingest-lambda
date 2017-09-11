@@ -9,12 +9,12 @@ const handler   = index.handler;
 
 describe('handler', () => {
 
-  let inserted = {}, warns = [];
+  let inserted = {}, errs = [];
   beforeEach(() => {
-    warns = [];
-    sinon.stub(logger, 'warn', msg => warns.push(msg));
+    errs = [];
+    sinon.stub(logger, 'error', msg => errs.push(msg));
+    sinon.stub(logger, 'warn');
     sinon.stub(logger, 'info');
-    sinon.stub(logger, 'error');
 
     inserted = {};
     sinon.stub(bigquery, 'dataset', () => {
@@ -46,8 +46,8 @@ describe('handler', () => {
   it('complains about unrecognized inputs', done => {
     let event = support.buildEvent(require('./support/test-records'));
     handler(event, null, (err, result) => {
-      expect(warns.length).to.equal(1);
-      expect(warns[0]).to.match(/unrecognized input record/i);
+      expect(errs.length).to.equal(1);
+      expect(errs[0]).to.match(/unrecognized input record/i);
       done();
     });
   });
@@ -55,7 +55,7 @@ describe('handler', () => {
   it('handles kinesis records', done => {
     let event = support.buildEvent(require('./support/test-records'));
     handler(event, null, (err, result) => {
-      expect(warns.length).to.equal(1);
+      expect(errs.length).to.equal(1);
       expect(result).to.match(/inserted 4/i);
 
       // based on test-records
