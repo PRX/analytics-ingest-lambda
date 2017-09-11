@@ -56,7 +56,7 @@ describe('adzerk-impressions', () => {
       {isDuplicate: false, impressionUrl: 'http://foo.bar/ping1'},
       {isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'},
       {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'}
-    ]);
+    ], 1000, 0);
 
     let warns = [];
     sinon.stub(logger, 'warn', msg => warns.push(msg));

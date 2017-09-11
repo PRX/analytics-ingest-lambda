@@ -45,7 +45,7 @@ describe('pingurl', () => {
 
   it('retries 502 errors', () => {
     let scope = nock('http://www.foo.bar').get('/').times(3).reply(502);
-    return pingurl.ping('http://www.foo.bar/').then(
+    return pingurl.ping('http://www.foo.bar/', undefined, 0).then(
       () => { throw new Error('Should have gotten error') },
       e => {
         expect(e.message).to.match(/http 502 from/i);
