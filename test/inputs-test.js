@@ -39,7 +39,7 @@ describe('inputs', () => {
     });
   });
 
-  it('inserts pingback inputs', () => {
+  it('inserts adzerk impression inputs', () => {
     sinon.stub(logger, 'info');
     nock('http://foo.bar').get('/').reply(200);
     let inputs = new Inputs([
@@ -47,6 +47,21 @@ describe('inputs', () => {
       {type: 'foobar',     requestUuid: 'fb', timestamp: 0},
       {type: 'download',   requestUuid: 'd1', timestamp: 0},
       {type: 'impression', requestUuid: 'i2', timestamp: 999999}
+    ], true);
+    return inputs.insertAll().then(inserts => {
+      expect(inserts.length).to.equal(1);
+      expect(inserts[0].count).to.equal(1);
+      expect(inserts[0].dest).to.equal('foo.bar');
+    });
+  });
+
+  it('inserts adzerk pingback inputs', () => {
+    sinon.stub(logger, 'info');
+    nock('http://foo.bar').get('/i1').reply(200);
+    let inputs = new Inputs([
+      {requestUuid: 'i1', pingbacks: ['http://foo.bar/{uuid}']},
+      {requestUuid: 'i2', pingbacks: ['http://bar.foo/{uuid}'], isDuplicate: true},
+      {requestUuid: 'i3'}
     ], true);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
