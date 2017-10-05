@@ -2,7 +2,6 @@
 
 const support = require('./support');
 const logger = require('../lib/logger');
-const pingurl = require('../lib/bigquery');
 const AdzerkImpressions = require('../lib/inputs/adzerk-impressions');
 
 describe('adzerk-impressions', () => {
@@ -62,10 +61,9 @@ describe('adzerk-impressions', () => {
     sinon.stub(logger, 'warn', msg => warns.push(msg));
 
     return adzerk3.insert().then(result => {
-      expect(result.length).to.equal(2);
-      expect(result.map(r => r.dest).sort()).to.eql(['bar.foo', 'foo.bar']);
-      expect(result.find(r => r.dest === 'bar.foo').count).to.equal(0);
-      expect(result.find(r => r.dest === 'foo.bar').count).to.equal(1);
+      expect(result.length).to.equal(1);
+      expect(result[0].dest).to.equal('foo.bar');
+      expect(result[0].count).to.equal(1);
 
       expect(warns.length).to.equal(2);
       expect(warns.sort()[0]).to.match(/PINGFAIL/);
