@@ -75,4 +75,11 @@ describe('urlutil', () => {
     });
   });
 
+  it('counts by hostname', () => {
+    expect(urlutil.count({}, null)).to.eql({});
+    expect(urlutil.count({start: 99}, undefined)).to.eql({start: 99});
+    expect(urlutil.count({}, 'http://foo.gov/bar')).to.eql({'foo.gov': 1});
+    expect(urlutil.count({'foo.gov': 10}, 'https://foo.gov/bar')).to.eql({'foo.gov': 11});
+  });
+
 });
