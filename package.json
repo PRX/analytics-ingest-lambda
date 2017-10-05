@@ -41,12 +41,14 @@
     "node-lambda": "0.8.13",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.9.0",
-    "targz": "^1.0.1"
+    "targz": "^1.0.1",
+    "uuid": "^3.1.0"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
     "aws-sdk": "^2.19.0",
     "maxmind": "^2.2.0",
-    "prx-podagent": "0.0.2"
+    "prx-podagent": "0.0.2",
+    "urijs": "^1.19.0"
   }
 }
