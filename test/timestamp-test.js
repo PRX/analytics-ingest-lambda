@@ -12,6 +12,13 @@ describe('timestamp', () => {
     expect(timestamp.toEpochSeconds(946684700000)).to.equal(946684700000);
   });
 
+  it('converts seconds timestamps, when before the year 2000', () => {
+    expect(timestamp.toEpochMilliseconds(1490827132000)).to.equal(1490827132000);
+    expect(timestamp.toEpochMilliseconds(1490827132999)).to.equal(1490827132999);
+    expect(timestamp.toEpochMilliseconds(946684800001)).to.equal(946684800001);
+    expect(timestamp.toEpochMilliseconds(946684700000)).to.equal(946684700000000);
+  });
+
   it('leaves seconds alone', () => {
     expect(timestamp.toEpochSeconds(1490827132)).to.equal(1490827132);
     expect(timestamp.toEpochSeconds(0)).to.equal(0);
