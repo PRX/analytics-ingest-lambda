@@ -60,12 +60,11 @@ describe('urlutil', () => {
     expect(url3).not.to.equal(url4);
   });
 
-  // NOTE: this has at least a 3% collision rate, when n > 10000
   it('does not collide on 32 bit random ints very often', () => {
     let many = Array(1000).fill().map(() => {
       return urlutil.expand('{randomint}', TEST_IMPRESSION('requestUuid', uuid.v4()));
     });
-    expect(new Set(many).size).to.be.at.least(997);
+    expect(new Set(many).size).to.equal(1000);
     many.forEach(url => {
       let num = parseInt(url);
       let bitCount = num.toString(2).match(/1/g).length;
