@@ -85,4 +85,15 @@ describe('pingurl', () => {
     });
   });
 
+  it('follows redirects', () => {
+    let hdrs = {'Location': 'http://www.foo.bar/redirected'};
+    let scope1 = nock('http://www.foo.bar').get('/redirect').reply(302, undefined, hdrs);
+    let scope2 = nock('http://www.foo.bar').get('/redirected').reply(200);
+    return pingurl.ping('http://www.foo.bar/redirect').then(resp => {
+      expect(resp).to.equal(true);
+      expect(scope1.isDone()).to.equal(true);
+      expect(scope2.isDone()).to.equal(true);
+    });
+  });
+
 });
