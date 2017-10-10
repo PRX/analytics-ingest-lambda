@@ -43,6 +43,7 @@ jspm_packages
 .env
 deploy.env
 build
+build.zip
 
 # Maxmind db
 db
