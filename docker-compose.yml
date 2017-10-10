@@ -1,0 +1,12 @@
+version: '2'
+services:
+  lambda:
+    build: .
+    image: analyticsingestlambda
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+  test:
+    image: analyticsingestlambda
+    command: test
