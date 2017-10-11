@@ -7,7 +7,7 @@ WORKDIR /app
 EXPOSE 8080
 
 ENTRYPOINT [ "npm", "run" ]
-CMD [ "start" ]
+CMD [ "test" ]
 
 ADD package.json .
 RUN npm install
