@@ -8,17 +8,14 @@
   "main": "index.js",
   "scripts": {
     "geolite": "node bin/getmaxmind.js",
-    "start": "node-lambda run -j test/support/test-event.json",
+    "start": "echo 'todooooo'",
     "test": "mocha test/",
     "ci": "istanbul cover _mocha -- test/ && codecov",
     "build": "npm run build-sync && npm run build-prune && npm run build-zip",
     "build-sync": "rsync -crl --delete --exclude-from .lambdaignore . build",
     "build-prune": "cd build && npm prune --production > /dev/null",
     "build-zip": "rm -f build.zip && cd build && zip -rq ../build.zip .",
-    "watch": "mocha test/ -w",
-    "deploy-dev": "node bin/deploy development",
-    "deploy-staging": "node bin/deploy staging",
-    "deploy-prod": "node bin/deploy production"
+    "watch": "mocha test/ -w"
   },
   "repository": {
     "type": "git",
@@ -42,7 +39,6 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "nock": "^9.0.14",
-    "node-lambda": "0.8.13",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.9.0",
     "targz": "^1.0.1",

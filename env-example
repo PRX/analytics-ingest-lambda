@@ -1,9 +1,8 @@
-# node-lambda deploy configs
-AWS_REGION=us-east-1
-# runtime configs
+# dev runtime configs
 BQ_CLIENT_EMAIL=
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"
 BQ_PROJECT_ID=
 BQ_DATASET=
 BQ_DOWNLOADS_TABLE=
 BQ_IMPRESSIONS_TABLE=
+PINGBACKS=
