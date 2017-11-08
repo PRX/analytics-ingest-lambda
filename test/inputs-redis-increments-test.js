@@ -11,11 +11,11 @@ describe('redis-increments', () => {
   it('recognizes download and impression records', () => {
     let incr = new RedisIncrements();
     expect(incr.check({})).to.be.false;
-    expect(incr.check({type: 'foobar'})).to.be.false;
-    expect(incr.check({type: 'download'})).to.be.true;
-    expect(incr.check({type: 'impression'})).to.be.true;
-    expect(incr.check({type: 'download', isDuplicate: true})).to.be.false;
-    expect(incr.check({type: 'download', isDuplicate: false})).to.be.true;
+    expect(incr.check({type: 'foobar', feederPodcast: 1})).to.be.false;
+    expect(incr.check({type: 'download', feederPodcast: 1})).to.be.true;
+    expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.true;
+    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: true})).to.be.false;
+    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
   });
 
   it('inserts nothing', () => {
@@ -35,7 +35,7 @@ describe('redis-increments', () => {
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
-      expect(result[0].dest).to.equal('redis');
+      expect(result[0].dest).to.equal('redis://127.0.0.1');
       expect(result[0].count).to.equal(4 * 5 + 3 * 5); // skips null episode impression
       return support.redisGetAll('downloads.podcasts.*');
     }).then(vals => {
@@ -80,7 +80,7 @@ describe('redis-increments', () => {
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
-      expect(result[0].dest).to.equal('redis');
+      expect(result[0].dest).to.equal('redis://127.0.0.1');
       expect(result[0].count).to.equal(2 * 5);
       return support.redisTTLAll('downloads.*');
     }).then(ttlMap => {
