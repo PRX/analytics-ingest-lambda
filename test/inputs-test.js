@@ -70,4 +70,19 @@ describe('inputs', () => {
     });
   });
 
+  it('inserts redis increment inputs', () => {
+    sinon.stub(logger, 'info');
+    let inputs = new Inputs([
+      {type: 'impression', feederPodcast: 1, timestamp: 0},
+      {type: 'foobar',     feederPodcast: 1, timestamp: 0},
+      {type: 'download',   feederPodcast: 1, timestamp: 0},
+      {type: 'impression', feederPodcast: 1, timestamp: 999999}
+    ], true);
+    return inputs.insertAll().then(inserts => {
+      expect(inserts.length).to.equal(1);
+      expect(inserts[0].count).to.equal(15);
+      expect(inserts[0].dest).to.equal('redis://null');
+    });
+  });
+
 });
