@@ -71,6 +71,7 @@ describe('inputs', () => {
   });
 
   it('inserts redis increment inputs', () => {
+    process.env.REDIS_HOST = 'whatev';
     sinon.stub(logger, 'info');
     let inputs = new Inputs([
       {type: 'impression', feederPodcast: 1, timestamp: 0},
@@ -81,7 +82,7 @@ describe('inputs', () => {
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
       expect(inserts[0].count).to.equal(15);
-      expect(inserts[0].dest).to.equal('redis://null');
+      expect(inserts[0].dest).to.equal('redis://whatev');
     });
   });
 

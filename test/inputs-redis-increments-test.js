@@ -18,10 +18,35 @@ describe('redis-increments', () => {
     expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
   });
 
-  it('inserts nothing', () => {
+  it('inserts nothing for no records', () => {
     let incr = new RedisIncrements();
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
+    });
+  });
+
+  it('inserts nothing for records without feeder ids/guids', () => {
+    let incr = new RedisIncrements([
+      record(1490827132, 'download', null, null),
+      record(1490827132, 'impression', null, null)
+    ]);
+    return incr.insert().then(result => {
+      expect(result.length).to.equal(0);
+    });
+  });
+
+  it('inserts nothing for no redis host', () => {
+    process.env.REDIS_HOST = '';
+    let records = [record(1490827132, 'download', 1234, 'abcd')];
+    let incr = new RedisIncrements(records);
+    return incr.insert().then(result => {
+      expect(result.length).to.equal(0);
+
+      process.env.REDIS_HOST = 'whatev';
+      incr = new RedisIncrements(records);
+      return incr.insert();
+    }).then(result => {
+      expect(result.length).to.equal(1);
     });
   });
 
