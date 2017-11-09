@@ -1,11 +1,13 @@
 # node-lambda deploy configs
 AWS_REGION=us-east-1
-# runtime configs
+# bigquery runtime configs
 BQ_CLIENT_EMAIL=
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"
 BQ_PROJECT_ID=
 BQ_DATASET=
 BQ_DOWNLOADS_TABLE=
 BQ_IMPRESSIONS_TABLE=
+# pingbacks runtime configs (set to true)
+PINGBACKS=
 REDIS_HOST=redis://127.0.0.1:6379
 REDIS_TTL=7200
