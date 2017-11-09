@@ -8,8 +8,8 @@ beforeEach(() => {
   process.env.BQ_DATASET = 'foobar_dataset';
   process.env.BQ_DOWNLOADS_TABLE = 'the_downloads_table';
   process.env.BQ_IMPRESSIONS_TABLE = 'the_impressions_table';
-  process.env.REDIS_HOST = null;
-  process.env.REDIS_TTL = 7200;
+  process.env.REDIS_HOST = '';
+  process.env.REDIS_TTL = '7200';
 });
 
 // global includes
@@ -34,12 +34,14 @@ beforeEach(() => {
   fakeClient.quit = () => fakeClient.emit('end') && _quit.call(fakeClient);
   sinon.stub(redis, 'createClient', () => fakeClient);
 });
+afterEach(() => exports.redisCommand('flushdb'));
 
 // redis helpers
 exports.redisCommand = function() {
   let cmd = arguments[0], args = [].slice.call(arguments, 1);
+  let client = fakeRedis.createClient({fast: true});
   return new Promise((resolve, reject) => {
-    fakeClient[cmd].call(fakeClient, args, (err, reply) => err ? reject(err) : resolve(reply));
+    client[cmd].call(client, args, (err, reply) => err ? reject(err) : resolve(reply));
   });
 }
 exports.redisKeys = pattern => exports.redisCommand('keys', pattern);
