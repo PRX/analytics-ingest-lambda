@@ -23,20 +23,23 @@ const _sinon = require('sinon');
 beforeEach(() => global.sinon = _sinon.sandbox.create());
 afterEach(() => global.sinon.restore());
 
-// fake redis
+// fake redis - TODO: lib doesn't handle connect/quit correctly
+const redis = require('redis');
+const fakeRedis = require('fakeredis');
+let fakeClient;
 beforeEach(() => {
-  sinon.stub(require('redis'), 'createClient', require('fakeredis').createClient);
-  return exports.redisCommand('flushdb');
+  fakeClient = fakeRedis.createClient({fast: true});
+  let _on = fakeClient.on, _quit = fakeClient.quit;
+  fakeClient.on = (e, fn) => (e === 'connect') ? fn() : _on.call(fakeClient, e, fn);
+  fakeClient.quit = () => fakeClient.emit('end') && _quit.call(fakeClient);
+  sinon.stub(redis, 'createClient', () => fakeClient);
 });
+
+// redis helpers
 exports.redisCommand = function() {
   let cmd = arguments[0], args = [].slice.call(arguments, 1);
   return new Promise((resolve, reject) => {
-    let client = require('../../lib/redis').client();
-    if (client) {
-      client[cmd].call(client, args, (err, reply) => err ? reject(err) : resolve(reply));
-    } else {
-      resolve(null);
-    }
+    fakeClient[cmd].call(fakeClient, args, (err, reply) => err ? reject(err) : resolve(reply));
   });
 }
 exports.redisKeys = pattern => exports.redisCommand('keys', pattern);
