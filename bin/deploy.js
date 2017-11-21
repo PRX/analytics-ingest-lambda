@@ -26,11 +26,11 @@ lambda._params = function(program, buffer) {
 };
 
 // deploy 2 functions, for bigquery-ingest vs pingbacks:
-const EXCLUDE = 'event.json .env env-example *.log .git .gitignore test';
-['analytics-ingest', 'analytics-pingback'].forEach(name => {
+const EXCLUDE = 'event.json .env env-example *.log logs .git .gitignore test tmp';
+['analytics-ingest', 'analytics-pingback', 'analytics-redis'].forEach(name => {
   let globs = EXCLUDE;
-  if (name === 'analytics-pingback') {
-    globs = `${globs} db`; // don't need maxmind db for pingbacks
+  if (name !== 'analytics-ingest') {
+    globs = `${globs} db`; // only biquery needs maxminddb
   }
   lambda.deploy({
     environment: envName,
