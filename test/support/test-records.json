@@ -30,7 +30,11 @@
     "creativeId": 56,
     "flightId": 78,
     "isDuplicate": false,
-    "cause": null
+    "cause": null,
+    "pingbacks": [
+      "http://www.foo.bar/ping1",
+      "http://www.foo.bar/ping2"
+    ]
   },
   {
     "foo": "bar"
@@ -51,7 +55,8 @@
     "creativeId": 56,
     "flightId": 78,
     "isDuplicate": true,
-    "cause": "something"
+    "cause": "something",
+    "impressionUrl": "http://www.foo.bar/ping3"
   },
   {
     "type": "impression",
@@ -69,6 +74,7 @@
     "creativeId": 56,
     "flightId": 78,
     "isDuplicate": false,
-    "cause": null
+    "cause": null,
+    "impressionUrl": "http://www.foo.bar/ping4"
   }
 ]

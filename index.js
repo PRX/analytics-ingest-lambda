@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./lib/logger');
-const Inputs = require('./lib/inputs');
+const { BigqueryInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
 
 exports.handler = (event, context, callback) => {
   let records = [];
@@ -25,8 +25,17 @@ exports.handler = (event, context, callback) => {
     return callback();
   }
 
+  // figure out what type of records we process
+  let inputs;
+  if (process.env.REDIS_HOST) {
+    inputs = new RedisInputs(records);
+  } else if (process.env.PINGBACKS) {
+    inputs = new PingbackInputs(records);
+  } else {
+    inputs = new BigqueryInputs(records);
+  }
+
   // complain very loudly about unrecognized input records
-  let inputs = new Inputs(records, process.env.PINGBACKS);
   inputs.unrecognized.forEach(r => {
     logger.error(`Unrecognized input record: ${JSON.stringify(r)}`);
   });
