@@ -90,10 +90,11 @@ docker-compose run test
 docker-compose run start
 ```
 
-And you can easily get the lambda zip built by the Dockerfile:
+And you can easily-ish get the lambda zip built by the Dockerfile:
 
 ```
-bin/getzip.sh myzipfile.zip
+docker ps -a | grep analyticsingestlambda
+docker cp {{container-id-here}}:/app/build.zip myzipfile.zip
 unzip -l myzipfile.zip
 ```
 
