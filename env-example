@@ -1,8 +1,12 @@
-# dev runtime configs
+# bigquery mode
 BQ_CLIENT_EMAIL=
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"
 BQ_PROJECT_ID=
 BQ_DATASET=
 BQ_DOWNLOADS_TABLE=
 BQ_IMPRESSIONS_TABLE=
+# pingbacks mode
 PINGBACKS=
+# redis mode
+REDIS_HOST=
+REDIS_TTL=

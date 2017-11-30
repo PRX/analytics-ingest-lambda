@@ -9,11 +9,11 @@ const handler   = index.handler;
 
 describe('handler', () => {
 
-  let inserted = {}, errs = [];
+  let inserted = {}, warns = [], errs = [];
   beforeEach(() => {
-    errs = [];
+    warns = [], errs = [];
     sinon.stub(logger, 'error', msg => errs.push(msg));
-    sinon.stub(logger, 'warn');
+    sinon.stub(logger, 'warn', msg => warns.push(msg));
     sinon.stub(logger, 'info');
 
     inserted = {};
@@ -146,6 +146,54 @@ describe('handler', () => {
       expect(impressionJson.agent_os_id).to.equal(42);
 
       done();
+    });
+  });
+
+  it('handles pingback records', done => {
+    process.env.PINGBACKS = 'true';
+    let ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
+    let ping2 = nock('http://www.foo.bar').get('/ping2').reply(404);
+    let ping3 = nock('http://www.foo.bar').get('/ping3').reply(200);
+    let ping4 = nock('http://www.foo.bar').get('/ping4').reply(200);
+
+    let event = support.buildEvent(require('./support/test-records'));
+    handler(event, null, (err, result) => {
+      expect(errs.length).to.equal(1);
+      expect(result).to.match(/inserted 2/i);
+
+      expect(ping1.isDone()).to.be.true;
+      expect(ping2.isDone()).to.be.true;
+      expect(ping3.isDone()).to.be.false;
+      expect(ping4.isDone()).to.be.true;
+
+      expect(warns.length).to.equal(1);
+      expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
+      expect(warns[0]).to.match(/ping2/);
+      done();
+    });
+  });
+
+  it('handles redis records', done => {
+    process.env.REDIS_HOST = 'redis://127.0.0.1:6379';
+    let event = support.buildEvent(require('./support/test-records'));
+    handler(event, null, (err, result) => {
+      expect(warns.length).to.equal(0);
+      expect(errs.length).to.equal(1);
+      expect(result).to.match(/inserted 30/i);
+
+      let keys = [
+        support.redisKeys('downloads.episodes.*'),
+        support.redisKeys('downloads.podcasts.*'),
+        support.redisKeys('impressions.episodes.*'),
+        support.redisKeys('impressions.podcasts.*')
+      ];
+      Promise.all(keys).then(all => {
+        expect(all[0].length).to.equal(5);
+        expect(all[1].length).to.equal(5);
+        expect(all[2].length).to.equal(8);
+        expect(all[3].length).to.equal(8);
+        done();
+      });
     });
   });
 

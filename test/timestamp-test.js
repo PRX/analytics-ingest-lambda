@@ -40,4 +40,10 @@ describe('timestamp', () => {
     expect(timestamp.toDateString(4102444800)).to.equal('21000101');
   });
 
+  it('gets a date string without the Z', () => {
+    expect(timestamp.toISOExtendedZ(1490827132)).to.equal('2017-03-29T22:38:52Z');
+    expect(timestamp.toISOExtendedZ(4102444800)).to.equal('2100-01-01T00:00:00Z');
+    expect(timestamp.toISOExtendedZ(1490827132010)).to.equal('2017-03-29T22:38:52Z');
+  });
+
 });
