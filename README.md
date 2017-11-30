@@ -57,7 +57,7 @@ same way you might in the lambda web console), and outputs the result.
 
 You'll need to first [create a Google Cloud Platform Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects),
 create a BigQuery dataset, and create the tables referenced by your `lib/inputs`.
-Sorry - no help on creating the correct table scheme yet!
+Sorry -- no help on creating the correct table scheme yet!
 
 Then [create a Service Account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount) for this app.  Make sure it has BigQuery Data Editor permissions.
 
