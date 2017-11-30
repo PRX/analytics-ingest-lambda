@@ -2,6 +2,7 @@
 logs
 *.log
 npm-debug.log*
+tmp
 
 # Runtime data
 pids
@@ -39,10 +40,10 @@ jspm_packages
 # OSX
 .DS_Store
 
-# Node-lambda stuff
+# lambda stuff
 .env
-deploy.env
 build
+*.zip
 
 # Maxmind db
 db

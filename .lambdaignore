@@ -1,0 +1,13 @@
+.dockerignore
+.env
+.git
+.gitignore
+.lambdaignore
+.nvmrc
+Dockerfile
+build*
+docker-compose.yml
+test
+tmp
+*.log
+*.zip

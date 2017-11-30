@@ -1,0 +1,18 @@
+version: '2'
+services:
+  start:
+    build: .
+    image: analyticsingestlambda
+    command: start
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+  test:
+    image: analyticsingestlambda
+    command: test
+    volumes:
+      - ./bin:/app/bin
+      - ./lib:/app/lib
+      - ./test:/app/test
+      - ./index.js:/app/index.js

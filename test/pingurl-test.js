@@ -57,7 +57,7 @@ describe('pingurl', () => {
   it('times out', () => {
     // TODO: nock doesn't seem to be able to trigger timeouts correctly
     // let scope = nock('http://www.foo.bar').get('/').delay(5000).reply(200);
-    return pingurl.ping('http://slowwly.robertomurray.co.uk/delay/2000/http://www.prx.org', null, 100).then(
+    return pingurl.ping('http://slowwly.robertomurray.co.uk/delay/2000/url/http://www.prx.org', null, 100).then(
       () => { throw new Error('Should have gotten error') },
       e => { expect(e.message).to.match(/http timeout from/i) }
     );

@@ -80,42 +80,22 @@ does some de-duping for us. But for pingbacks, we want to just allow these to
 fail without re-running the entire kinesis segment. This prevents one misbehaving
 pingback from causing a bunch of duplicates GETs on the rest of them.
 
-## Initial Setup
+# Docker
 
-If you're trying to create a new lambda function, you can use some of node-lambda's
-built in functionality to do the initial create.  __YOU SHOULD REALLY ONLY DO THIS
-ONCE, TO PREVENT OVERWRITING LAMBDA CONFIGURATIONS__.
-
-Add the following to the end of your `.env` file, altering your role/name/etc to
-match your AWS setup:
+This repo is now dockerized!
 
 ```
-### SETUP ###
-AWS_ROLE_ARN=arn:aws:iam::12345678:role/lambda_role_with_kinesis_access
-AWS_HANDLER=index.handler
-AWS_MEMORY_SIZE=256
-AWS_TIMEOUT=30
-AWS_DESCRIPTION="Process kinesis metric streams and ship to bigquery"
-AWS_RUNTIME=nodejs6.10
-EXCLUDE_GLOBS=".env env-example *.log .git .gitignore test"
-PACKAGE_DIRECTORY=build
+docker-compose build
+docker-compose run test
+docker-compose run start
 ```
 
-Then run `./node_modules/.bin/node-lambda deploy -e [development|staging|production]`.
-
-Once deployed, you'll need to explicitly configure the function to add the
-required runtime configs from the `env-example`, using the Lambda web console.
-
-## Updating
-
-To update an existing Lambda function, use the "deploy-ENV" scripts in
-`package.json`. No `.env` is required, as the environment configs should already
-be stored out in AWS.
+And you can easily-ish get the lambda zip built by the Dockerfile:
 
 ```
-npm run deploy-dev
-npm run deploy-staging
-npm run deploy-prod
+docker ps -a | grep analyticsingestlambda
+docker cp {{container-id-here}}:/app/build.zip myzipfile.zip
+unzip -l myzipfile.zip
 ```
 
 # License
