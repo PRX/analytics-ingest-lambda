@@ -1,3 +1,0 @@
-docker-compose build
-docker-compose run test
-bin/getzip.sh build.zip

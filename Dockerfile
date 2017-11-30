@@ -1,7 +1,7 @@
 FROM lambci/lambda:build-nodejs6.10
 
 MAINTAINER PRX <sysadmin@prx.org>
-LABEL org.prx.lambda="/app/build.zip"
+LABEL org.prx.lambda="true"
 
 WORKDIR /app
 EXPOSE 8080
