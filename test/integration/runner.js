@@ -8,11 +8,16 @@ const index     = require('../../index');
 const handler   = index.handler;
 
 // decode pingback settings
-if (!process.env.PINGBACKS || process.env.PINGBACKS === '0') {
+if (process.env.REDIS_HOST && process.env.REDIS_HOST !== '0') {
   delete process.env.PINGBACKS;
-  console.log('Running BIGQUERY');
-} else {
+  console.log('Running REDIS');
+} else if (process.env.PINGBACKS && process.env.PINGBACKS !== '0') {
+  delete process.env.REDIS_HOST;
   console.log('Running PINGBACKS');
+} else {
+  delete process.env.PINGBACKS;
+  delete process.env.REDIS_HOST;
+  console.log('Running BIGQUERY');
 }
 
 /**

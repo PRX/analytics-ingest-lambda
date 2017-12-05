@@ -8,9 +8,10 @@
   "main": "index.js",
   "scripts": {
     "geolite": "node bin/getmaxmind.js",
-    "start": "npm run start-bigquery && npm run start-pingbacks",
-    "start-bigquery": "PINGBACKS=0 node test/integration/runner.js",
-    "start-pingbacks": "PINGBACKS=1 node test/integration/runner.js",
+    "start": "npm run start-bigquery && npm run start-pingbacks && npm run start-redis",
+    "start-bigquery": "PINGBACKS=0 REDIS_HOST=0 node test/integration/runner.js",
+    "start-pingbacks": "PINGBACKS=1 REDIS_HOST=0 node test/integration/runner.js",
+    "start-redis": "PINGBACKS=0 node test/integration/runner.js",
     "test": "mocha test/",
     "ci": "istanbul cover _mocha -- test/ && codecov",
     "build": "npm run build-sync && npm run build-prune && npm run build-zip",
