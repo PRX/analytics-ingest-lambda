@@ -5,9 +5,9 @@
 .lambdaignore
 .nvmrc
 Dockerfile
-build*
 docker-compose.yml
-test
-tmp
+/build*
+/test
+/tmp
 *.log
 *.zip
