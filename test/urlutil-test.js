@@ -19,7 +19,7 @@ describe('urlutil', () => {
   };
 
   it('expands non-transformed params', () => {
-    let url = urlutil.expand('http://foo.bar/{?agent,referer,ad,campaign,creative,flight,episode,podcast,uuid}', TEST_IMPRESSION());
+    let url = urlutil.expand('http://foo.bar/{?agent,referer,ad,campaign,creative,flight,episode,podcast,uuid,agentmd5}', TEST_IMPRESSION());
     let params = URI(url).query(true);
     expect(url).to.match(/^http:\/\/foo\.bar\/\?/);
     expect(params.agent).to.equal('agent-string');
@@ -31,6 +31,7 @@ describe('urlutil', () => {
     expect(params.episode).to.equal('episode-guid');
     expect(params.podcast).to.equal('1234');
     expect(params.uuid).to.equal('request-uuid');
+    expect(params.agentmd5).to.equal('da08af6021d3ec8b8d27558ca92c314e');
   });
 
   it('cleans ip addresses', () => {
