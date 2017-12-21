@@ -28,6 +28,9 @@ describe('dovetail-downloads', () => {
       expect(row.record).to.have.keys('insertId', 'json');
       expect(row.record.insertId).to.equal('the-uuid');
       expect(row.record.json).to.have.keys(
+        'protocol',
+        'host',
+        'query',
         'digest',
         'program',
         'path',

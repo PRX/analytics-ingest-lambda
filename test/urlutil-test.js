@@ -9,17 +9,29 @@ describe('urlutil', () => {
 
   const TEST_IMPRESSION = (key, val) => {
     let data = {
-      feederPodcast: 1234, feederEpisode: 'episode-guid',
-      remoteAgent: 'agent-string', remoteIp: '127.0.0.1, 127.0.0.2, 127.0.0.3', remoteReferrer: 'http://www.prx.org/',
-      timestamp: 1507234920, requestUuid: 'request-uuid',
-      adId: 9, campaignId: 8, creativeId: 7, flightId: 6
+      protocol: 'https',
+      host: 'dovetail.prxu.org',
+      query: 'foo=bar',
+      program: '99',
+      path: 'the/path.mp3',
+      feederPodcast: 1234,
+      feederEpisode: 'episode-guid',
+      remoteAgent: 'agent-string',
+      remoteIp: '127.0.0.1, 127.0.0.2, 127.0.0.3',
+      remoteReferrer: 'http://www.prx.org/',
+      timestamp: 1507234920,
+      requestUuid: 'request-uuid',
+      adId: 9,
+      campaignId: 8,
+      creativeId: 7,
+      flightId: 6
     };
     if (key) { data[key] = val; }
     return data;
   };
 
   it('expands non-transformed params', () => {
-    let url = urlutil.expand('http://foo.bar/{?agent,referer,ad,campaign,creative,flight,episode,podcast,uuid}', TEST_IMPRESSION());
+    let url = urlutil.expand('http://foo.bar/{?agent,referer,ad,campaign,creative,flight,episode,podcast,uuid,agentmd5,url}', TEST_IMPRESSION());
     let params = URI(url).query(true);
     expect(url).to.match(/^http:\/\/foo\.bar\/\?/);
     expect(params.agent).to.equal('agent-string');
@@ -31,6 +43,18 @@ describe('urlutil', () => {
     expect(params.episode).to.equal('episode-guid');
     expect(params.podcast).to.equal('1234');
     expect(params.uuid).to.equal('request-uuid');
+    expect(params.agentmd5).to.equal('da08af6021d3ec8b8d27558ca92c314e');
+    expect(params.url).to.equal('dovetail.prxu.org/99/the/path.mp3?foo=bar');
+  });
+
+  it('gets the md5 digest for the agent', () => {
+    let url = urlutil.expand('http://foo.bar/?ua={agentmd5}', TEST_IMPRESSION());
+    expect(url).to.equal('http://foo.bar/?ua=da08af6021d3ec8b8d27558ca92c314e');
+  });
+
+  it('reassembles original request url', () => {
+    let url = urlutil.expand('http://foo.bar/?ru={url}', TEST_IMPRESSION());
+    expect(url).to.equal('http://foo.bar/?ru=dovetail.prxu.org%2F99%2Fthe%2Fpath.mp3%3Ffoo%3Dbar');
   });
 
   it('cleans ip addresses', () => {
