@@ -13,7 +13,7 @@ describe('urlutil', () => {
       host: 'dovetail.prxu.org',
       query: 'foo=bar',
       program: '99',
-      path: '/the/path.mp3',
+      path: 'the/path.mp3',
       feederPodcast: 1234,
       feederEpisode: 'episode-guid',
       remoteAgent: 'agent-string',
