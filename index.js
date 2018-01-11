@@ -2,7 +2,21 @@
 
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
+const timestamp = require('./lib/timestamp');
 const { BigqueryInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
+
+let shouldProcessRecord = (r) => r ? true : false;
+if (process.env.START_AT_EPOCH) {
+  const START = timestamp.toEpochSeconds(process.env.START_AT_EPOCH);
+  shouldProcessRecord = (r) => {
+    if (r && r.timestamp && timestamp.toEpochSeconds(r.timestamp) < START) {
+      logger.info(`NOT-STARTED: ${timestamp.toISOExtendedZ(r.timestamp)}`);
+      return false;
+    } else {
+      return r ? true : false;
+    }
+  };
+}
 
 exports.handler = (event, context, callback) => {
   let records = [];
@@ -18,7 +32,7 @@ exports.handler = (event, context, callback) => {
         logger.error(`Invalid record input: ${JSON.stringify(r)}`);
         return null;
       }
-    }).filter(f => f);
+    }).filter(r => shouldProcessRecord(r));
   }
 
   // nothing to do
