@@ -179,7 +179,7 @@ describe('handler', () => {
     handler(event, null, (err, result) => {
       expect(warns.length).to.equal(0);
       expect(errs.length).to.equal(1);
-      expect(result).to.match(/inserted 30/i);
+      expect(result).to.match(/inserted 12/i);
 
       let keys = [
         support.redisKeys('downloads.episodes.*'),
@@ -188,10 +188,10 @@ describe('handler', () => {
         support.redisKeys('impressions.podcasts.*')
       ];
       Promise.all(keys).then(all => {
-        expect(all[0].length).to.equal(5);
-        expect(all[1].length).to.equal(5);
-        expect(all[2].length).to.equal(8);
-        expect(all[3].length).to.equal(8);
+        expect(all[0].length).to.equal(2);
+        expect(all[1].length).to.equal(2);
+        expect(all[2].length).to.equal(4);
+        expect(all[3].length).to.equal(4);
         done();
       });
     });

@@ -55,44 +55,33 @@ describe('redis-increments', () => {
       record(1490827132, 'download', 1234, 'abcd'),
       record(1490827132, 'download', 1234, 'efgh'),
       record(1490828132, 'download', 1234, 'abcd'),
+      record(1490829132, 'download', 1234, 'abcd'),
       record(1490827132, 'impression', 1234, null),
       record(1490827132, 'impression', 1234, 'efgh', true)
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
-      expect(result[0].count).to.equal(4 * 5 + 3 * 5); // skips null episode impression
+      expect(result[0].count).to.equal(4 * 4 + 1 * 2); // skips null episode impression
       return support.redisGetAll('downloads.podcasts.*');
     }).then(vals => {
-      expect(Object.keys(vals).length).to.equal(6);
-      expect(vals['downloads.podcasts.15MIN.2017-03-29T22:30:00Z']['1234']).to.equal('2');
-      expect(vals['downloads.podcasts.15MIN.2017-03-29T22:45:00Z']['1234']).to.equal('1');
+      expect(Object.keys(vals).length).to.equal(3);
       expect(vals['downloads.podcasts.HOUR.2017-03-29T22:00:00Z']['1234']).to.equal('3');
-      expect(vals['downloads.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('3');
-      expect(vals['downloads.podcasts.WEEK.2017-03-26T00:00:00Z']['1234']).to.equal('3');
-      expect(vals['downloads.podcasts.MONTH.2017-03-01T00:00:00Z']['1234']).to.equal('3');
+      expect(vals['downloads.podcasts.HOUR.2017-03-29T23:00:00Z']['1234']).to.equal('1');
+      expect(vals['downloads.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('4');
       return support.redisGetAll('impressions.podcasts.*');
     }).then(vals => {
-      expect(Object.keys(vals).length).to.equal(5);
-      expect(vals['impressions.podcasts.15MIN.2017-03-29T22:30:00Z']['1234']).to.equal('1');
+      expect(Object.keys(vals).length).to.equal(2);
       expect(vals['impressions.podcasts.HOUR.2017-03-29T22:00:00Z']['1234']).to.equal('1');
       expect(vals['impressions.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('1');
-      expect(vals['impressions.podcasts.WEEK.2017-03-26T00:00:00Z']['1234']).to.equal('1');
-      expect(vals['impressions.podcasts.MONTH.2017-03-01T00:00:00Z']['1234']).to.equal('1');
       return support.redisGetAll('downloads.episodes.*');
     }).then(vals => {
-      expect(Object.keys(vals).length).to.equal(6);
-      expect(vals['downloads.episodes.15MIN.2017-03-29T22:30:00Z']['abcd']).to.equal('1');
-      expect(vals['downloads.episodes.15MIN.2017-03-29T22:30:00Z']['efgh']).to.equal('1');
-      expect(vals['downloads.episodes.15MIN.2017-03-29T22:45:00Z']['abcd']).to.equal('1');
+      expect(Object.keys(vals).length).to.equal(3);
       expect(vals['downloads.episodes.HOUR.2017-03-29T22:00:00Z']['abcd']).to.equal('2');
       expect(vals['downloads.episodes.HOUR.2017-03-29T22:00:00Z']['efgh']).to.equal('1');
-      expect(vals['downloads.episodes.DAY.2017-03-29T00:00:00Z']['abcd']).to.equal('2');
+      expect(vals['downloads.episodes.HOUR.2017-03-29T23:00:00Z']['abcd']).to.equal('1');
+      expect(vals['downloads.episodes.DAY.2017-03-29T00:00:00Z']['abcd']).to.equal('3');
       expect(vals['downloads.episodes.DAY.2017-03-29T00:00:00Z']['efgh']).to.equal('1');
-      expect(vals['downloads.episodes.WEEK.2017-03-26T00:00:00Z']['abcd']).to.equal('2');
-      expect(vals['downloads.episodes.WEEK.2017-03-26T00:00:00Z']['efgh']).to.equal('1');
-      expect(vals['downloads.episodes.MONTH.2017-03-01T00:00:00Z']['abcd']).to.equal('2');
-      expect(vals['downloads.episodes.MONTH.2017-03-01T00:00:00Z']['efgh']).to.equal('1');
       return support.redisGetAll('impressions.episodes.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(0);
@@ -106,10 +95,10 @@ describe('redis-increments', () => {
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
-      expect(result[0].count).to.equal(2 * 5);
+      expect(result[0].count).to.equal(2 * 2);
       return support.redisTTLAll('downloads.*');
     }).then(ttlMap => {
-      expect(Object.keys(ttlMap).length).to.equal(10);
+      expect(Object.keys(ttlMap).length).to.equal(4);
       Object.keys(ttlMap).forEach(key => {
         expect(ttlMap[key]).to.equal(7200);
       });
