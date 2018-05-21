@@ -74,14 +74,14 @@ describe('handler', () => {
 
       // based on test-records
       expect(inserted).to.have.keys(
-        'the_downloads_table$20170221',
-        'the_impressions_table$20170221',
-        'the_impressions_table$20170222'
+        'dt_downloads$20170221',
+        'dt_impressions$20170221',
+        'dt_impressions$20170222'
       );
 
-      expect(inserted['the_downloads_table$20170221'].length).to.equal(1);
-      expect(inserted['the_downloads_table$20170221'][0].insertId).to.equal('req-uuid');
-      let downloadJson = inserted['the_downloads_table$20170221'][0].json;
+      expect(inserted['dt_downloads$20170221'].length).to.equal(1);
+      expect(inserted['dt_downloads$20170221'][0].insertId).to.equal('req-uuid');
+      let downloadJson = inserted['dt_downloads$20170221'][0].json;
       expect(downloadJson.digest).to.equal('the-digest');
       expect(downloadJson.program).to.equal('program-name');
       expect(downloadJson.path).to.equal('the/path/here');
@@ -100,10 +100,10 @@ describe('handler', () => {
       expect(downloadJson.agent_type_id).to.equal(36);
       expect(downloadJson.agent_os_id).to.equal(43);
 
-      expect(inserted['the_impressions_table$20170221'].length).to.equal(2);
-      expect(inserted['the_impressions_table$20170221'][0].insertId).not.to.equal('req-uuid');
-      expect(inserted['the_impressions_table$20170221'][1].insertId).not.to.equal('req-uuid');
-      let impressionJson = inserted['the_impressions_table$20170221'][0].json;
+      expect(inserted['dt_impressions$20170221'].length).to.equal(2);
+      expect(inserted['dt_impressions$20170221'][0].insertId).not.to.equal('req-uuid');
+      expect(inserted['dt_impressions$20170221'][1].insertId).not.to.equal('req-uuid');
+      let impressionJson = inserted['dt_impressions$20170221'][0].json;
       expect(impressionJson.digest).to.equal('the-digest');
       expect(impressionJson.program).to.equal('program-name');
       expect(impressionJson.path).to.equal('the/path/here');
@@ -125,7 +125,7 @@ describe('handler', () => {
       expect(impressionJson.agent_type_id).to.be.null;
       expect(impressionJson.agent_os_id).to.be.null;
 
-      impressionJson = inserted['the_impressions_table$20170221'][1].json;
+      impressionJson = inserted['dt_impressions$20170221'][1].json;
       expect(impressionJson.ad_id).to.equal(98);
       expect(impressionJson.is_duplicate).to.equal(true);
       expect(impressionJson.cause).to.equal('something');
@@ -135,7 +135,7 @@ describe('handler', () => {
       expect(impressionJson.agent_type_id).to.be.null;
       expect(impressionJson.agent_os_id).to.be.null;
 
-      impressionJson = inserted['the_impressions_table$20170222'][0].json;
+      impressionJson = inserted['dt_impressions$20170222'][0].json;
       expect(impressionJson.ad_id).to.equal(76);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.equal(null);

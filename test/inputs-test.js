@@ -32,9 +32,9 @@ describe('inputs', () => {
       expect(inserts.length).to.equal(3);
       expect(inserts.map(i => i.count)).to.eql([1, 1, 1]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
-        'the_downloads_table$19700101',
-        'the_impressions_table$19700101',
-        'the_impressions_table$19700112'
+        'dt_downloads$19700101',
+        'dt_impressions$19700101',
+        'dt_impressions$19700112'
       ]);
     });
   });
