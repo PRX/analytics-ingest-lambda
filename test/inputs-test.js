@@ -29,12 +29,11 @@ describe('inputs', () => {
       {type: 'impression', requestUuid: 'i2', timestamp: 999999}
     ]);
     return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(3);
-      expect(inserts.map(i => i.count)).to.eql([1, 1, 1]);
+      expect(inserts.length).to.equal(2);
+      expect(inserts.map(i => i.count)).to.eql([1, 2]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
         'dt_downloads$19700101',
-        'dt_impressions$19700101',
-        'dt_impressions$19700112'
+        'dt_impressions'
       ]);
     });
   });

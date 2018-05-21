@@ -73,11 +73,7 @@ describe('handler', () => {
       expect(result).to.match(/inserted 4/i);
 
       // based on test-records
-      expect(inserted).to.have.keys(
-        'dt_downloads$20170221',
-        'dt_impressions$20170221',
-        'dt_impressions$20170222'
-      );
+      expect(inserted).to.have.keys('dt_downloads$20170221', 'dt_impressions');
 
       expect(inserted['dt_downloads$20170221'].length).to.equal(1);
       expect(inserted['dt_downloads$20170221'][0].insertId).to.equal('req-uuid');
@@ -100,50 +96,32 @@ describe('handler', () => {
       expect(downloadJson.agent_type_id).to.equal(36);
       expect(downloadJson.agent_os_id).to.equal(43);
 
-      expect(inserted['dt_impressions$20170221'].length).to.equal(2);
-      expect(inserted['dt_impressions$20170221'][0].insertId).not.to.equal('req-uuid');
-      expect(inserted['dt_impressions$20170221'][1].insertId).not.to.equal('req-uuid');
-      let impressionJson = inserted['dt_impressions$20170221'][0].json;
-      expect(impressionJson.digest).to.equal('the-digest');
-      expect(impressionJson.program).to.equal('program-name');
-      expect(impressionJson.path).to.equal('the/path/here');
-      expect(impressionJson.feeder_podcast).to.equal(1234);
-      expect(impressionJson.feeder_episode).to.equal('1234-5678');
-      expect(impressionJson.remote_agent).to.equal('curl/7.35.0');
-      expect(impressionJson.remote_ip).to.equal('151.101.129.67');
+      expect(inserted['dt_impressions'].length).to.equal(3);
+      expect(inserted['dt_impressions'][0].insertId).not.to.equal('req-uuid');
+      expect(inserted['dt_impressions'][1].insertId).not.to.equal('req-uuid');
+      expect(inserted['dt_impressions'][2].insertId).not.to.equal('req-uuid');
+
+      let impressionJson = inserted['dt_impressions'][0].json;
       expect(impressionJson.timestamp).to.equal(1487703699);
       expect(impressionJson.request_uuid).to.equal('req-uuid');
+      expect(impressionJson.feeder_podcast).to.equal(1234);
+      expect(impressionJson.feeder_episode).to.equal('1234-5678');
+      expect(impressionJson.is_duplicate).to.equal(false);
+      expect(impressionJson.cause).to.be.null;
       expect(impressionJson.ad_id).to.equal(12);
       expect(impressionJson.campaign_id).to.equal(34);
       expect(impressionJson.creative_id).to.equal(56);
       expect(impressionJson.flight_id).to.equal(78);
-      expect(impressionJson.is_duplicate).to.equal(false);
-      expect(impressionJson.cause).to.be.null;
-      expect(impressionJson.city_id).to.equal(5391959);
-      expect(impressionJson.country_id).to.equal(6252001);
-      expect(impressionJson.agent_name_id).to.be.null;
-      expect(impressionJson.agent_type_id).to.be.null;
-      expect(impressionJson.agent_os_id).to.be.null;
 
-      impressionJson = inserted['dt_impressions$20170221'][1].json;
+      impressionJson = inserted['dt_impressions'][1].json;
       expect(impressionJson.ad_id).to.equal(98);
       expect(impressionJson.is_duplicate).to.equal(true);
       expect(impressionJson.cause).to.equal('something');
-      expect(impressionJson.city_id).to.equal(4407066);
-      expect(impressionJson.country_id).to.equal(6252001);
-      expect(impressionJson.agent_name_id).to.be.null;
-      expect(impressionJson.agent_type_id).to.be.null;
-      expect(impressionJson.agent_os_id).to.be.null;
 
-      impressionJson = inserted['dt_impressions$20170222'][0].json;
+      impressionJson = inserted['dt_impressions'][2].json;
       expect(impressionJson.ad_id).to.equal(76);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.equal(null);
-      expect(impressionJson.city_id).to.be.null;
-      expect(impressionJson.country_id).to.be.null;
-      expect(impressionJson.agent_name_id).to.equal(21);
-      expect(impressionJson.agent_type_id).to.equal(36);
-      expect(impressionJson.agent_os_id).to.equal(42);
 
       done();
     });
