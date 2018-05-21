@@ -98,8 +98,8 @@ describe('handler', () => {
       expect(downloadJson.city_geoname_id).to.equal(5576882);
       expect(downloadJson.country_geoname_id).to.equal(6252001);
       expect(downloadJson.postal_code).to.equal('80517');
-      expect(downloadJson.latitude).to.equal(40.3772);
-      expect(downloadJson.longitude).to.equal(-105.5217);
+      expect(Math.round(downloadJson.latitude)).to.equal(40);
+      expect(Math.round(downloadJson.longitude)).to.equal(-105);
 
       expect(inserted['dt_impressions'].length).to.equal(3);
       expect(inserted['dt_impressions'][0].insertId).not.to.equal('req-uuid');
