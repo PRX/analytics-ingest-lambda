@@ -73,28 +73,33 @@ describe('handler', () => {
       expect(result).to.match(/inserted 4/i);
 
       // based on test-records
-      expect(inserted).to.have.keys('dt_downloads$20170221', 'dt_impressions');
+      expect(inserted).to.have.keys('dt_downloads', 'dt_impressions');
 
-      expect(inserted['dt_downloads$20170221'].length).to.equal(1);
-      expect(inserted['dt_downloads$20170221'][0].insertId).to.equal('req-uuid');
-      let downloadJson = inserted['dt_downloads$20170221'][0].json;
-      expect(downloadJson.digest).to.equal('the-digest');
-      expect(downloadJson.program).to.equal('program-name');
-      expect(downloadJson.path).to.equal('the/path/here');
-      expect(downloadJson.feeder_podcast).to.equal(1234);
-      expect(downloadJson.feeder_episode).to.equal('1234-5678');
-      expect(downloadJson.remote_agent).to.equal('AppleCoreMedia/1.0.0.14B100 (iPhone; U; CPU OS 10_1_1 like Mac OS X; en_us)');
-      expect(downloadJson.remote_ip).to.equal('24.49.134.194, 127.0.0.1, 99.99.99.99, whatev');
+      expect(inserted['dt_downloads'].length).to.equal(1);
+      expect(inserted['dt_downloads'][0].insertId).to.equal('req-uuid');
+      let downloadJson = inserted['dt_downloads'][0].json;
       expect(downloadJson.timestamp).to.equal(1487703699);
       expect(downloadJson.request_uuid).to.equal('req-uuid');
+      expect(downloadJson.feeder_podcast).to.equal(1234);
+      expect(downloadJson.feeder_episode).to.equal('1234-5678');
+      expect(downloadJson.program).to.equal('program-name');
+      expect(downloadJson.path).to.equal('the/path/here');
+      expect(downloadJson.clienthash).to.equal('the-client-hash');
+      expect(downloadJson.digest).to.equal('the-digest');
       expect(downloadJson.ad_count).to.equal(2);
       expect(downloadJson.is_duplicate).to.equal(false);
       expect(downloadJson.cause).to.be.null;
-      expect(downloadJson.city_id).to.equal(5576882);
-      expect(downloadJson.country_id).to.equal(6252001);
+      expect(downloadJson.remote_referrer).to.equal('https://www.prx.org/technology/');
+      expect(downloadJson.remote_agent).to.equal('AppleCoreMedia/1.0.0.14B100 (iPhone; U; CPU OS 10_1_1 like Mac OS X; en_us)');
+      expect(downloadJson.remote_ip).to.equal('24.49.134.0');
       expect(downloadJson.agent_name_id).to.equal(25);
       expect(downloadJson.agent_type_id).to.equal(36);
       expect(downloadJson.agent_os_id).to.equal(43);
+      expect(downloadJson.city_geoname_id).to.equal(5576882);
+      expect(downloadJson.country_geoname_id).to.equal(6252001);
+      expect(downloadJson.postal_code).to.equal('80517');
+      expect(downloadJson.latitude).to.equal(40.3772);
+      expect(downloadJson.longitude).to.equal(-105.5217);
 
       expect(inserted['dt_impressions'].length).to.equal(3);
       expect(inserted['dt_impressions'][0].insertId).not.to.equal('req-uuid');

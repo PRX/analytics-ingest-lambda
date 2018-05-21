@@ -32,7 +32,7 @@ describe('inputs', () => {
       expect(inserts.length).to.equal(2);
       expect(inserts.map(i => i.count)).to.eql([1, 2]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
-        'dt_downloads$19700101',
+        'dt_downloads',
         'dt_impressions'
       ]);
     });
