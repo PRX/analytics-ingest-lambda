@@ -8,12 +8,12 @@ describe('redis-increments', () => {
 
   beforeEach(() => process.env.REDIS_HOST = 'redis://127.0.0.1:6379');
 
-  it('recognizes download and impression records', () => {
+  it('recognizes download records', () => {
     let incr = new RedisIncrements();
     expect(incr.check({})).to.be.false;
     expect(incr.check({type: 'foobar', feederPodcast: 1})).to.be.false;
     expect(incr.check({type: 'download', feederPodcast: 1})).to.be.true;
-    expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.true;
+    expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.false;
     expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: true})).to.be.false;
     expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
   });
@@ -62,7 +62,7 @@ describe('redis-increments', () => {
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
-      expect(result[0].count).to.equal(4 * 4 + 1 * 2); // skips null episode impression
+      expect(result[0].count).to.equal(4 * 4); // skips impressions
       return support.redisGetAll('downloads.podcasts.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(3);
@@ -71,9 +71,7 @@ describe('redis-increments', () => {
       expect(vals['downloads.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('4');
       return support.redisGetAll('impressions.podcasts.*');
     }).then(vals => {
-      expect(Object.keys(vals).length).to.equal(2);
-      expect(vals['impressions.podcasts.HOUR.2017-03-29T22:00:00Z']['1234']).to.equal('1');
-      expect(vals['impressions.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('1');
+      expect(Object.keys(vals).length).to.equal(0);
       return support.redisGetAll('downloads.episodes.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(3);

@@ -80,7 +80,7 @@ describe('inputs', () => {
     ], true);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
-      expect(inserts[0].count).to.equal(6);
+      expect(inserts[0].count).to.equal(2);
       expect(inserts[0].dest).to.equal('redis://whatev');
     });
   });
