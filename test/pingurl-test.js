@@ -1,6 +1,7 @@
 'use strict';
 
 const support = require('./support');
+const logger = require('../lib/logger');
 const pingurl = require('../lib/pingurl');
 
 describe('pingurl', () => {
@@ -44,6 +45,7 @@ describe('pingurl', () => {
   });
 
   it('retries 502 errors', () => {
+    sinon.stub(logger, 'warn', msg => null);
     let scope = nock('http://www.foo.bar').get('/').times(3).reply(502);
     return pingurl.ping('http://www.foo.bar/', null, undefined, 0).then(
       () => { throw new Error('Should have gotten error') },
