@@ -1,7 +1,7 @@
 # PRX Metrics Ingest
 
-Lambda to process metrics data from a kinesis stream, and stream inserts into
-one or more BigQuery tables.
+Lambda to process metrics data coming from one or more kinesis streams, and
+send that data to multiple destinations.
 
 # Description
 
