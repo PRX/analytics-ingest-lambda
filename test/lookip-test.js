@@ -10,8 +10,8 @@ describe('lookip', () => {
       expect(look.city).to.equal(5128581);
       expect(look.country).to.equal(6252001);
       expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.7391);
-      expect(look.longitude).to.equal(-73.9826);
+      expect(look.latitude).to.equal(40.7375);
+      expect(look.longitude).to.equal(-73.9813);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
@@ -54,8 +54,8 @@ describe('lookip', () => {
       expect(look.city).to.equal(5128581);
       expect(look.country).to.equal(6252001);
       expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.7391);
-      expect(look.longitude).to.equal(-73.9826);
+      expect(look.latitude).to.equal(40.7375);
+      expect(look.longitude).to.equal(-73.9813);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
@@ -65,8 +65,8 @@ describe('lookip', () => {
       expect(look.city).to.equal(5128581);
       expect(look.country).to.equal(6252001);
       expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.7391);
-      expect(look.longitude).to.equal(-73.9826);
+      expect(look.latitude).to.equal(40.7375);
+      expect(look.longitude).to.equal(-73.9813);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
@@ -76,8 +76,8 @@ describe('lookip', () => {
       expect(look.city).to.equal(5128581);
       expect(look.country).to.equal(6252001);
       expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.7391);
-      expect(look.longitude).to.equal(-73.9826);
+      expect(look.latitude).to.equal(40.7375);
+      expect(look.longitude).to.equal(-73.9813);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
