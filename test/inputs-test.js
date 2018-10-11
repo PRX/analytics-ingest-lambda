@@ -26,13 +26,17 @@ describe('inputs', () => {
       {type: 'impression', requestUuid: 'i1', timestamp: 0, impressionUrl: 'http://foo.bar'},
       {type: 'foobar',     requestUuid: 'fb', timestamp: 0},
       {type: 'download',   requestUuid: 'd1', timestamp: 0},
-      {type: 'impression', requestUuid: 'i2', timestamp: 999999}
+      {type: 'impression', requestUuid: 'i2', timestamp: 999999},
+      {type: 'segmentbytes', requestUuid: 'b1', timestamp: 999999},
+      {type: 'bytes',        requestUuid: 'b2', timestamp: 999999}
     ]);
     return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(2);
-      expect(inserts.map(i => i.count)).to.eql([1, 2]);
+      expect(inserts.length).to.equal(4);
+      expect(inserts.map(i => i.count)).to.eql([1, 2, 1, 1]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
+        'dt_download_bytes',
         'dt_downloads',
+        'dt_impression_bytes',
         'dt_impressions'
       ]);
     });
