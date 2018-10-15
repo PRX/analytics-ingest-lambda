@@ -78,5 +78,22 @@
     "isDuplicate": false,
     "cause": null,
     "impressionUrl": "http://www.foo.bar/ping4"
+  },
+  {
+    "type": "bytes",
+    "timestamp": 1539287413617,
+    "request_uuid": "req-uuid",
+    "bytes_downloaded": 104820,
+    "seconds_downloaded": 2.5858585858,
+    "percent_downloaded": 0.582747737
+  },
+  {
+    "type": "segmentbytes",
+    "timestamp": 1539287527,
+    "request_uuid": "req-uuid",
+    "segment_index": 4,
+    "bytes_downloaded": 104820,
+    "seconds_downloaded": 2.5858585858,
+    "percent_downloaded": 0.582747737
   }
 ]
