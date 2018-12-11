@@ -16,6 +16,9 @@ describe('adzerk-impressions', () => {
     expect(adzerk.check({impressionUrl: 'foo'})).to.be.true;
     expect(adzerk.check({impressionUrl: 'foo', isDuplicate: true})).to.be.false;
     expect(adzerk.check({impressionUrl: 'foo', isDuplicate: false})).to.be.true;
+    expect(adzerk.check({type: 'combined', impressions: []})).to.be.false;
+    expect(adzerk.check({type: 'combined', impressions: [{impressionUrl: 'foo', isDuplicate: true}]})).to.be.false;
+    expect(adzerk.check({type: 'combined', impressions: [{}, {impressionUrl: 'foo'}]})).to.be.true;
   });
 
   it('inserts nothing', () => {
@@ -34,8 +37,8 @@ describe('adzerk-impressions', () => {
     let adzerk2 = new AdzerkImpressions([
       {isDuplicate: false, impressionUrl: 'http://www.foo.bar/ping1'},
       {isDuplicate: true,  impressionUrl: 'https://www.foo.bar/ping2'},
-      {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'},
-      {isDuplicate: false, impressionUrl: 'https://www.foo.bar/ping4'},
+      {type: 'combined', impressions: [{impressionUrl: 'http://bar.foo/ping3'}, {impressionUrl: 'http://bar.foo/nothing', isDuplicate: true}]},
+      {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'https://www.foo.bar/ping4'}]},
       {isDuplicate: false, impressionUrl: 'http://www.foo.bar/ping5'}
     ]);
     return adzerk2.insert().then(result => {
@@ -52,8 +55,8 @@ describe('adzerk-impressions', () => {
     let ping2b = nock('http://foo.bar').get('/ping2').reply(200);
     let ping3 = nock('http://bar.foo').get('/ping3').times(3).reply(502);
     let adzerk3 = new AdzerkImpressions([
-      {isDuplicate: false, impressionUrl: 'http://foo.bar/ping1'},
-      {isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'},
+      {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'http://foo.bar/ping1'}]},
+      {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'}]},
       {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'}
     ], 1000, 0);
 

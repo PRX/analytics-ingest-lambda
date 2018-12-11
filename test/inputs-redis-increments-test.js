@@ -16,6 +16,9 @@ describe('redis-increments', () => {
     expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.false;
     expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: true})).to.be.false;
     expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
+    expect(incr.check({type: 'combined', feederPodcast: 1})).to.be.false;
+    expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: true}})).to.be.false;
+    expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: false}})).to.be.true;
   });
 
   it('inserts nothing for no records', () => {
@@ -53,8 +56,8 @@ describe('redis-increments', () => {
   it('increments redis counts', () => {
     let incr = new RedisIncrements([
       record(1490827132, 'download', 1234, 'abcd'),
-      record(1490827132, 'download', 1234, 'efgh'),
-      record(1490828132, 'download', 1234, 'abcd'),
+      record(1490827132, 'combined', 1234, 'efgh'),
+      record(1490828132, 'combined', 1234, 'abcd'),
       record(1490829132, 'download', 1234, 'abcd'),
       record(1490827132, 'impression', 1234, null),
       record(1490827132, 'impression', 1234, 'efgh', true)
@@ -88,7 +91,7 @@ describe('redis-increments', () => {
 
   it('expires redis keys', () => {
     let incr = new RedisIncrements([
-      record(1490827132, 'download', 1234, 'abcd')
+      record(1490827132, 'combined', 1234, 'abcd')
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
@@ -107,11 +110,21 @@ describe('redis-increments', () => {
 
 // helpers
 function record(timestamp, type, id, guid, isdup) {
-  return {
-    timestamp: timestamp,
-    type: type,
-    feederPodcast: id,
-    feederEpisode: guid,
-    isDuplicate: !!isdup
+  if (type === 'combined') {
+    return {
+      timestamp: timestamp,
+      type: type,
+      feederPodcast: id,
+      feederEpisode: guid,
+      download: {isDuplicate: !!isdup}
+    }
+  } else {
+    return {
+      timestamp: timestamp,
+      type: type,
+      feederPodcast: id,
+      feederEpisode: guid,
+      isDuplicate: !!isdup
+    }
   }
 }
