@@ -12,7 +12,8 @@ describe('dovetail-downloads', () => {
     expect(download.check({})).to.be.false;
     expect(download.check({type: 'impression'})).to.be.false;
     expect(download.check({type: 'download'})).to.be.false;
-    expect(download.check({type: 'combined'})).to.be.true;
+    expect(download.check({type: 'combined'})).to.be.false;
+    expect(download.check({type: 'combined', download: {}})).to.be.true;
   });
 
   it('formats table inserts', async () => {

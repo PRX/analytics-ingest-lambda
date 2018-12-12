@@ -9,13 +9,13 @@ describe('inputs', () => {
 
   it('handles unrecognized records', () => {
     let inputs = new BigqueryInputs([
-      {type: 'impression', requestUuid: 'i1', timestamp: 0},
-      {type: 'foobar',     requestUuid: 'fb', timestamp: 0},
-      {type: 'impression', requestUuid: 'i2', timestamp: 0},
+      {type: 'combined', listenerEpisode: 'e1', timestamp: 0, download: {}},
+      {type: 'foobar',   listenerEpisode: 'fb', timestamp: 0, download: {}},
+      {type: 'combined', listenerEpisode: 'e2', timestamp: 0, download: {}},
       {what: 'ever'}
     ]);
     expect(inputs.unrecognized.length).to.equal(2);
-    expect(inputs.unrecognized[0].requestUuid).to.equal('fb');
+    expect(inputs.unrecognized[0].listenerEpisode).to.equal('fb');
     expect(inputs.unrecognized[1].what).to.equal('ever');
   });
 
@@ -23,12 +23,12 @@ describe('inputs', () => {
     sinon.stub(logger, 'info');
     sinon.stub(bigquery, 'insert', (tbl, rows) => Promise.resolve(rows.length));
     let inputs = new BigqueryInputs([
-      {type: 'impression', requestUuid: 'i1', timestamp: 0, impressionUrl: 'http://foo.bar'},
-      {type: 'foobar',     requestUuid: 'fb', timestamp: 0},
-      {type: 'download',   requestUuid: 'd1', timestamp: 0},
-      {type: 'impression', requestUuid: 'i2', timestamp: 999999},
-      {type: 'segmentbytes', requestUuid: 'b1', timestamp: 999999},
-      {type: 'bytes',        requestUuid: 'b2', timestamp: 999999}
+      {type: 'combined',     listenerId: 'i1', timestamp: 0, impressions: [{}]},
+      {type: 'foobar',       listenerId: 'fb', timestamp: 0},
+      {type: 'combined',     listenerId: 'd1', timestamp: 0, download: {}},
+      {type: 'combined',     listenerId: 'i2', timestamp: 999999, impressions: [{}]},
+      {type: 'segmentbytes', listenerId: 'b1', timestamp: 999999},
+      {type: 'bytes',        listenerId: 'b2', timestamp: 999999}
     ]);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(4);
@@ -46,10 +46,10 @@ describe('inputs', () => {
     sinon.stub(logger, 'info');
     nock('http://foo.bar').get('/').reply(200);
     let inputs = new PingbackInputs([
-      {type: 'impression', requestUuid: 'i1', timestamp: 0, impressionUrl: 'http://foo.bar'},
-      {type: 'foobar',     requestUuid: 'fb', timestamp: 0},
-      {type: 'download',   requestUuid: 'd1', timestamp: 0},
-      {type: 'impression', requestUuid: 'i2', timestamp: 999999}
+      {type: 'combined', listenerEpisode: 'i1', timestamp: 0, impressions: [{impressionUrl: 'http://foo.bar'}]},
+      {type: 'foobar',   listenerEpisode: 'fb', timestamp: 0},
+      {type: 'combined', listenerEpisode: 'd1', timestamp: 0, download: {}},
+      {type: 'combined', listenerEpisode: 'i2', timestamp: 999999, impressions: [{/* no url */}]}
     ], true);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
@@ -60,11 +60,14 @@ describe('inputs', () => {
 
   it('inserts adzerk pingback inputs', () => {
     sinon.stub(logger, 'info');
-    nock('http://foo.bar').get('/i1').reply(200);
+    nock('http://foo.bar').get('/i2').reply(200);
     let inputs = new PingbackInputs([
-      {requestUuid: 'i1', pingbacks: ['http://foo.bar/{uuid}']},
-      {requestUuid: 'i2', pingbacks: ['http://bar.foo/{uuid}'], isDuplicate: true},
-      {requestUuid: 'i3'}
+      {type: 'combined', listenerId: 'i1', impressions: [{}]},
+      {type: 'combined', listenerId: 'i2', impressions: [
+        {pingbacks: ['http://bar.foo/{listener}'], isDuplicate: true},
+        {pingbacks: ['http://foo.bar/{listener}']}
+      ]},
+      {type: 'combined', listenerId: 'i3', impressions: [{}]}
     ], true);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
@@ -77,10 +80,10 @@ describe('inputs', () => {
     process.env.REDIS_HOST = 'whatev';
     sinon.stub(logger, 'info');
     let inputs = new RedisInputs([
-      {type: 'impression', feederPodcast: 1, timestamp: 0},
-      {type: 'foobar',     feederPodcast: 1, timestamp: 0},
-      {type: 'download',   feederPodcast: 1, timestamp: 0},
-      {type: 'impression', feederPodcast: 1, timestamp: 999999}
+      {type: 'combined', feederPodcast: null, timestamp: 0, download: {}},
+      {type: 'foobar',   feederPodcast: 1, timestamp: 0},
+      {type: 'combined', feederPodcast: 1, timestamp: 0, download: {}},
+      {type: 'combined', feederPodcast: 1, timestamp: 999999}
     ], true);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(1);
