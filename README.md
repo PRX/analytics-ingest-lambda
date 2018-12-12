@@ -15,7 +15,7 @@ kinesis streams, so they can move records to different destinations.
 
 ## BigQuery
 
-Records with type `download`/`impression`/`bytes`/`segmentbytes` will be parsed
+Records with type `combined`/`bytes`/`segmentbytes` will be parsed
 into BigQuery table formats, and inserted into their corresponding BigQuery
 tables in parallel.  This is called [streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery),
 and in case the insert fails, it will be attempted 2 more times before the Lambda
@@ -28,7 +28,7 @@ daily partition.
 
 ## Pingbacks
 
-Records with type `download` and a special `pingbacks` array will be pinged via
+Records with type `combined` and a special `impression[].pingbacks` array will be pinged via
 an HTTP GET.  This "ping" does follow redirects, but expects to land on a 200
 response afterwards.  Although 500 errors will be retried internally in the
 code, any ping failures will be allowed to fail after error/timeout.
@@ -40,11 +40,36 @@ attempt to re-exec the batch of records.
 Similarly, any non-duplicate impression with an `impressionUrl` will also be
 pinged.  This is normally the "official" Adzerk pixel-tracker from Dovetail.
 
+### URI Templates
+
+Pingback urls should be valid [RFC 6570](https://tools.ietf.org/html/rfc6570) URI
+template.  Valid parameters are:
+
+| Parameter Name    | Description |
+| ----------------- | ----------- |
+| `ad`              | Adzerk ad id |
+| `agent`           | Requester user-agent string |
+| `agentmd5`        | An md5'd user-agent string |
+| `episode`         | Feeder episode guid |
+| `campaign`        | Adzerk campaign id |
+| `creative`        | Adzerk creative id |
+| `flight`          | Adzerk flight id |
+| `ip`              | Request ip address |
+| `listener`        | Unique string for this "listener" |
+| `listenerepisode` | Unique string for "listener + url" |
+| `listenersession` | Unique string for "listener + url + UTCDate" |
+| `podcast`         | Feeder podcast id |
+| `randomstr`       | Random string |
+| `randomint`       | Random integer |
+| `referer`         | Requester http referer |
+| `timestamp`       | Epoch milliseconds of request |
+| `url`             | Full url of request, including host and query parameters, but _without_ the protocol `https://` |
+
 ## Redis
 
 To give some semblance of live metrics, this lambda can also directly `INCR`
 the Redis cache used by [castle.prx.org](https://github.com/PRX/castle.prx.org).
-This operates on type = `download` records, and like Pingbacks, will be allowed
+This operates on type = `combined` records, and like Pingbacks, will be allowed
 to fail without retry.
 
 # Installation
