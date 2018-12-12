@@ -11,11 +11,7 @@ describe('redis-increments', () => {
   it('recognizes download records', () => {
     let incr = new RedisIncrements();
     expect(incr.check({})).to.be.false;
-    expect(incr.check({type: 'foobar', feederPodcast: 1})).to.be.false;
-    expect(incr.check({type: 'download', feederPodcast: 1})).to.be.true;
-    expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.false;
-    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: true})).to.be.false;
-    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
+    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.false;
     expect(incr.check({type: 'combined', feederPodcast: 1})).to.be.false;
     expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: true}})).to.be.false;
     expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: false}})).to.be.true;
@@ -31,7 +27,7 @@ describe('redis-increments', () => {
   it('inserts nothing for records without feeder ids/guids', () => {
     let incr = new RedisIncrements([
       record(1490827132, 'download', null, null),
-      record(1490827132, 'impression', null, null)
+      record(1490827132, 'combined', null, null)
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
@@ -40,7 +36,7 @@ describe('redis-increments', () => {
 
   it('inserts nothing for no redis host', () => {
     process.env.REDIS_HOST = '';
-    let records = [record(1490827132, 'download', 1234, 'abcd')];
+    let records = [record(1490827132, 'combined', 1234, 'abcd')];
     let incr = new RedisIncrements(records);
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
@@ -56,9 +52,10 @@ describe('redis-increments', () => {
   it('increments redis counts', () => {
     let incr = new RedisIncrements([
       record(1490827132, 'download', 1234, 'abcd'),
+      record(1490827132, 'combined', 1234, 'abcd'),
       record(1490827132, 'combined', 1234, 'efgh'),
       record(1490828132, 'combined', 1234, 'abcd'),
-      record(1490829132, 'download', 1234, 'abcd'),
+      record(1490829132, 'combined', 1234, 'abcd'),
       record(1490827132, 'impression', 1234, null),
       record(1490827132, 'impression', 1234, 'efgh', true)
     ]);

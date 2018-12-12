@@ -10,12 +10,7 @@ describe('adzerk-impressions', () => {
 
   it('recognizes impression url records', () => {
     expect(adzerk.check({})).to.be.false;
-    expect(adzerk.check({impressionUrl: null})).to.be.false;
-    expect(adzerk.check({impressionUrl: false})).to.be.false;
-    expect(adzerk.check({impressionUrl: ''})).to.be.false;
-    expect(adzerk.check({impressionUrl: 'foo'})).to.be.true;
-    expect(adzerk.check({impressionUrl: 'foo', isDuplicate: true})).to.be.false;
-    expect(adzerk.check({impressionUrl: 'foo', isDuplicate: false})).to.be.true;
+    expect(adzerk.check({impressionUrl: 'foo', isDuplicate: false})).to.be.false;
     expect(adzerk.check({type: 'combined', impressions: []})).to.be.false;
     expect(adzerk.check({type: 'combined', impressions: [{impressionUrl: 'foo', isDuplicate: true}]})).to.be.false;
     expect(adzerk.check({type: 'combined', impressions: [{}, {impressionUrl: 'foo'}]})).to.be.true;
@@ -27,19 +22,26 @@ describe('adzerk-impressions', () => {
     });
   });
 
-  it('pings impression url records', () => {
+  it('pings impression url records', async () => {
     let ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
-    let ping2 = nock('https://www.foo.bar').get('/ping2').reply(200);
     let ping3 = nock('http://bar.foo').get('/ping3').reply(200);
     let ping4 = nock('https://www.foo.bar').get('/ping4').reply(200);
     let ping5 = nock('http://www.foo.bar').get('/ping5').reply(200);
 
     let adzerk2 = new AdzerkImpressions([
-      {isDuplicate: false, impressionUrl: 'http://www.foo.bar/ping1'},
-      {isDuplicate: true,  impressionUrl: 'https://www.foo.bar/ping2'},
-      {type: 'combined', impressions: [{impressionUrl: 'http://bar.foo/ping3'}, {impressionUrl: 'http://bar.foo/nothing', isDuplicate: true}]},
-      {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'https://www.foo.bar/ping4'}]},
-      {isDuplicate: false, impressionUrl: 'http://www.foo.bar/ping5'}
+      {type: 'combined', impressions: [
+        {impressionUrl: 'http://www.foo.bar/ping1'}
+      ]},
+      {isDuplicate: false, impressionUrl: 'http://www.foo.bar/nothing'},
+      {type: 'combined', impressions: [
+        {impressionUrl: 'https://www.foo.bar/ping2', isDuplicate: true},
+        {impressionUrl: 'http://bar.foo/ping3'}
+      ]},
+      {type: 'combined', impressions: [
+        {},
+        {isDuplicate: false, impressionUrl: 'https://www.foo.bar/ping4'},
+        {isDuplicate: false, impressionUrl: 'http://www.foo.bar/ping5'}
+      ]}
     ]);
     return adzerk2.insert().then(result => {
       expect(result.length).to.equal(2);
@@ -56,8 +58,10 @@ describe('adzerk-impressions', () => {
     let ping3 = nock('http://bar.foo').get('/ping3').times(3).reply(502);
     let adzerk3 = new AdzerkImpressions([
       {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'http://foo.bar/ping1'}]},
-      {type: 'combined', impressions: [{isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'}]},
-      {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'}
+      {type: 'combined', impressions: [
+        {isDuplicate: false, impressionUrl: 'http://foo.bar/ping2'},
+        {isDuplicate: false, impressionUrl: 'http://bar.foo/ping3'}
+      ]}
     ], 1000, 0);
 
     let warns = [];

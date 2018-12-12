@@ -11,11 +11,11 @@ describe('dovetail-downloads', () => {
   it('recognizes download records', () => {
     expect(download.check({})).to.be.false;
     expect(download.check({type: 'impression'})).to.be.false;
-    expect(download.check({type: 'download'})).to.be.true;
+    expect(download.check({type: 'download'})).to.be.false;
     expect(download.check({type: 'combined'})).to.be.true;
   });
 
-  it('formats combined table inserts', async () => {
+  it('formats table inserts', async () => {
     const record = await download.format({
       type: 'combined',
       timestamp: 1490827132999,
@@ -55,38 +55,6 @@ describe('dovetail-downloads', () => {
     expect(record.json.cause).to.equal('whatever');
   });
 
-  it('formats legacy table inserts', async () => {
-    const record = await download.format({requestUuid: 'the-uuid', timestamp: 1490827132999});
-    expect(record).to.have.keys('insertId', 'json');
-    expect(record.insertId).to.equal('the-uuid');
-    expect(record.json).to.have.keys(
-      'timestamp',
-      'request_uuid',
-      'feeder_podcast',
-      'feeder_episode',
-      'program',
-      'path',
-      'clienthash',
-      'digest',
-      'ad_count',
-      'is_duplicate',
-      'cause',
-      'remote_referrer',
-      'remote_agent',
-      'remote_ip',
-      'agent_name_id',
-      'agent_type_id',
-      'agent_os_id',
-      'city_geoname_id',
-      'country_geoname_id',
-      'postal_code',
-      'latitude',
-      'longitude'
-    );
-    expect(record.json.timestamp).to.equal(1490827132);
-    expect(record.json.request_uuid).to.equal('the-uuid');
-  });
-
   it('inserts nothing', () => {
     return download.insert().then(result => {
       expect(result.length).to.equal(0);
@@ -100,9 +68,10 @@ describe('dovetail-downloads', () => {
       return Promise.resolve(rows.length);
     });
     let download2 = new DovetailDownloads([
-      {type: 'download', requestUuid: 'the-uuid1', timestamp: 1490827132999},
+      {type: 'download', requestUuid: 'the-uuid0', timestamp: 1490827132999},
+      {type: 'combined', download: {}, listenerEpisode: 'list-ep-1', timestamp: 1490827132999},
       {type: 'impression', requestUuid: 'the-uuid2', timestamp: 1490827132999},
-      {type: 'download', requestUuid: 'the-uuid3', timestamp: 1490837132},
+      {type: 'combined', download: {}, listenerEpisode: 'list-ep-3', timestamp: 1490827132999},
       {type: 'combined', download: {}, listenerEpisode: 'list-ep-4', timestamp: 1490827132999},
     ]);
     return download2.insert().then(result => {
@@ -110,8 +79,8 @@ describe('dovetail-downloads', () => {
       expect(result[0].dest).to.equal('dt_downloads');
       expect(result[0].count).to.equal(3);
       expect(inserts['dt_downloads'].length).to.equal(3);
-      expect(inserts['dt_downloads'][0].json.request_uuid).to.equal('the-uuid1');
-      expect(inserts['dt_downloads'][1].json.request_uuid).to.equal('the-uuid3');
+      expect(inserts['dt_downloads'][0].json.listener_episode).to.equal('list-ep-1');
+      expect(inserts['dt_downloads'][1].json.listener_episode).to.equal('list-ep-3');
       expect(inserts['dt_downloads'][2].json.listener_episode).to.equal('list-ep-4');
     });
   });

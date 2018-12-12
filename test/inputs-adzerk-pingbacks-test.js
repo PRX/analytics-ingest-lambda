@@ -9,15 +9,10 @@ describe('adzerk-pingbacks', () => {
   let adzerk = new AdzerkPingbacks();
 
   it('recognizes pingback records', () => {
-    expect(adzerk.check({})).to.be.false;
-    expect(adzerk.check({pingbacks: null})).to.be.false;
-    expect(adzerk.check({pingbacks: false})).to.be.false;
-    expect(adzerk.check({pingbacks: ''})).to.be.false;
-    expect(adzerk.check({pingbacks: 'foo'})).to.be.false;
-    expect(adzerk.check({pingbacks: []})).to.be.true;
-    expect(adzerk.check({pingbacks: ['foo']})).to.be.true;
-    expect(adzerk.check({pingbacks: ['foo'], isDuplicate: true})).to.be.false;
-    expect(adzerk.check({pingbacks: ['foo'], isDuplicate: false})).to.be.true;
+    expect(adzerk.check({type: 'impression', pingbacks: ['foo']})).to.be.false;
+    expect(adzerk.check({type: 'combined', impressions: [{pingbacks: [], isDuplicate: false}]})).to.be.false;
+    expect(adzerk.check({type: 'combined', impressions: [{pingbacks: ['foo'], isDuplicate: true}]})).to.be.false;
+    expect(adzerk.check({type: 'combined', impressions: [{pingbacks: ['foo'], isDuplicate: false}]})).to.be.true;
   });
 
   it('inserts nothing', () => {
@@ -30,7 +25,7 @@ describe('adzerk-pingbacks', () => {
     let ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
     let ping2 = nock('https://www.foo.bar').get('/ping2/11').reply(200);
     let ping3 = nock('http://bar.foo').get('/ping3').reply(200);
-    let ping4 = nock('https://www.foo.bar').get('/ping4').reply(200);
+    let ping4 = nock('https://www.foo.bar').get('/ping4?url=dovetail.prxu.org%2Fabc%2Ftheguid%2Fpath.mp3%3Ffoo%3Dbar').reply(200);
     let ping5 = nock('http://www.foo.bar').get('/ping5/55').reply(200);
 
     let adzerk2 = new AdzerkPingbacks([
@@ -40,33 +35,10 @@ describe('adzerk-pingbacks', () => {
       ]},
       {type: 'combined', impressions: [
         {adId: 33, isDuplicate: false, pingbacks: ['http://bar.foo/ping3']},
-        {adId: 44, isDuplicate: false, pingbacks: ['https://www.foo.bar/ping4{uuid}']},
+        {adId: 44, url: '/abc/theguid/path.mp3?foo=bar', isDuplicate: false, pingbacks: ['https://www.foo.bar/ping4{?url}']},
         {adId: 55, isDuplicate: false, pingbacks: ['http://www.foo.bar/ping5/{ad}']},
         {adId: 66, isDuplicate: false, pingbacks: []}
       ]}
-    ]);
-    return adzerk2.insert().then(result => {
-      expect(result.length).to.equal(2);
-      expect(result.map(r => r.dest).sort()).to.eql(['bar.foo', 'www.foo.bar']);
-      expect(result.find(r => r.dest === 'bar.foo').count).to.equal(1);
-      expect(result.find(r => r.dest === 'www.foo.bar').count).to.equal(4);
-    });
-  });
-
-  it('pings legacy impression url records', () => {
-    let ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
-    let ping2 = nock('https://www.foo.bar').get('/ping2/11').reply(200);
-    let ping3 = nock('http://bar.foo').get('/ping3').reply(200);
-    let ping4 = nock('https://www.foo.bar').get('/ping4').reply(200);
-    let ping5 = nock('http://www.foo.bar').get('/ping5/55').reply(200);
-
-    let adzerk2 = new AdzerkPingbacks([
-      {adId: 11, isDuplicate: false, pingbacks: ['http://www.foo.bar/ping1', 'https://www.foo.bar/ping2/{ad}']},
-      {adId: 22, isDuplicate: true,  pingbacks: ['https://www.foo.bar/ping3']},
-      {adId: 33, isDuplicate: false, pingbacks: ['http://bar.foo/ping3']},
-      {adId: 44, isDuplicate: false, pingbacks: ['https://www.foo.bar/ping4{uuid}']},
-      {adId: 55, isDuplicate: false, pingbacks: ['http://www.foo.bar/ping5/{ad}']},
-      {adId: 66, isDuplicate: false, pingbacks: []}
     ]);
     return adzerk2.insert().then(result => {
       expect(result.length).to.equal(2);
@@ -82,7 +54,9 @@ describe('adzerk-pingbacks', () => {
     let ping2b = nock('http://foo.bar').get('/ping2').reply(200);
     let ping3 = nock('http://bar.foo').get('/ping3').times(3).reply(502);
     let adzerk3 = new AdzerkPingbacks([
-      {isDuplicate: false, pingbacks: ['http://foo.bar/ping1']},
+      {type: 'combined', impressions: [
+        {isDuplicate: false, pingbacks: ['http://foo.bar/ping1']}
+      ]},
       {type: 'combined', impressions: [
         {isDuplicate: false, pingbacks: ['http://foo.bar/ping2', 'http://bar.foo/ping3']}
       ]}
