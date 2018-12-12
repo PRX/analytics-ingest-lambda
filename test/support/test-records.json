@@ -1,83 +1,77 @@
 [
   {
-    "type": "download",
+    "type": "combined",
+    "download": {
+      "isDuplicate": false,
+      "cause": null,
+      "adCount": 2
+    },
+    "impressions": [
+      {
+        "segment": 0,
+        "adId": 12,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": false,
+        "cause": null,
+        "pingbacks": [
+          "http://www.foo.bar/ping1",
+          "http://www.foo.bar/ping2"
+        ]
+      }
+    ],
     "digest": "the-digest",
-    "clientHash": "the-client-hash",
-    "program": "program-name",
-    "path": "the/path/here",
     "feederPodcast": 1234,
     "feederEpisode": "1234-5678",
+    "listenerId": "some-listener-id",
+    "listenerEpisode": "listener-episode-1",
+    "listenerSession": "listener-session-1",
     "remoteAgent": "AppleCoreMedia/1.0.0.14B100 (iPhone; U; CPU OS 10_1_1 like Mac OS X; en_us)",
     "remoteIp": "24.49.134.194, 127.0.0.1, 99.99.99.99, whatev",
     "remoteReferrer": "https://www.prx.org/technology/",
     "timestamp": 1487703699,
-    "requestUuid": "req-uuid",
-    "adCount": 2,
-    "isDuplicate": false,
-    "cause": null
-  },
-  {
-    "type": "impression",
-    "digest": "the-digest",
-    "program": "program-name",
-    "path": "the/path/here",
-    "feederPodcast": 1234,
-    "feederEpisode": "1234-5678",
-    "remoteAgent": "curl/7.35.0",
-    "remoteIp": "151.101.129.67",
-    "timestamp": 1487703699,
-    "requestUuid": "req-uuid",
-    "adId": 12,
-    "campaignId": 34,
-    "creativeId": 56,
-    "flightId": 78,
-    "isDuplicate": false,
-    "cause": null,
-    "pingbacks": [
-      "http://www.foo.bar/ping1",
-      "http://www.foo.bar/ping2"
-    ]
+    "url": "program-name/guid/file.mp3"
   },
   {
     "foo": "bar"
   },
   {
-    "type": "impression",
+    "type": "combined",
+    "impressions": [
+      {
+        "segment": 0,
+        "adId": 98,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": true,
+        "cause": "something",
+        "impressionUrl": "http://www.foo.bar/ping3"
+      },
+      {
+        "segment": 3,
+        "adId": 76,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": false,
+        "cause": null,
+        "impressionUrl": "http://www.foo.bar/ping4"
+      }
+    ],
+    "confirmed": true,
     "digest": "the-digest",
-    "program": "program-name",
-    "path": "the/path/here",
     "feederPodcast": 1234,
     "feederEpisode": "1234-5678",
+    "listenerId": "some-listener-id",
+    "listenerEpisode": "listener-episode-2",
+    "listenerSession": "listener-session-2",
     "remoteAgent": "aoeutnheoantuh",
     "remoteIp": "199.119.122.237",
+    "remoteReferrer": "",
     "timestamp": 1487703699777,
-    "requestUuid": "req-uuid",
-    "adId": 98,
-    "campaignId": 34,
-    "creativeId": 56,
-    "flightId": 78,
-    "isDuplicate": true,
-    "cause": "something",
-    "impressionUrl": "http://www.foo.bar/ping3"
-  },
-  {
-    "type": "impression",
-    "digest": "the-digest",
-    "program": "program-name",
-    "path": "the/path/here",
-    "feederPodcast": 1234,
-    "feederEpisode": "1234-5678",
-    "remoteAgent": "RadioPublic/android-1.5",
-    "remoteIp": "127.0.0.1",
-    "timestamp": 1487803699,
-    "requestUuid": "req-uuid",
-    "adId": 76,
-    "campaignId": 34,
-    "creativeId": 56,
-    "flightId": 78,
-    "isDuplicate": false,
-    "cause": null,
-    "impressionUrl": "http://www.foo.bar/ping4"
+    "url": "program-name/the/path-here"
   },
   {
     "type": "bytes",
