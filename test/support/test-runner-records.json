@@ -1,0 +1,89 @@
+[
+  {
+    "type": "combined",
+    "download": {
+      "isDuplicate": false,
+      "cause": null,
+      "adCount": 2
+    },
+    "impressions": [
+      {
+        "segment": 0,
+        "adId": 12,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": false,
+        "cause": null,
+        "impressionUrl": "http://dovetail.prxu.org"
+      },
+      {
+        "segment": 2,
+        "adId": 98,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": true,
+        "cause": "something",
+        "impressionUrl": "https://foo.bar/this/should/not/fire"
+      }
+    ],
+    "digest": "the-digest",
+    "feederPodcast": 1234,
+    "feederEpisode": "1234-5678",
+    "listenerId": "some-listener-id",
+    "listenerEpisode": "listener-episode-1",
+    "listenerSession": "listener-session-1",
+    "remoteAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
+    "remoteIp": " 50.21.204.248, 127.0.0.1",
+    "remoteReferrer": "https://www.prx.org/technology/",
+    "timestamp": 1487703699,
+    "url": "/1234/1234-5678/filename.mp3?foo=bar"
+  },
+  {
+    "type": "combined",
+    "impressions": [{
+      "segment": 0,
+      "adId": 76,
+      "campaignId": 34,
+      "creativeId": 56,
+      "flightId": 78,
+      "isDuplicate": false,
+      "cause": null,
+      "impressionUrl": "https://dovetail.prxu.org/ping",
+      "pingbacks": [
+        "https://dovetail.prxu.org/ping{?uuid}",
+        "https://dovetail.prxu.org/{randomint}"
+      ]
+    }],
+    "confirmed": true,
+    "digest": "the-digest",
+    "feederPodcast": 1234,
+    "feederEpisode": "1234-5678",
+    "listenerId": "some-listener-id",
+    "listenerEpisode": "listener-episode-2",
+    "listenerSession": "listener-session-2",
+    "remoteAgent": "some agent string",
+    "remoteIp": "127.0.0.1",
+    "remoteReferrer": "",
+    "timestamp": 1487803699,
+    "url": "/1234/1234-5678/filename.mp3?foo=bar"
+  },
+  {
+    "type": "bytes",
+    "timestamp": 1539287413617,
+    "request_uuid": "req-uuid",
+    "bytes_downloaded": 104820,
+    "seconds_downloaded": 2.5858585858,
+    "percent_downloaded": 0.582747737
+  },
+  {
+    "type": "segmentbytes",
+    "timestamp": 1539287527,
+    "request_uuid": "req-uuid",
+    "segment_index": 4,
+    "bytes_downloaded": 104820,
+    "seconds_downloaded": 2.5858585858,
+    "percent_downloaded": 0.582747737
+  }
+]

@@ -1,7 +1,6 @@
 'use strict';
 
 const support   = require('./support');
-const testEvent = require('./support/test-event');
 const bigquery  = require('../lib/bigquery');
 const logger    = require('../lib/logger');
 const index     = require('../index');
