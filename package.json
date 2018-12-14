@@ -45,8 +45,7 @@
     "nock": "^9.0.14",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.9.0",
-    "targz": "^1.0.1",
-    "uuid": "^3.1.0"
+    "targz": "^1.0.1"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
@@ -56,6 +55,7 @@
     "maxmind": "^2.2.0",
     "prx-podagent": "0.0.5",
     "redis": "^2.8.0",
-    "urijs": "^1.19.0"
+    "urijs": "^1.19.0",
+    "uuid": "^3.3.2"
   }
 }
