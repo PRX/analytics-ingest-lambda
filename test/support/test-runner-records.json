@@ -15,7 +15,7 @@
         "flightId": 78,
         "isDuplicate": false,
         "cause": null,
-        "impressionUrl": "http://dovetail.prxu.org"
+        "pings": ["http://dovetail.prxu.org"]
       },
       {
         "segment": 2,
@@ -25,7 +25,7 @@
         "flightId": 78,
         "isDuplicate": true,
         "cause": "something",
-        "impressionUrl": "https://foo.bar/this/should/not/fire"
+        "pings": ["https://foo.bar/this/should/not/fire"]
       }
     ],
     "digest": "the-digest",
@@ -50,8 +50,8 @@
       "flightId": 78,
       "isDuplicate": false,
       "cause": null,
-      "impressionUrl": "https://dovetail.prxu.org/ping",
-      "pingbacks": [
+      "pings": [
+        "https://dovetail.prxu.org/ping",
         "https://dovetail.prxu.org/ping{?uuid}",
         "https://dovetail.prxu.org/{randomint}"
       ]
