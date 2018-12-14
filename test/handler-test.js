@@ -78,12 +78,14 @@ describe('handler', () => {
       expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
       let downloadJson = inserted['dt_downloads'][0].json;
       expect(downloadJson.timestamp).to.equal(1487703699);
+      expect(downloadJson.request_uuid).to.equal('req-uuid');
       expect(downloadJson.feeder_podcast).to.equal(1234);
       expect(downloadJson.feeder_episode).to.equal('1234-5678');
       expect(downloadJson.listener_id).to.equal('some-listener-id');
       expect(downloadJson.listener_episode).to.equal('listener-episode-1');
       expect(downloadJson.listener_session).to.equal('listener-session-1');
-      expect(downloadJson.confirmed).to.equal(false);
+      expect(downloadJson.is_confirmed).to.equal(false);
+      expect(downloadJson.is_bytes).to.equal(false);
       expect(downloadJson.digest).to.equal('the-digest');
       expect(downloadJson.ad_count).to.equal(2);
       expect(downloadJson.is_duplicate).to.equal(false);
@@ -110,13 +112,14 @@ describe('handler', () => {
 
       let impressionJson = inserted['dt_impressions'][0].json;
       expect(impressionJson.timestamp).to.equal(1487703699);
+      expect(impressionJson.request_uuid).to.equal('req-uuid');
       expect(impressionJson.feeder_podcast).to.equal(1234);
       expect(impressionJson.feeder_episode).to.equal('1234-5678');
-      expect(impressionJson.listener_id).to.equal('some-listener-id');
-      expect(impressionJson.listener_episode).to.equal('listener-episode-1');
       expect(impressionJson.listener_session).to.equal('listener-session-1');
+      expect(impressionJson.digest).to.equal('the-digest');
       expect(impressionJson.segment).to.equal(0);
-      expect(impressionJson.confirmed).to.equal(false);
+      expect(impressionJson.is_confirmed).to.equal(false);
+      expect(impressionJson.is_bytes).to.equal(false);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.be.null;
       expect(impressionJson.ad_id).to.equal(12);
@@ -127,14 +130,14 @@ describe('handler', () => {
       impressionJson = inserted['dt_impressions'][1].json;
       expect(impressionJson.ad_id).to.equal(98);
       expect(impressionJson.segment).to.equal(0);
-      expect(impressionJson.confirmed).to.equal(true);
+      expect(impressionJson.is_confirmed).to.equal(true);
       expect(impressionJson.is_duplicate).to.equal(true);
       expect(impressionJson.cause).to.equal('something');
 
       impressionJson = inserted['dt_impressions'][2].json;
       expect(impressionJson.ad_id).to.equal(76);
       expect(impressionJson.segment).to.equal(3);
-      expect(impressionJson.confirmed).to.equal(true);
+      expect(impressionJson.is_confirmed).to.equal(true);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.equal(null);
 

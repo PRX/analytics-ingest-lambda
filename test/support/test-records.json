@@ -15,7 +15,7 @@
         "flightId": 78,
         "isDuplicate": false,
         "cause": null,
-        "pingbacks": [
+        "pings": [
           "http://www.foo.bar/ping1",
           "http://www.foo.bar/ping2"
         ]
@@ -30,6 +30,7 @@
     "remoteAgent": "AppleCoreMedia/1.0.0.14B100 (iPhone; U; CPU OS 10_1_1 like Mac OS X; en_us)",
     "remoteIp": "24.49.134.194, 127.0.0.1, 99.99.99.99, whatev",
     "remoteReferrer": "https://www.prx.org/technology/",
+    "requestUuid": "req-uuid",
     "timestamp": 1487703699,
     "url": "program-name/guid/file.mp3"
   },
@@ -47,7 +48,7 @@
         "flightId": 78,
         "isDuplicate": true,
         "cause": "something",
-        "impressionUrl": "http://www.foo.bar/ping3"
+        "pings": ["http://www.foo.bar/ping3"]
       },
       {
         "segment": 3,
@@ -57,7 +58,7 @@
         "flightId": 78,
         "isDuplicate": false,
         "cause": null,
-        "impressionUrl": "http://www.foo.bar/ping4"
+        "pings": ["http://www.foo.bar/ping4"]
       }
     ],
     "confirmed": true,
@@ -70,6 +71,7 @@
     "remoteAgent": "aoeutnheoantuh",
     "remoteIp": "199.119.122.237",
     "remoteReferrer": "",
+    "requestUuid": "req-uuid",
     "timestamp": 1487703699777,
     "url": "program-name/the/path-here"
   },

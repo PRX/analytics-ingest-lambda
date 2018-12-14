@@ -12,7 +12,7 @@ describe('dovetail-downloads', () => {
     expect(download.check({})).to.be.false;
     expect(download.check({type: 'impression'})).to.be.false;
     expect(download.check({type: 'download'})).to.be.false;
-    expect(download.check({type: 'combined'})).to.be.false;
+    expect(download.check({type: 'combined', download: null})).to.be.false;
     expect(download.check({type: 'combined', download: {}})).to.be.true;
   });
 
@@ -27,13 +27,15 @@ describe('dovetail-downloads', () => {
     expect(record.insertId).to.equal('something/1490827132');
     expect(record.json).to.have.keys(
       'timestamp',
+      'request_uuid',
       'feeder_podcast',
       'feeder_episode',
       'digest',
       'ad_count',
       'is_duplicate',
       'cause',
-      'confirmed',
+      'is_confirmed',
+      'is_bytes',
       'url',
       'listener_id',
       'listener_episode',
