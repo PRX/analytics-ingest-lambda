@@ -28,7 +28,7 @@ daily partition.
 
 ## Pingbacks
 
-Records with type `combined` and a special `impression[].pingbacks` array will be pinged via
+Records with type `combined` and a special `impression[].pings` array will be pinged via
 an HTTP GET.  This "ping" does follow redirects, but expects to land on a 200
 response afterwards.  Although 500 errors will be retried internally in the
 code, any ping failures will be allowed to fail after error/timeout.
@@ -37,8 +37,7 @@ Unlike BigQuery, these operations are not idempotent, so we don't want to
 over-ping a url.  All errors will be handled internally so Kinesis doesn't
 attempt to re-exec the batch of records.
 
-Similarly, any non-duplicate impression with an `impressionUrl` will also be
-pinged.  This is normally the "official" Adzerk pixel-tracker from Dovetail.
+Note that Adzerk `impressionUrl`s now live in this pings array.
 
 ### URI Templates
 
