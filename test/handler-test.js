@@ -69,10 +69,10 @@ describe('handler', () => {
     let event = support.buildEvent(require('./support/test-records'));
     handler(event, null, (err, result) => {
       expect(errs.length).to.equal(1);
-      expect(result).to.match(/inserted 6/i);
+      expect(result).to.match(/inserted 4/i);
 
       // based on test-records
-      expect(inserted).to.have.keys('dt_downloads', 'dt_impressions', 'dt_download_bytes', 'dt_impression_bytes');
+      expect(inserted).to.have.keys('dt_downloads', 'dt_impressions');
 
       expect(inserted['dt_downloads'].length).to.equal(1);
       expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
@@ -140,27 +140,6 @@ describe('handler', () => {
       expect(impressionJson.is_confirmed).to.equal(true);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.equal(null);
-
-      expect(inserted['dt_download_bytes'].length).to.equal(1);
-      expect(inserted['dt_download_bytes'][0].insertId).not.to.equal('req-uuid');
-      expect(inserted['dt_download_bytes'][0].json).to.eql({
-        request_uuid: 'req-uuid',
-        timestamp: 1539287413,
-        bytes: 104820,
-        seconds: 2.5858585858,
-        percent: 0.582747737
-      });
-
-      expect(inserted['dt_impression_bytes'].length).to.equal(1);
-      expect(inserted['dt_impression_bytes'][0].insertId).not.to.equal('req-uuid');
-      expect(inserted['dt_impression_bytes'][0].json).to.eql({
-        request_uuid: 'req-uuid',
-        segment_index: 4,
-        timestamp: 1539287527,
-        bytes: 104820,
-        seconds: 2.5858585858,
-        percent: 0.582747737
-      });
 
       done();
     });

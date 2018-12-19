@@ -31,12 +31,10 @@ describe('inputs', () => {
       {type: 'bytes',        listenerId: 'b2', timestamp: 999999}
     ]);
     return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(4);
-      expect(inserts.map(i => i.count)).to.eql([1, 2, 1, 1]);
+      expect(inserts.length).to.equal(2);
+      expect(inserts.map(i => i.count)).to.eql([1, 2]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
-        'dt_download_bytes',
         'dt_downloads',
-        'dt_impression_bytes',
         'dt_impressions'
       ]);
     });
