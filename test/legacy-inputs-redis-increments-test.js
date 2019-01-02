@@ -2,32 +2,33 @@
 
 const support = require('./support');
 const redis = require('../lib/redis');
-const RedisIncrements = require('../lib/inputs/redis-increments');
+const LegacyRedisIncrements = require('../lib/inputs/legacy-redis-increments');
 
-describe('redis-increments', () => {
+describe('legacy-redis-increments', () => {
 
   beforeEach(() => process.env.REDIS_HOST = 'redis://127.0.0.1:6379');
 
   it('recognizes download records', () => {
-    let incr = new RedisIncrements();
+    let incr = new LegacyRedisIncrements();
     expect(incr.check({})).to.be.false;
-    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.false;
-    expect(incr.check({type: 'combined', feederPodcast: 1})).to.be.false;
-    expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: true}})).to.be.false;
-    expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: false}})).to.be.true;
+    expect(incr.check({type: 'foobar', feederPodcast: 1})).to.be.false;
+    expect(incr.check({type: 'download', feederPodcast: 1})).to.be.true;
+    expect(incr.check({type: 'impression', feederPodcast: 1})).to.be.false;
+    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: true})).to.be.false;
+    expect(incr.check({type: 'download', feederPodcast: 1, isDuplicate: false})).to.be.true;
   });
 
   it('inserts nothing for no records', () => {
-    let incr = new RedisIncrements();
+    let incr = new LegacyRedisIncrements();
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
     });
   });
 
   it('inserts nothing for records without feeder ids/guids', () => {
-    let incr = new RedisIncrements([
+    let incr = new LegacyRedisIncrements([
       record(1490827132, 'download', null, null),
-      record(1490827132, 'combined', null, null)
+      record(1490827132, 'impression', null, null)
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
@@ -36,13 +37,13 @@ describe('redis-increments', () => {
 
   it('inserts nothing for no redis host', () => {
     process.env.REDIS_HOST = '';
-    let records = [record(1490827132, 'combined', 1234, 'abcd')];
-    let incr = new RedisIncrements(records);
+    let records = [record(1490827132, 'download', 1234, 'abcd')];
+    let incr = new LegacyRedisIncrements(records);
     return incr.insert().then(result => {
       expect(result.length).to.equal(0);
 
       process.env.REDIS_HOST = 'whatev';
-      incr = new RedisIncrements(records);
+      incr = new LegacyRedisIncrements(records);
       return incr.insert();
     }).then(result => {
       expect(result.length).to.equal(1);
@@ -50,12 +51,11 @@ describe('redis-increments', () => {
   });
 
   it('increments redis counts', () => {
-    let incr = new RedisIncrements([
+    let incr = new LegacyRedisIncrements([
       record(1490827132, 'download', 1234, 'abcd'),
-      record(1490827132, 'combined', 1234, 'abcd'),
-      record(1490827132, 'combined', 1234, 'efgh'),
-      record(1490828132, 'combined', 1234, 'abcd'),
-      record(1490829132, 'combined', 1234, 'abcd'),
+      record(1490827132, 'download', 1234, 'efgh'),
+      record(1490828132, 'download', 1234, 'abcd'),
+      record(1490829132, 'download', 1234, 'abcd'),
       record(1490827132, 'impression', 1234, null),
       record(1490827132, 'impression', 1234, 'efgh', true)
     ]);
@@ -87,8 +87,8 @@ describe('redis-increments', () => {
   });
 
   it('expires redis keys', () => {
-    let incr = new RedisIncrements([
-      record(1490827132, 'combined', 1234, 'abcd')
+    let incr = new LegacyRedisIncrements([
+      record(1490827132, 'download', 1234, 'abcd')
     ]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
@@ -107,21 +107,11 @@ describe('redis-increments', () => {
 
 // helpers
 function record(timestamp, type, id, guid, isdup) {
-  if (type === 'combined') {
-    return {
-      timestamp: timestamp,
-      type: type,
-      feederPodcast: id,
-      feederEpisode: guid,
-      download: {isDuplicate: !!isdup}
-    }
-  } else {
-    return {
-      timestamp: timestamp,
-      type: type,
-      feederPodcast: id,
-      feederEpisode: guid,
-      isDuplicate: !!isdup
-    }
+  return {
+    timestamp: timestamp,
+    type: type,
+    feederPodcast: id,
+    feederEpisode: guid,
+    isDuplicate: !!isdup
   }
 }

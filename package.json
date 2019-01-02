@@ -2,7 +2,7 @@
   "name": "analytics-ingest-lambda",
   "version": "0.0.0",
   "engines": {
-    "node": "6.10.3"
+    "node": ">= 8.10.0"
   },
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
@@ -14,9 +14,9 @@
     "start-redis": "PINGBACKS=0 node test/integration/runner.js",
     "test": "mocha test/",
     "ci": "istanbul cover _mocha -- test/ && codecov",
-    "build": "npm run build-sync && npm run build-prune && npm run build-zip",
+    "build": "yarn run build-sync && yarn run build-prune && yarn run build-zip",
     "build-sync": "rsync -crl --delete --exclude-from .lambdaignore . build",
-    "build-prune": "cd build && npm prune --production > /dev/null",
+    "build-prune": "cd build && yarn --production",
     "build-zip": "rm -f build.zip && cd build && zip -rq ../build.zip .",
     "watch": "mocha test/ -w"
   },
@@ -45,8 +45,7 @@
     "nock": "^9.0.14",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.9.0",
-    "targz": "^1.0.1",
-    "uuid": "^3.1.0"
+    "targz": "^1.0.1"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
@@ -56,6 +55,7 @@
     "maxmind": "^2.2.0",
     "prx-podagent": "0.0.6",
     "redis": "^2.8.0",
-    "urijs": "^1.19.0"
+    "urijs": "^1.19.0",
+    "uuid": "^3.3.2"
   }
 }

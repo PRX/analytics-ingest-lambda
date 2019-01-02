@@ -1,4 +1,4 @@
-FROM lambci/lambda:build-nodejs6.10
+FROM lambci/lambda:build-nodejs8.10
 
 MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.lambda="true"
@@ -6,12 +6,13 @@ LABEL org.prx.lambda="true"
 WORKDIR /app
 EXPOSE 8080
 
-ENTRYPOINT [ "npm", "run" ]
+ENTRYPOINT [ "yarn", "run" ]
 CMD [ "test" ]
 
-ADD package.json .
-RUN npm install
+ADD yarn.lock ./
+ADD package.json ./
+RUN npm install --quiet --global yarn && yarn install
 ADD ./bin/getmaxmind.js ./bin/
-RUN npm run geolite
+RUN yarn run geolite
 ADD . .
-RUN npm run build
+RUN yarn run build

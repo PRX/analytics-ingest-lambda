@@ -1,7 +1,6 @@
 'use strict';
 
 const support   = require('./support');
-const testEvent = require('./support/test-event');
 const bigquery  = require('../lib/bigquery');
 const logger    = require('../lib/logger');
 const index     = require('../index');
@@ -76,15 +75,17 @@ describe('handler', () => {
       expect(inserted).to.have.keys('dt_downloads', 'dt_impressions');
 
       expect(inserted['dt_downloads'].length).to.equal(1);
-      expect(inserted['dt_downloads'][0].insertId).to.equal('req-uuid');
+      expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
       let downloadJson = inserted['dt_downloads'][0].json;
       expect(downloadJson.timestamp).to.equal(1487703699);
       expect(downloadJson.request_uuid).to.equal('req-uuid');
       expect(downloadJson.feeder_podcast).to.equal(1234);
       expect(downloadJson.feeder_episode).to.equal('1234-5678');
-      expect(downloadJson.program).to.equal('program-name');
-      expect(downloadJson.path).to.equal('the/path/here');
-      expect(downloadJson.clienthash).to.equal('the-client-hash');
+      expect(downloadJson.listener_id).to.equal('some-listener-id');
+      expect(downloadJson.listener_episode).to.equal('listener-episode-1');
+      expect(downloadJson.listener_session).to.equal('listener-session-1');
+      expect(downloadJson.is_confirmed).to.equal(false);
+      expect(downloadJson.is_bytes).to.equal(false);
       expect(downloadJson.digest).to.equal('the-digest');
       expect(downloadJson.ad_count).to.equal(2);
       expect(downloadJson.is_duplicate).to.equal(false);
@@ -102,15 +103,23 @@ describe('handler', () => {
       expect(Math.abs(downloadJson.longitude + 105.5217)).to.be.below(1);
 
       expect(inserted['dt_impressions'].length).to.equal(3);
-      expect(inserted['dt_impressions'][0].insertId).not.to.equal('req-uuid');
-      expect(inserted['dt_impressions'][1].insertId).not.to.equal('req-uuid');
-      expect(inserted['dt_impressions'][2].insertId).not.to.equal('req-uuid');
+      expect(inserted['dt_impressions'][0].insertId.length).to.be.above(10);
+      expect(inserted['dt_impressions'][1].insertId.length).to.be.above(10);
+      expect(inserted['dt_impressions'][2].insertId.length).to.be.above(10);
+      expect(inserted['dt_impressions'][0].insertId).not.to.equal(inserted['dt_impressions'][1].insertId);
+      expect(inserted['dt_impressions'][0].insertId).not.to.equal(inserted['dt_impressions'][2].insertId);
+      expect(inserted['dt_impressions'][1].insertId).not.to.equal(inserted['dt_impressions'][2].insertId);
 
       let impressionJson = inserted['dt_impressions'][0].json;
       expect(impressionJson.timestamp).to.equal(1487703699);
       expect(impressionJson.request_uuid).to.equal('req-uuid');
       expect(impressionJson.feeder_podcast).to.equal(1234);
       expect(impressionJson.feeder_episode).to.equal('1234-5678');
+      expect(impressionJson.listener_session).to.equal('listener-session-1');
+      expect(impressionJson.digest).to.equal('the-digest');
+      expect(impressionJson.segment).to.equal(0);
+      expect(impressionJson.is_confirmed).to.equal(false);
+      expect(impressionJson.is_bytes).to.equal(false);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.be.null;
       expect(impressionJson.ad_id).to.equal(12);
@@ -120,11 +129,15 @@ describe('handler', () => {
 
       impressionJson = inserted['dt_impressions'][1].json;
       expect(impressionJson.ad_id).to.equal(98);
+      expect(impressionJson.segment).to.equal(0);
+      expect(impressionJson.is_confirmed).to.equal(true);
       expect(impressionJson.is_duplicate).to.equal(true);
       expect(impressionJson.cause).to.equal('something');
 
       impressionJson = inserted['dt_impressions'][2].json;
       expect(impressionJson.ad_id).to.equal(76);
+      expect(impressionJson.segment).to.equal(3);
+      expect(impressionJson.is_confirmed).to.equal(true);
       expect(impressionJson.is_duplicate).to.equal(false);
       expect(impressionJson.cause).to.equal(null);
 
