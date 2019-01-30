@@ -42,13 +42,28 @@ exports.handler = (event, context, callback) => {
       logger.error(`Unrecognized input record: ${JSON.stringify(r)}`);
     });
 
+    // failsafe timeout on pingbacks
+    let failsafe;
+    if (process.env.PINGBACKS) {
+      failsafe = setTimeout(function() {
+        logger.error('Failsafe global timeout!');
+        console.log(JSON.stringify(records));
+        if (process.env.EXIT_ON_PINGBACKS_TIMEOUT) {
+          callback(null, `Failsafe exit`);
+          process.exit(0);
+        }
+      }, 3000);
+    }
+
     // run inserts in parallel
     inputs.insertAll().then(
       results => {
+        clearTimeout(failsafe);
         let total = results.reduce((acc, r) => acc + r.count, 0);
         callback(null, `Inserted ${total} rows`);
       },
       err => {
+        clearTimeout(failsafe);
         callback(logger.errors(err));
       }
     );
