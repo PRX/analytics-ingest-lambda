@@ -52,7 +52,7 @@ exports.handler = (event, context, callback) => {
           callback(null, `Failsafe exit`);
           process.exit(0);
         }
-      }, 3000);
+      }, 25000);
     }
 
     // run inserts in parallel
