@@ -334,15 +334,15 @@ debug@2.6.8:
   dependencies:
     ms "2.0.0"
 
-debug@=3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
-  dependencies:
-    ms "2.0.0"
-
-debug@^3.1.0:
+debug@^3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
+  dependencies:
+    ms "^2.1.1"
+
+debug@^4.1.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   dependencies:
     ms "^2.1.1"
 
@@ -485,11 +485,11 @@ fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
-follow-redirects@^1.2.5:
-  version "1.5.10"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
+follow-redirects@cavis/follow-redirects#fix/settimeout_handler:
+  version "1.6.1"
+  resolved "https://codeload.github.com/cavis/follow-redirects/tar.gz/b8f323d5129e0bfa0b470a9ce6d94aff8ec96615"
   dependencies:
-    debug "=3.1.0"
+    debug "^3.2.6"
 
 forever-agent@~0.6.1:
   version "0.6.1"
@@ -932,7 +932,7 @@ mime@^1.4.1:
 
 minimist@0.0.8:
   version "0.0.8"
-  resolved "http://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
 
 minimist@~0.0.1:
   version "0.0.10"
@@ -973,12 +973,12 @@ ms@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 
-nock@^9.0.14:
-  version "9.6.1"
-  resolved "https://registry.yarnpkg.com/nock/-/nock-9.6.1.tgz#d96e099be9bc1d0189a77f4490bbbb265c381b49"
+nock@^10.0.6:
+  version "10.0.6"
+  resolved "https://registry.yarnpkg.com/nock/-/nock-10.0.6.tgz#e6d90ee7a68b8cfc2ab7f6127e7d99aa7d13d111"
   dependencies:
     chai "^4.1.2"
-    debug "^3.1.0"
+    debug "^4.1.0"
     deep-equal "^1.0.0"
     json-stringify-safe "^5.0.1"
     lodash "^4.17.5"
@@ -1071,9 +1071,9 @@ propagate@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/propagate/-/propagate-1.0.0.tgz#00c2daeedda20e87e3782b344adba1cddd6ad709"
 
-prx-podagent@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.0.5.tgz#794f53b9a23d6e5442d78efbdd164a2b7d2a907d"
+prx-podagent@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.0.6.tgz#20d19679a32ad495ea8be7f3b7952e9d2c9368fd"
   dependencies:
     js-yaml "^3.9.1"
 

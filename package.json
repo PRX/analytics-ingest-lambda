@@ -42,7 +42,7 @@
     "fakeredis": "^2.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
-    "nock": "^9.0.14",
+    "nock": "^10.0.6",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.9.0",
     "targz": "^1.0.1"
@@ -50,7 +50,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "^0.7.0",
     "aws-sdk": "^2.19.0",
-    "follow-redirects": "^1.2.5",
+    "follow-redirects": "cavis/follow-redirects#fix/settimeout_handler",
     "ip": "^1.1.5",
     "maxmind": "^2.2.0",
     "prx-podagent": "0.0.6",
