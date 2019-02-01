@@ -45,7 +45,7 @@ describe('pingurl', () => {
   });
 
   it('retries 502 errors', () => {
-    sinon.stub(logger, 'warn', msg => null);
+    sinon.stub(logger, 'warn');
     let scope = nock('http://www.foo.bar').get('/').times(3).reply(502);
     return pingurl.ping('http://www.foo.bar/', null, undefined, 0).then(
       () => { throw new Error('Should have gotten error') },

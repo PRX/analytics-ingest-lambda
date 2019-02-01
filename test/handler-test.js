@@ -11,18 +11,18 @@ describe('handler', () => {
   let inserted = {}, warns = [], errs = [];
   beforeEach(() => {
     warns = [], errs = [];
-    sinon.stub(logger, 'error', msg => errs.push(msg));
-    sinon.stub(logger, 'warn', msg => warns.push(msg));
+    sinon.stub(logger, 'error').callsFake(msg => errs.push(msg));
+    sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
     sinon.stub(logger, 'info');
 
     inserted = {};
-    sinon.stub(bigquery, 'dataset', () => {
-      return Promise.resolve({table: tbl => {
+    sinon.stub(bigquery, 'dataset').resolves({
+      table: tbl => {
         return {insert: rows => {
           inserted[tbl] = rows;
           return Promise.resolve(rows.length);
         }};
-      }});
+      }
     });
   });
 

@@ -16,7 +16,7 @@ describe('bigquery', () => {
   });
 
   it('detects encrypted looking private keys', () => {
-    sinon.stub(decrypt, 'decryptAws', () => Promise.resolve('okay'));
+    sinon.stub(decrypt, 'decryptAws').resolves('okay');
     return bigquery.dataset(true).then(dataset => {
       expect(decrypt.decryptAws).not.to.have.been.called;
       process.env.BQ_PRIVATE_KEY = 'this-looks-encrypted';
@@ -37,14 +37,14 @@ describe('bigquery', () => {
     let inserted, insertOpts;
     beforeEach(() => {
       inserted = {};
-      sinon.stub(bigquery, 'dataset', () => {
-        return Promise.resolve({table: tbl => {
+      sinon.stub(bigquery, 'dataset').resolves({
+        table: tbl => {
           return {insert: (rows, opts) => {
             inserted[tbl] = rows;
             insertOpts = opts;
             return Promise.resolve({});
           }};
-        }});
+        }
       });
     });
 
@@ -66,13 +66,13 @@ describe('bigquery', () => {
     let thrown;
     beforeEach(() => {
       thrown = 0;
-      sinon.stub(bigquery, 'dataset', () => {
-        return Promise.resolve({table: tbl => {
+      sinon.stub(bigquery, 'dataset').resolves({
+        table: tbl => {
           return {insert: (rows, opts) => {
             thrown++;
             return Promise.reject(new Error(`err${thrown}`));
           }};
-        }});
+        }
       });
     });
 

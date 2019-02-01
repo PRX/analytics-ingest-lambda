@@ -18,7 +18,7 @@ global.nock = require('nock');
 
 // sandbox sinon mocks
 const _sinon = require('sinon');
-beforeEach(() => global.sinon = _sinon.sandbox.create());
+beforeEach(() => global.sinon = _sinon.createSandbox());
 afterEach(() => global.sinon.restore());
 
 // fake redis - TODO: lib doesn't handle connect/quit correctly
@@ -30,7 +30,7 @@ beforeEach(() => {
   let _on = fakeClient.on, _quit = fakeClient.quit;
   fakeClient.on = (e, fn) => (e === 'connect') ? fn() : _on.call(fakeClient, e, fn);
   fakeClient.quit = () => fakeClient.emit('end') && _quit.call(fakeClient);
-  sinon.stub(redis, 'createClient', () => fakeClient);
+  sinon.stub(redis, 'createClient').returns(fakeClient);
 });
 afterEach(() => exports.redisCommand('flushdb'));
 

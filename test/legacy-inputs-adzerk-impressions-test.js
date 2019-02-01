@@ -58,7 +58,7 @@ describe('legacy-adzerk-impressions', () => {
     ], 1000, 0);
 
     let warns = [];
-    sinon.stub(logger, 'warn', msg => warns.push(msg));
+    sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
 
     return adzerk3.insert().then(result => {
       expect(result.length).to.equal(1);

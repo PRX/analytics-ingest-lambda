@@ -21,7 +21,7 @@ describe('inputs', () => {
 
   it('inserts all bigquery inputs', () => {
     sinon.stub(logger, 'info');
-    sinon.stub(bigquery, 'insert', (tbl, rows) => Promise.resolve(rows.length));
+    sinon.stub(bigquery, 'insert').callsFake((tbl, rows) => Promise.resolve(rows.length));
     let inputs = new BigqueryInputs([
       {type: 'combined',     listenerId: 'i1', timestamp: 0, impressions: [{}]},
       {type: 'foobar',       listenerId: 'fb', timestamp: 0},
