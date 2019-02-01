@@ -57,7 +57,7 @@ describe('pingurl', () => {
   });
 
   it('times out with a nocked delay', () => {
-    nock('http://www.foo.bar').get('/timeout').delay(2000).reply(200);
+    nock('http://www.foo.bar').get('/timeout').delay(100).reply(200);
     return pingurl.ping('http://www.foo.bar/timeout', null, 10).then(
       () => { throw new Error('Should have gotten error') },
       e => { expect(e.message).to.match(/http timeout from/i) }
@@ -66,7 +66,7 @@ describe('pingurl', () => {
 
   it('times out with a nocked redirect-delay', () => {
     nock('http://www.foo.bar').get('/redirect').reply(302, undefined, {Location: 'http://www.foo.bar/timeout'});
-    nock('http://www.foo.bar').get('/timeout').delay(2000).reply(200);
+    nock('http://www.foo.bar').get('/timeout').delay(100).reply(200);
     return pingurl.ping('http://www.foo.bar/redirect', null, 10).then(
       () => { throw new Error('Should have gotten error') },
       e => { expect(e.message).to.match(/http timeout from /i) }
