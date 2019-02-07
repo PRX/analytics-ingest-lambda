@@ -48,6 +48,7 @@
     "targz": "^1.0.1"
   },
   "dependencies": {
+    "@aws/dynamodb-batch-iterator": "^0.7.1",
     "@google-cloud/bigquery": "^2.0.6",
     "aws-sdk": "^2.395.0",
     "follow-redirects": "cavis/follow-redirects#fix/settimeout_handler",

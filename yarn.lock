@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@aws/dynamodb-batch-iterator@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@aws/dynamodb-batch-iterator/-/dynamodb-batch-iterator-0.7.1.tgz#aa3062b2e7816ddb88ac64575a11476930c990e9"
+  dependencies:
+    tslib "^1.8.1"
+    utf8-bytes "^0.0.1"
+
 "@google-cloud/bigquery@^2.0.6":
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/@google-cloud/bigquery/-/bigquery-2.0.6.tgz#be8674092b7e25c9d9f74aa93926e0678449b1c2"
@@ -1273,6 +1280,10 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
+tslib@^1.8.1:
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.3.tgz#d7e4dd79245d85428c4d7e4822a79917954ca286"
+
 tunnel-agent@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.6.0.tgz#27a5dea06b36b04a0a9966774b290868f0fc40fd"
@@ -1320,6 +1331,10 @@ url@0.10.3:
 urlgrey@^0.4.4:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/urlgrey/-/urlgrey-0.4.4.tgz#892fe95960805e85519f1cd4389f2cb4cbb7652f"
+
+utf8-bytes@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/utf8-bytes/-/utf8-bytes-0.0.1.tgz#116b025448c9b500081cdfbf1f4d6c6c37d8837d"
 
 util-deprecate@~1.0.1:
   version "1.0.2"
