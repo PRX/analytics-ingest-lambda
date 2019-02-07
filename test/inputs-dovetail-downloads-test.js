@@ -66,7 +66,7 @@ describe('dovetail-downloads', () => {
 
   it('inserts download records', () => {
     let inserts = {};
-    sinon.stub(bigquery, 'insert', (tbl, rows) => {
+    sinon.stub(bigquery, 'insert').callsFake((tbl, rows) => {
       inserts[tbl] = rows;
       return Promise.resolve(rows.length);
     });

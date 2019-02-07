@@ -21,7 +21,7 @@ describe('legacy-inputs', () => {
 
   it('inserts all bigquery inputs', () => {
     sinon.stub(logger, 'info');
-    sinon.stub(bigquery, 'insert', (tbl, rows) => Promise.resolve(rows.length));
+    sinon.stub(bigquery, 'insert').callsFake((tbl, rows) => Promise.resolve(rows.length));
     let inputs = new BigqueryInputs([
       {type: 'impression', requestUuid: 'i1', timestamp: 0, impressionUrl: 'http://foo.bar'},
       {type: 'foobar',     requestUuid: 'fb', timestamp: 0},

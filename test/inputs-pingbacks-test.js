@@ -65,7 +65,7 @@ describe('pingbacks', () => {
     ], 1000, 0);
 
     let warns = [];
-    sinon.stub(logger, 'warn', msg => warns.push(msg));
+    sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
 
     const result = await pingbacks.insert();
     expect(result.length).to.equal(1);

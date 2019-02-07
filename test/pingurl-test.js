@@ -45,7 +45,7 @@ describe('pingurl', () => {
   });
 
   it('retries 502 errors', () => {
-    sinon.stub(logger, 'warn', msg => null);
+    sinon.stub(logger, 'warn');
     let scope = nock('http://www.foo.bar').get('/').times(3).reply(502);
     return pingurl.ping('http://www.foo.bar/', null, undefined, 0).then(
       () => { throw new Error('Should have gotten error') },
@@ -56,10 +56,35 @@ describe('pingurl', () => {
     );
   });
 
-  it('times out', () => {
-    // TODO: nock doesn't seem to be able to trigger timeouts correctly
-    // let scope = nock('http://www.foo.bar').get('/').delay(5000).reply(200);
-    return pingurl.ping('http://slowwly.robertomurray.co.uk/delay/2000/url/http://www.prx.org', null, 100).then(
+  it('times out with a nocked delay', () => {
+    nock('http://www.foo.bar').get('/timeout').delay(100).reply(200);
+    return pingurl.ping('http://www.foo.bar/timeout', null, 10).then(
+      () => { throw new Error('Should have gotten error') },
+      e => { expect(e.message).to.match(/http timeout from/i) }
+    );
+  });
+
+  it('times out with a nocked redirect-delay', () => {
+    nock('http://www.foo.bar').get('/redirect').reply(302, undefined, {Location: 'http://www.foo.bar/timeout'});
+    nock('http://www.foo.bar').get('/timeout').delay(100).reply(200);
+    return pingurl.ping('http://www.foo.bar/redirect', null, 10).then(
+      () => { throw new Error('Should have gotten error') },
+      e => { expect(e.message).to.match(/http timeout from /i) }
+    );
+  });
+
+  it('times out with an actual delay', () => {
+    let url = 'http://slowwly.robertomurray.co.uk/delay/2000/url/http://dovetail.prxu.org/ping';
+    return pingurl.ping(url, null, 10).then(
+      () => { throw new Error('Should have gotten error') },
+      e => { expect(e.message).to.match(/http timeout from/i) }
+    );
+  });
+
+  it('times out with an actual redirect-delay', () => {
+    let url = 'http://slowwly.robertomurray.co.uk/delay/2000/url/http://dovetail.prxu.org/ping';
+    nock('http://www.foo.bar').get('/redirect').reply(302, undefined, {Location: url});
+    return pingurl.ping('http://www.foo.bar/redirect', null, 10).then(
       () => { throw new Error('Should have gotten error') },
       e => { expect(e.message).to.match(/http timeout from/i) }
     );
