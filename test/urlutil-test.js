@@ -48,6 +48,11 @@ describe('urlutil', () => {
     expect(params.referer).to.equal('http://www.prx.org/');
   });
 
+  it('expands non templates', () => {
+    const url = 'https://some/host/i.png?foo=bar&anything=else';
+    expect(urlutil.expand(url)).to.equal(url);
+  });
+
   it('gets the md5 digest for the agent', () => {
     let url = urlutil.expand('http://foo.bar/?ua={agentmd5}', TEST_IMPRESSION());
     expect(url).to.equal('http://foo.bar/?ua=da08af6021d3ec8b8d27558ca92c314e');
