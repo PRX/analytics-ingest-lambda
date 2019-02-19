@@ -97,6 +97,25 @@ describe('byte-downloads', () => {
     expect(recs[1].impressions[1].segment).to.equal(4);
   });
 
+  it('decodes ids back to listenerSession + digest', async () => {
+    const bytes = new ByteDownloads([
+      {listenerSession: 'ls1', digest: 'd1', type: 'bytes'},
+      {listenerSession: 'ls1', digest: 'd2', type: 'bytes'},
+      {listenerSession: 'ls1', digest: 'd3', type: 'bytes'},
+    ]);
+    sinon.stub(dynamo, 'get').callsFake(async () => [
+      {id: 'ls1.d1', any: 'thing'},
+      {id: 'ls1.d2', some: 'thing'},
+      {foo: 'bar'},
+    ]);
+
+    const recs = await bytes.lookup();
+    expect(recs.length).to.equal(3);
+    expect(recs[0]).to.eql({listenerSession: 'ls1', digest: 'd1', any: 'thing'});
+    expect(recs[1]).to.eql({listenerSession: 'ls1', digest: 'd2', some: 'thing'});
+    expect(recs[2]).to.eql({foo: 'bar'});
+  });
+
   it('inserts nothing', () => {
     return new ByteDownloads().insert().then(result => {
       expect(result.length).to.equal(0);
@@ -113,12 +132,12 @@ describe('byte-downloads', () => {
     // ddb.get returns values in order of keys
     sinon.stub(dynamo, 'get').callsFake(async () => [
       {
-        type: 'antebytespreview', listenerSession: 'ls1', digest: 'd1', download: {},
+        type: 'antebytespreview', id: 'ls1.d1', download: {},
         impressions: [{segment: 1}, {segment: 3}],
       },
       null,
       {
-        type: 'antebytes', listenerSession: 'ls2', digest: 'd2', download: {},
+        type: 'antebytes', id: 'ls2.d2', download: {},
         impressions: [{segment: 0}, {segment: 2}, {segment: 4}],
       },
     ]);
