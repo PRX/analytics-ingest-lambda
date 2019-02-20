@@ -4,6 +4,7 @@ const support   = require('./support');
 const testRecs  = require('./support/test-records');
 const bigquery  = require('../lib/bigquery');
 const dynamo    = require('../lib/dynamo');
+const kinesis   = require('../lib/kinesis');
 const logger    = require('../lib/logger');
 const index     = require('../index');
 
@@ -68,15 +69,16 @@ describe('handler', () => {
     });
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 4/i);
-    expect(infos.length).to.equal(2);
+    expect(result).to.match(/inserted 5/i);
+    expect(infos.length).to.equal(3);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0]).to.match(/1 rows into dt_downloads/);
-    expect(infos[1]).to.match(/3 rows into dt_impressions/);
+    expect(infos[1]).to.match(/1 rows into dt_downloads_preview/);
+    expect(infos[2]).to.match(/3 rows into dt_impressions/);
 
     // based on test-records
-    expect(inserted).to.have.keys('dt_downloads', 'dt_impressions');
+    expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions');
 
     expect(inserted['dt_downloads'].length).to.equal(1);
     expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
@@ -144,6 +146,14 @@ describe('handler', () => {
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(false);
     expect(impressionJson.cause).to.equal(null);
+
+    let previewJson = inserted['dt_downloads_preview'][0].json;
+    expect(previewJson.listener_session).to.equal('listener-session-6');
+    expect(previewJson.feeder_podcast).to.equal(1234);
+    expect(previewJson.feeder_episode).to.equal('1234-5678');
+    expect(previewJson.is_bytes).to.equal(true);
+    expect(previewJson.is_duplicate).to.equal(false);
+    expect(previewJson.cause).to.equal(null);
   });
 
   it('handles dynamodb records', async () => {
@@ -155,6 +165,7 @@ describe('handler', () => {
         {segment: 2, pings: ['ping', 'backs']},
       ]},
     ]);
+    sinon.stub(kinesis, 'put').callsFake(async (datas) => datas.length);
     process.env.DYNAMODB = 'true';
 
     const result = await handler(event);
@@ -164,6 +175,24 @@ describe('handler', () => {
     expect(errs.length).to.equal(0);
     expect(infos[0]).to.match(/inserted 2 rows into dynamodb/i);
     expect(infos[1]).to.match(/inserted 1 rows into kinesis/i);
+
+    expect(dynamo.write.args[0][0].length).to.equal(2);
+    expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
+    expect(dynamo.write.args[0][0][0].any).to.equal('thing');
+    expect(dynamo.write.args[0][0][0].id).to.equal('listener-session-4.the-digest');
+    expect(dynamo.write.args[0][0][0].listenerSession).to.be.undefined;
+    expect(dynamo.write.args[0][0][0].digest).to.be.undefined;
+    expect(dynamo.write.args[0][0][1].type).to.equal('antebytespreview');
+    expect(dynamo.write.args[0][0][1].some).to.equal('thing');
+    expect(dynamo.write.args[0][0][1].id).to.equal('listener-session-5.the-digest');
+    expect(dynamo.write.args[0][0][1].listenerSession).to.be.undefined;
+    expect(dynamo.write.args[0][0][1].digest).to.be.undefined;
+
+    expect(kinesis.put.args[0][0].length).to.equal(1);
+    expect(kinesis.put.args[0][0][0].type).to.equal('postbytes');
+    expect(kinesis.put.args[0][0][0].listenerSession).to.equal('listener-session-3');
+    expect(kinesis.put.args[0][0][0].digest).to.equal('the-digest');
+    expect(kinesis.put.args[0][0][0].any).to.equal('thing');
   });
 
   it('handles pingback records', async () => {

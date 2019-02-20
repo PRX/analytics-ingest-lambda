@@ -35,7 +35,7 @@
     "url": "program-name/guid/file.mp3"
   },
   {
-    "type": "combined",
+    "type": "postbytes",
     "impressions": [
       {
         "segment": 0,
@@ -110,5 +110,16 @@
     "digest": "the-digest",
     "listenerSession": "listener-session-5",
     "some": "thing"
+  },
+  {
+    "type": "postbytespreview",
+    "digest": "the-digest",
+    "listenerSession": "listener-session-6",
+    "feederPodcast": 1234,
+    "feederEpisode": "1234-5678",
+    "download": {
+      "cause": null,
+      "isDupliciate": false
+    }
   }
 ]
