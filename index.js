@@ -2,7 +2,7 @@
 
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
-const { BigqueryInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
+const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
 
 exports.handler = (event, context, callback) => {
   let records = [];
@@ -33,6 +33,8 @@ exports.handler = (event, context, callback) => {
       inputs = new RedisInputs(records);
     } else if (process.env.PINGBACKS) {
       inputs = new PingbackInputs(records);
+    } else if (process.env.DYNAMODB) {
+      inputs = new DynamoInputs(records);
     } else {
       inputs = new BigqueryInputs(records);
     }

@@ -35,9 +35,6 @@
     "url": "program-name/guid/file.mp3"
   },
   {
-    "foo": "bar"
-  },
-  {
     "type": "combined",
     "impressions": [
       {
@@ -78,18 +75,40 @@
   {
     "type": "bytes",
     "timestamp": 1539287413617,
-    "request_uuid": "req-uuid",
-    "bytes_downloaded": 104820,
-    "seconds_downloaded": 2.5858585858,
-    "percent_downloaded": 0.582747737
+    "listenerSession": "listener-session-3",
+    "digest": "the-digest",
+    "bytes": 104820,
+    "seconds": 2.5858585858,
+    "percent": 0.582747737
   },
   {
     "type": "segmentbytes",
     "timestamp": 1539287527,
-    "request_uuid": "req-uuid",
-    "segment_index": 4,
-    "bytes_downloaded": 104820,
-    "seconds_downloaded": 2.5858585858,
-    "percent_downloaded": 0.582747737
+    "listenerSession": "listener-session-3",
+    "digest": "the-digest",
+    "segment": 4
+  },
+  {
+    "type": "antebytes",
+    "download": {
+      "isDuplicate": false,
+      "cause": null,
+      "adCount": 2
+    },
+    "impressions": [
+      {
+        "segment": 0,
+        "isDuplicate": false
+      }
+    ],
+    "digest": "the-digest",
+    "listenerSession": "listener-session-4",
+    "any": "thing"
+  },
+  {
+    "type": "antebytespreview",
+    "digest": "the-digest",
+    "listenerSession": "listener-session-5",
+    "some": "thing"
   }
 ]
