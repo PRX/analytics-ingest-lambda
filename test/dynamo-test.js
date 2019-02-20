@@ -4,6 +4,10 @@ require('./support');
 const dynamo = require('../lib/dynamo');
 const skipit = process.env.TEST_DDB_TABLE ? it : xit;
 
+function throws(promise) {
+  return promise.then(() => expect.fail('should have thrown an error'), err => err);
+}
+
 describe('dynamo', () => {
 
   beforeEach(() => {
@@ -59,6 +63,21 @@ describe('dynamo', () => {
     } else {
       expect.fail('should have thrown an error');
     }
+  });
+
+  it('throws get errors', async () => {
+    sinon.stub(dynamo.client, 'batchGetItem').throws(new Error('something'));
+    expect(await throws(dynamo.get('testid1'))).to.match(/ddb foobar_table - something/i);
+  });
+
+  it('throws put errors', async () => {
+    sinon.stub(dynamo.client, 'batchWriteItem').throws(new Error('something'));
+    expect(await throws(dynamo.write({id: 'testid1'}))).to.match(/ddb foobar_table - something/i);
+  });
+
+  it('throws delete errors', async () => {
+    sinon.stub(dynamo.client, 'batchWriteItem').throws(new Error('something'));
+    expect(await throws(dynamo.delete('testid1'))).to.match(/ddb foobar_table - something/i);
   });
 
   skipit('round trips data', async () => {
