@@ -71,6 +71,11 @@
   },
   {
     "type": "postbytespreview",
+    "download": {
+      "isDuplicate": false,
+      "cause": null,
+      "adCount": 9
+    },
     "impressions": [{
       "segment": 2,
       "adId": 123,
