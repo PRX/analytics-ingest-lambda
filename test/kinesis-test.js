@@ -10,7 +10,7 @@ describe('kinesis', () => {
     puts = [];
     sinon.stub(kinesis.client, 'putRecords').callsFake(({Records}) => {
       puts.push(Records);
-      return Promise.resolve({});
+      return {promise: () => Promise.resolve({})};
     });
   });
 
