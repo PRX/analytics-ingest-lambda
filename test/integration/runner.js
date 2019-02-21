@@ -19,7 +19,12 @@ if (process.env.REDIS_HOST && process.env.REDIS_HOST !== '0') {
 } else if (process.env.PINGBACKS && process.env.PINGBACKS !== '0') {
   delete process.env.REDIS_HOST;
   console.log('Running PINGBACKS');
+} else if (process.env.DYNAMODB && process.env.DYNAMODB !== '0') {
+  delete process.env.PINGBACKS;
+  delete process.env.REDIS_HOST;
+  console.log('Running DYNAMODB');
 } else {
+  delete process.env.DYNAMODB;
   delete process.env.PINGBACKS;
   delete process.env.REDIS_HOST;
   console.log('Running BIGQUERY');

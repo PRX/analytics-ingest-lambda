@@ -3,6 +3,10 @@ BQ_CLIENT_EMAIL=
 BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"
 BQ_PROJECT_ID=
 BQ_DATASET=
+# dynamodb mode
+DYNAMODB=
+DDB_TABLE=
+KINESIS_STREAM=
 # pingbacks mode
 PINGBACKS=
 # redis mode

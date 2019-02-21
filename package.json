@@ -8,10 +8,11 @@
   "main": "index.js",
   "scripts": {
     "geolite": "node bin/getmaxmind.js",
-    "start": "npm run start-bigquery && npm run start-pingbacks && npm run start-redis",
-    "start-bigquery": "PINGBACKS=0 REDIS_HOST=0 node test/integration/runner.js",
-    "start-pingbacks": "PINGBACKS=1 REDIS_HOST=0 node test/integration/runner.js",
-    "start-redis": "PINGBACKS=0 node test/integration/runner.js",
+    "start": "npm run start-bigquery && npm run start-dynamodb && npm run start-pingbacks && npm run start-redis",
+    "start-bigquery": "DYNAMODB=0 PINGBACKS=0  REDIS_HOST=0 node test/integration/runner.js",
+    "start-dynamodb": "DYNAMODB=1 PINGBACKS=0  REDIS_HOST=0 node test/integration/runner.js",
+    "start-pingbacks": "DYNAMODB=0 PINGBACKS=1 REDIS_HOST=0 node test/integration/runner.js",
+    "start-redis": "DYNAMODB=0 PINGBACKS=0 node test/integration/runner.js",
     "test": "mocha test/",
     "ci": "istanbul cover _mocha -- test/ && codecov",
     "build": "yarn run build-sync && yarn run build-prune && yarn run build-zip",
@@ -48,6 +49,7 @@
     "targz": "^1.0.1"
   },
   "dependencies": {
+    "@aws/dynamodb-batch-iterator": "^0.7.1",
     "@google-cloud/bigquery": "^2.0.6",
     "aws-sdk": "^2.395.0",
     "follow-redirects": "1.7.0",

@@ -1,7 +1,6 @@
 'use strict';
 
 const support = require('./support');
-const redis = require('../lib/redis');
 const RedisIncrements = require('../lib/inputs/redis-increments');
 
 describe('redis-increments', () => {
@@ -15,6 +14,8 @@ describe('redis-increments', () => {
     expect(incr.check({type: 'combined', feederPodcast: 1})).to.be.false;
     expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: true}})).to.be.false;
     expect(incr.check({type: 'combined', feederPodcast: 1, download: {isDuplicate: false}})).to.be.true;
+    expect(incr.check({type: 'postbytes', feederPodcast: 1, download: {isDuplicate: true}})).to.be.false;
+    expect(incr.check({type: 'postbytes', feederPodcast: 1, download: {}})).to.be.true;
   });
 
   it('inserts nothing for no records', () => {
@@ -87,9 +88,7 @@ describe('redis-increments', () => {
   });
 
   it('expires redis keys', () => {
-    let incr = new RedisIncrements([
-      record(1490827132, 'combined', 1234, 'abcd')
-    ]);
+    let incr = new RedisIncrements([record(1490827132, 'combined', 1234, 'abcd')]);
     return incr.insert().then(result => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
@@ -109,19 +108,19 @@ describe('redis-increments', () => {
 function record(timestamp, type, id, guid, isdup) {
   if (type === 'combined') {
     return {
-      timestamp: timestamp,
-      type: type,
+      timestamp,
+      type,
       feederPodcast: id,
       feederEpisode: guid,
       download: {isDuplicate: !!isdup}
-    }
+    };
   } else {
     return {
-      timestamp: timestamp,
-      type: type,
+      timestamp,
+      type,
       feederPodcast: id,
       feederEpisode: guid,
       isDuplicate: !!isdup
-    }
+    };
   }
 }

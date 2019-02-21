@@ -6,6 +6,8 @@ beforeEach(() => {
   process.env.BQ_PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----foobar-----END PRIVATE KEY-----\n';
   process.env.BQ_PROJECT_ID = 'foobar_project';
   process.env.BQ_DATASET = 'foobar_dataset';
+  process.env.DDB_TABLE = 'foobar_table';
+  process.env.KINESIS_STREAM = 'foobar_stream';
   process.env.REDIS_HOST = '';
   process.env.REDIS_TTL = '7200';
 });

@@ -14,9 +14,10 @@ describe('pingbacks', () => {
     expect(pingbacks.check({impressionUrl: 'foo', isDuplicate: false})).to.be.false;
     expect(pingbacks.check({type: 'combined', impressions: [{pings: []}]})).to.be.false;
     expect(pingbacks.check({type: 'combined', impressions: [{pings: ['foo'], isDuplicate: true}]})).to.be.false;
-    expect(pingbacks.check({type: 'combined', bytesCompliance: true, impressions: [{pings: ['foo']}]})).to.be.false;
     expect(pingbacks.check({type: 'combined', impressions: [{pings: ['foo']}]})).to.be.true;
     expect(pingbacks.check({type: 'combined', impressions: [{}, {pings: ['foo']}]})).to.be.true;
+    expect(pingbacks.check({type: 'postbytes', impressions: [{pings: ['foo'], isDuplicate: true}]})).to.be.false;
+    expect(pingbacks.check({type: 'postbytes', impressions: [{pings: ['foo']}]})).to.be.true;
   });
 
   it('inserts nothing', async () => {

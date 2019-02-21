@@ -1,8 +1,10 @@
 'use strict';
 
 const support = require('./support');
-const { BigqueryInputs, PingbackInputs, RedisInputs } = require('../lib/inputs');
+const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('../lib/inputs');
 const bigquery = require('../lib/bigquery');
+const dynamo = require('../lib/dynamo');
+const kinesis = require('../lib/kinesis');
 const logger = require('../lib/logger');
 
 describe('inputs', () => {
@@ -36,6 +38,39 @@ describe('inputs', () => {
       expect(inserts.map(i => i.dest).sort()).to.eql([
         'dt_downloads',
         'dt_impressions'
+      ]);
+    });
+  });
+
+  it('inserts dynamodb inputs', () => {
+    sinon.stub(dynamo, 'write').callsFake(async (recs) => recs.length);
+    sinon.stub(dynamo, 'get').callsFake(async () => [
+      {id: 'ls2.d2', type: 'antebytes', any: 'thing', download: {}, impressions: [
+        {segment: 0, pings: ['ping', 'backs']},
+      ]},
+      {id: 'ls3.d3', type: 'antebytes', what: 'ever', download: {}, impressions: [
+        {segment: 0, pings: ['ping', 'backs']},
+        {segment: 1, pings: ['ping', 'backs']},
+        {segment: 2, pings: ['ping', 'backs']},
+      ]},
+    ]);
+    sinon.stub(kinesis, 'put').callsFake(async (recs) => recs.length);
+    sinon.stub(logger, 'info');
+
+    let inputs = new DynamoInputs([
+      {type: 'combined', listenerSession: 'ls1', digest: 'd1'},
+      {type: 'bytes', listenerSession: 'ls2', digest: 'd2'},
+      {type: 'segmentbytes', listenerSession: 'ls3', digest: 'd3', segment: 2},
+      {type: 'segmentbytes', listenerSession: 'ls3', digest: 'd3', segment: 1},
+      {type: 'antebytes', listenerSession: 'ls4', digest: 'd4'},
+      {type: 'antebytespreview', listenerSession: 'ls5', digest: 'd5'},
+    ]);
+    return inputs.insertAll().then(inserts => {
+      expect(inserts.length).to.equal(2);
+      expect(inserts.map(i => i.count)).to.eql([2, 2]);
+      expect(inserts.map(i => i.dest).sort()).to.eql([
+        'dynamodb',
+        'kinesis:foobar_stream'
       ]);
     });
   });
