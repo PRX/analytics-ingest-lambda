@@ -29,6 +29,15 @@ describe('kinesis', () => {
     }
   });
 
+  it('changes kinesis arns into stream names', () => {
+    process.env.KINESIS_STREAM = 'table_name';
+    expect(kinesis.stream()).to.equal('table_name');
+    process.env.KINESIS_STREAM = 'arn:aws:kinesis:the-region:12345678:stream/table_name';
+    expect(kinesis.stream()).to.equal('table_name');
+    process.env.KINESIS_STREAM = '';
+    expect(kinesis.stream()).to.be.null;
+  });
+
   it('puts nothing', async () => {
     expect(await kinesis.put([])).to.equal(0);
     expect(puts.length).to.equal(0);
