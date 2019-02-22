@@ -6,6 +6,7 @@ BQ_DATASET=
 # dynamodb mode
 DYNAMODB=
 DDB_TABLE=
+DDB_ROLE=
 KINESIS_STREAM=
 # pingbacks mode
 PINGBACKS=
