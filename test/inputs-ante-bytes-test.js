@@ -25,6 +25,25 @@ describe('ante-bytes', () => {
     expect(formatted).to.eql({id: 'ls1.digest1', something: 'else'});
   });
 
+  it('removes duplicate flags', () => {
+    const bytes = new AnteBytes();
+    const formatted = bytes.format({
+      listenerSession: 'ls1',
+      digest: 'digest1',
+      download: {isDuplicate: true, reason: 'whatever', something: 'else'},
+      impressions: [
+        {segment: 0, isDuplicate: true, reason: 'anything'},
+        {segment: 2, isDuplicate: true},
+        {segment: 4, isDuplicate: false, reason: null},
+      ]
+    });
+    expect(formatted).to.eql({
+      id: 'ls1.digest1',
+      download: {something: 'else'},
+      impressions: [{segment: 0}, {segment: 2}, {segment: 4}]
+    });
+  });
+
   it('inserts nothing', () => {
     return new AnteBytes().insert().then(result => {
       expect(result.length).to.equal(0);
