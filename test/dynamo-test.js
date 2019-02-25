@@ -2,20 +2,11 @@
 
 require('./support');
 const dynamo = require('../lib/dynamo');
-const skipit = process.env.TEST_DDB_TABLE ? it : xit;
-
 function throws(promise) {
   return promise.then(() => expect.fail('should have thrown an error'), err => err);
 }
 
 describe('dynamo', () => {
-
-  beforeEach(() => {
-    if (process.env.TEST_DDB_TABLE) {
-      process.env.DDB_TABLE = process.env.TEST_DDB_TABLE;
-      return dynamo.delete(['testid1', 'testid2']);
-    }
-  });
 
   it('requires a DDB_TABLE env', async () => {
     let err = null;
@@ -65,65 +56,104 @@ describe('dynamo', () => {
     }
   });
 
+  it('formats records for write', async () => {
+    const format = await dynamo.formatWrite({id: 'something', other: 'data', goes: 'here'});
+    expect(format).to.have.keys('PutRequest');
+    expect(format.PutRequest).to.have.keys('Item');
+    expect(format.PutRequest.Item).to.have.keys('id', 'payload');
+    expect(format.PutRequest.Item.id).to.eql({S: 'something'});
+    expect(format.PutRequest.Item.payload).to.have.keys('B');
+    expect(format.PutRequest.Item.payload.B.length).to.be.above(20);
+  });
+
+  it('formats records with a TTL for write', async () => {
+    process.env.DDB_TTL = 100;
+    const now = Math.round(new Date().getTime() / 1000);
+    const format = await dynamo.formatWrite({id: 'something', other: 'data', goes: 'here'});
+    expect(format).to.have.keys('PutRequest');
+    expect(format.PutRequest).to.have.keys('Item');
+    expect(format.PutRequest.Item).to.have.keys('id', 'payload', 'expiration');
+    expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 100}`});
+  });
+
   it('throws get errors', async () => {
-    sinon.stub(dynamo.client, 'batchGetItem').throws(new Error('something'));
-    expect(await throws(dynamo.get('testid1'))).to.match(/ddb foobar_table - something/i);
+    sinon.stub(dynamo, 'client').resolves({batchGetItem: () => { throw new Error('something'); }});
+    expect(await throws(dynamo.get('testid1'))).to.match(/ddb \w+ - something/i);
   });
 
   it('throws put errors', async () => {
-    sinon.stub(dynamo.client, 'batchWriteItem').throws(new Error('something'));
-    expect(await throws(dynamo.write({id: 'testid1'}))).to.match(/ddb foobar_table - something/i);
+    sinon.stub(dynamo, 'client').resolves({batchWriteItem: () => { throw new Error('something'); }});
+    expect(await throws(dynamo.write({id: 'testid1'}))).to.match(/ddb \w+ - something/i);
   });
 
   it('throws delete errors', async () => {
-    sinon.stub(dynamo.client, 'batchWriteItem').throws(new Error('something'));
-    expect(await throws(dynamo.delete('testid1'))).to.match(/ddb foobar_table - something/i);
+    sinon.stub(dynamo, 'client').resolves({batchWriteItem: () => { throw new Error('something'); }});
+    expect(await throws(dynamo.delete('testid1'))).to.match(/ddb \w+ - something/i);
   });
 
-  skipit('round trips data', async () => {
-    const data1 = {id: 'testid1', hello: 'world', number: 10};
-    expect(await dynamo.write(data1)).to.equal(1);
+  (process.env.TEST_DDB_TABLE ? describe : xdescribe)('with a real table', () => {
 
-    const data2 = await dynamo.get('testid1');
-    expect(data2).to.eql(data1);
-  });
+    beforeEach(async () => {
+      process.env.DDB_TABLE = process.env.TEST_DDB_TABLE;
+      process.env.DDB_ROLE = process.env.TEST_DDB_ROLE || '';
+      await dynamo.delete(['testid1', 'testid2']);
+    });
 
-  skipit('deletes data', async () => {
-    await dynamo.write([{id: 'testid1'}, {id: 'testid2'}]);
-    const ids = ['testid2', 'testid1', 'testid1', 'this-does-not-exist'];
-    expect(await dynamo.delete(ids)).to.equal(3);
-  });
+    it('round trips data', async () => {
+      const data1 = {id: 'testid1', hello: 'world', number: 10};
+      expect(await dynamo.write(data1)).to.equal(1);
 
-  skipit('gets null for missing keys', async () => {
-    expect(await dynamo.get('this-does-not-exist')).to.be.null;
-  });
+      const data2 = await dynamo.get('testid1');
+      expect(data2).to.eql(data1);
+    });
 
-  skipit('overrides the id field', async () => {
-    const data1 = [
-      {mykey: 'testid1', hello: 'world', number: 10},
-      {mykey: 'testid2', some: 'other', things: 99},
-    ];
-    expect(await dynamo.write(data1, 'mykey')).to.equal(2);
+    it('round trips with an expiration', async () => {
+      process.env.DDB_TTL = 100;
+      const data1 = {id: 'testid1', hello: 'world', number: 10};
+      expect(await dynamo.write(data1)).to.equal(1);
 
-    const data2 = await dynamo.get(['testid1', 'testid2'], 'mykey');
-    expect(data2.length).to.equal(2);
-    expect(data2).to.eql(data1);
-  });
+      const data2 = await dynamo.get('testid1');
+      expect(data2).to.eql(data1);
+    });
 
-  skipit('returns data in the order of the keys', async () => {
-    const data1 = [
-      {id: 'testid1', hello: 'world', number: 10},
-      {id: 'testid2', some: 'other1', things: 99},
-      {id: 'testid2', some: 'other2', things: 100},
-    ];
-    expect(await dynamo.write(data1)).to.equal(2);
+    it('deletes data', async () => {
+      await dynamo.write([{id: 'testid1'}, {id: 'testid2'}]);
+      const ids = ['testid2', 'testid1', 'testid1', 'this-does-not-exist'];
+      expect(await dynamo.delete(ids)).to.equal(3);
+    });
 
-    const data2 = await dynamo.get(['testid2', 'testid1', 'this-does-not-exist', 'testid1']);
-    expect(data2.length).to.equal(4);
-    expect(data2[0]).to.eql(data1[2]);
-    expect(data2[3]).to.eql(data1[0]);
-    expect(data2[2]).to.be.null;
-    expect(data2[3]).to.eql(data1[0]);
+    it('gets null for missing keys', async () => {
+      expect(await dynamo.get('this-does-not-exist')).to.be.null;
+    });
+
+    it('overrides the id field', async () => {
+      const data1 = [
+        {mykey: 'testid1', hello: 'world', number: 10},
+        {mykey: 'testid2', some: 'other', things: 99},
+      ];
+      expect(await dynamo.write(data1, 'mykey')).to.equal(2);
+
+      const data2 = await dynamo.get(['testid1', 'testid2'], 'mykey');
+      expect(data2.length).to.equal(2);
+      expect(data2).to.eql(data1);
+    });
+
+    it('returns data in the order of the keys', async () => {
+      const data1 = [
+        {id: 'testid1', hello: 'world', number: 10},
+        {id: 'testid2', some: 'other1', things: 99},
+        {id: 'testid2', some: 'other2', things: 100},
+      ];
+      expect(await dynamo.write(data1)).to.equal(2);
+
+      const data2 = await dynamo.get(['testid2', 'testid1', 'this-does-not-exist', 'testid1']);
+      expect(data2.length).to.equal(4);
+      expect(data2[0]).to.eql(data1[2]);
+      expect(data2[3]).to.eql(data1[0]);
+      expect(data2[2]).to.be.null;
+      expect(data2[3]).to.eql(data1[0]);
+    });
+
   });
 
 });
