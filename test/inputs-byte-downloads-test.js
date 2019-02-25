@@ -174,4 +174,39 @@ describe('byte-downloads', () => {
     });
   });
 
+  it('un-marks duplicate records', () => {
+    let inserts = [];
+    sinon.stub(kinesis, 'put').callsFake((recs) => {
+      inserts = inserts.concat(recs);
+      return Promise.resolve(recs.length);
+    });
+
+    // ddb.get returns values in order of keys
+    sinon.stub(dynamo, 'get').resolves([{
+      type: 'antebytespreview', id: 'ls1.d1', download: {isDuplicate: true, reason: 'bad'},
+      impressions: [{segment: 1}, {segment: 3, isDuplicate: true, reason: 'bad'}],
+    }]);
+
+    const bytes = new ByteDownloads([
+      {listenerSession: 'ls1', digest: 'd1', type: 'bytes'},
+      {listenerSession: 'ls1', digest: 'd1', segment: 1, type: 'segmentbytes'},
+      {listenerSession: 'ls1', digest: 'd1', segment: 3, type: 'segmentbytes'},
+    ]);
+
+    return bytes.insert().then(result => {
+      expect(result.length).to.equal(1);
+      expect(result[0].dest).to.equal('kinesis:foobar_stream');
+      expect(result[0].count).to.equal(1);
+
+      expect(inserts.length).to.equal(1);
+      expect(inserts[0]).to.eql({
+        type: 'postbytespreview',
+        listenerSession: 'ls1',
+        digest: 'd1',
+        download: {},
+        impressions: [{segment: 1}, {segment: 3}],
+      });
+    });
+  });
+
 });
