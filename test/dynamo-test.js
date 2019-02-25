@@ -73,7 +73,11 @@ describe('dynamo', () => {
     expect(format).to.have.keys('PutRequest');
     expect(format.PutRequest).to.have.keys('Item');
     expect(format.PutRequest.Item).to.have.keys('id', 'payload', 'expiration');
-    expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 100}`});
+    if (format.PutRequest.Item.expiration.N === `${now + 100}`) {
+      expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 100}`});
+    } else {
+      expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 101}`});
+    }
   });
 
   it('throws get errors', async () => {
