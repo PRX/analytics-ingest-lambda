@@ -183,8 +183,8 @@ describe('byte-downloads', () => {
 
     // ddb.get returns values in order of keys
     sinon.stub(dynamo, 'get').resolves([{
-      type: 'antebytespreview', id: 'ls1.d1', download: {isDuplicate: true, reason: 'bad'},
-      impressions: [{segment: 1}, {segment: 3, isDuplicate: true, reason: 'bad'}],
+      type: 'antebytespreview', id: 'ls1.d1', download: {isDuplicate: true, cause: 'bad'},
+      impressions: [{segment: 1}, {segment: 3, isDuplicate: true, cause: 'bad'}],
     }]);
 
     const bytes = new ByteDownloads([

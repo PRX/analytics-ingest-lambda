@@ -30,11 +30,11 @@ describe('ante-bytes', () => {
     const formatted = bytes.format({
       listenerSession: 'ls1',
       digest: 'digest1',
-      download: {isDuplicate: true, reason: 'whatever', something: 'else'},
+      download: {isDuplicate: true, cause: 'whatever', something: 'else'},
       impressions: [
-        {segment: 0, isDuplicate: true, reason: 'anything'},
+        {segment: 0, isDuplicate: true, cause: 'anything'},
         {segment: 2, isDuplicate: true},
-        {segment: 4, isDuplicate: false, reason: null},
+        {segment: 4, isDuplicate: false, cause: null},
       ]
     });
     expect(formatted).to.eql({
