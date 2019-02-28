@@ -33,7 +33,7 @@ describe('dovetail-impressions', () => {
   });
 
   it('formats table inserts', () => {
-    const rec = {type: 'combined', timestamp: 1490827132999, listenerSession: 'something'};
+    const rec = {type: 'combined', timestamp: 1490827132999, listenerEpisode: 'something'};
 
     const format1 = impression.format(rec, {adId: 1, isDuplicate: true});
     expect(format1).to.have.keys('insertId', 'json');
@@ -46,21 +46,21 @@ describe('dovetail-impressions', () => {
       'is_duplicate', 'cause'
     );
     expect(format1.json.timestamp).to.equal(1490827132);
-    expect(format1.json.listener_session).to.equal('something');
+    expect(format1.json.listener_session.length).to.be.above(10);
     expect(format1.json.is_duplicate).to.equal(true);
 
     const format2 = impression.format(rec, {adId: 2, isDuplicate: false});
     expect(format2.json.timestamp).to.equal(1490827132);
-    expect(format2.json.listener_session).to.equal('something');
+    expect(format2.json.listener_session).to.equal(format1.json.listener_session);
     expect(format2.json.is_duplicate).to.equal(false);
     expect(format2.insertId).not.to.equal(format1.insertId);
   });
 
   it('creates unique insert ids for ads', () => {
-    const r1 = impression.format({listenerSession: 'req1'}, {adId: 1});
-    const r2 = impression.format({listenerSession: 'req1'}, {adId: 1});
-    const r3 = impression.format({listenerSession: 'req1'}, {adId: 2});
-    const r4 = impression.format({listenerSession: 'req2'}, {adId: 1});
+    const r1 = impression.format({listenerEpisode: 'req1'}, {adId: 1});
+    const r2 = impression.format({listenerEpisode: 'req1'}, {adId: 1});
+    const r3 = impression.format({listenerEpisode: 'req1'}, {adId: 2});
+    const r4 = impression.format({listenerEpisode: 'req2'}, {adId: 1});
     expect(r1.insertId).to.equal(r2.insertId);
     expect(r1.insertId).not.to.equal(r3.insertId);
     expect(r1.insertId).not.to.equal(r4.insertId);
@@ -81,33 +81,33 @@ describe('dovetail-impressions', () => {
     let impression2 = new DovetailImpressions([
       {type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999},
       {type: 'download', requestUuid: 'the-uuid2', timestamp: 1490827132999},
-      {type: 'combined', listenerSession: 'listen1', timestamp: 1490837132, impressions: []},
-      {type: 'combined', listenerSession: 'listen2', timestamp: 1490827132999, impressions: [{adId: 1}, {adId: 2}]},
-      {type: 'combined', listenerSession: 'listen3', timestamp: 1490837132, impressions: [{isDuplicate: true, adId: 3}]},
-      {type: 'postbytespreview', listenerSession: 'listen4', timestamp: 1490837132, impressions: [{adId: 4}]},
-      {type: 'postbytes', listenerSession: 'listen5', timestamp: 1490827132999, impressions: [{adId: 5}]}
+      {type: 'combined', listenerEpisode: 'listen1', timestamp: 1490837132, impressions: []},
+      {type: 'combined', listenerEpisode: 'listen2', timestamp: 1490827132999, impressions: [{adId: 1}, {adId: 2}]},
+      {type: 'combined', listenerEpisode: 'listen3', timestamp: 1490837132, impressions: [{isDuplicate: true, adId: 3}]},
+      {type: 'postbytespreview', listenerEpisode: 'listen4', timestamp: 1490837132, impressions: [{adId: 4}]},
+      {type: 'postbytes', listenerEpisode: 'listen5', timestamp: 1490827132999, impressions: [{adId: 5}]}
     ]);
     return impression2.insert().then(result => {
       expect(result.length).to.equal(2);
 
       expect(result[0].dest).to.equal('dt_impressions');
       expect(result[0].count).to.equal(4);
-      expect(inserts['dt_impressions'][0].json.listener_session).to.equal('listen2');
+      expect(inserts['dt_impressions'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][0].json.ad_id).to.equal(1);
       expect(inserts['dt_impressions'][0].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][1].json.listener_session).to.equal('listen2');
+      expect(inserts['dt_impressions'][1].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][1].json.ad_id).to.equal(2);
       expect(inserts['dt_impressions'][1].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][2].json.listener_session).to.equal('listen3');
+      expect(inserts['dt_impressions'][2].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][2].json.ad_id).to.equal(3);
       expect(inserts['dt_impressions'][2].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][3].json.listener_session).to.equal('listen5');
+      expect(inserts['dt_impressions'][3].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][3].json.ad_id).to.equal(5);
       expect(inserts['dt_impressions'][3].json.is_bytes).to.equal(true);
 
       expect(result[1].dest).to.equal('dt_impressions_preview');
       expect(result[1].count).to.equal(1);
-      expect(inserts['dt_impressions_preview'][0].json.listener_session).to.equal('listen4');
+      expect(inserts['dt_impressions_preview'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions_preview'][0].json.ad_id).to.equal(4);
       expect(inserts['dt_impressions_preview'][0].json.is_bytes).to.equal(true);
     });

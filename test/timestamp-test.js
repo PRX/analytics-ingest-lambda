@@ -46,4 +46,16 @@ describe('timestamp', () => {
     expect(timestamp.toISOExtendedZ(1490827132010)).to.equal('2017-03-29T22:38:52Z');
   });
 
+  it('creates digests based on the utc-day of a timestamp', () => {
+    const d1 = timestamp.toDigest('any-str', 1490827132000);
+    const d2 = timestamp.toDigest('any-str2', 1490827132000);
+    const d3 = timestamp.toDigest('any-str', 1490827132999);
+    const d4 = timestamp.toDigest('any-str', 1490831999999);
+    const d5 = timestamp.toDigest('any-str', 1490832000000);
+    expect(d1).not.to.equal(d2);
+    expect(d1).to.equal(d3);
+    expect(d1).to.equal(d4);
+    expect(d1).not.to.equal(d5);
+  });
+
 });

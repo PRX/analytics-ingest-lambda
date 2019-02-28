@@ -81,7 +81,7 @@ describe('handler', () => {
     expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions');
 
     expect(inserted['dt_downloads'].length).to.equal(1);
-    expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
+    expect(inserted['dt_downloads'][0].insertId).to.match(/^\w+\/1487703699$/);
     let downloadJson = inserted['dt_downloads'][0].json;
     expect(downloadJson.timestamp).to.equal(1487703699);
     expect(downloadJson.request_uuid).to.equal('req-uuid');
@@ -89,7 +89,7 @@ describe('handler', () => {
     expect(downloadJson.feeder_episode).to.equal('1234-5678');
     expect(downloadJson.listener_id).to.equal('some-listener-id');
     expect(downloadJson.listener_episode).to.equal('listener-episode-1');
-    expect(downloadJson.listener_session).to.equal('listener-session-1');
+    expect(downloadJson.listener_session.length).to.be.above(10);
     expect(downloadJson.is_confirmed).to.equal(false);
     expect(downloadJson.is_bytes).to.equal(false);
     expect(downloadJson.digest).to.equal('the-digest');
@@ -121,7 +121,7 @@ describe('handler', () => {
     expect(impressionJson.request_uuid).to.equal('req-uuid');
     expect(impressionJson.feeder_podcast).to.equal(1234);
     expect(impressionJson.feeder_episode).to.equal('1234-5678');
-    expect(impressionJson.listener_session).to.equal('listener-session-1');
+    expect(impressionJson.listener_session).to.equal(downloadJson.listener_session);
     expect(impressionJson.digest).to.equal('the-digest');
     expect(impressionJson.segment).to.equal(0);
     expect(impressionJson.is_confirmed).to.equal(false);
@@ -148,7 +148,8 @@ describe('handler', () => {
     expect(impressionJson.cause).to.equal(null);
 
     let previewJson = inserted['dt_downloads_preview'][0].json;
-    expect(previewJson.listener_session).to.equal('listener-session-6');
+    expect(previewJson.listener_session.length).to.be.above(10);
+    expect(previewJson.listener_session).not.to.equal(downloadJson.listener_session);
     expect(previewJson.feeder_podcast).to.equal(1234);
     expect(previewJson.feeder_episode).to.equal('1234-5678');
     expect(previewJson.is_bytes).to.equal(true);

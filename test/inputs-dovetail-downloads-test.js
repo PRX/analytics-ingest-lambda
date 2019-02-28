@@ -40,7 +40,7 @@ describe('dovetail-downloads', () => {
       listenerEpisode: 'something'
     });
     expect(record).to.have.keys('insertId', 'json');
-    expect(record.insertId).to.equal('something/1490827132');
+    expect(record.insertId).to.match(/^\w+\/1490827132$/);
     expect(record.json).to.have.keys(
       'timestamp',
       'request_uuid',
