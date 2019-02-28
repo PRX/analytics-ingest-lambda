@@ -59,7 +59,6 @@ template.  Valid parameters are:
 | `ip`              | Request ip address |
 | `listener`        | Unique string for this "listener" |
 | `listenerepisode` | Unique string for "listener + url" |
-| `listenersession` | Unique string for "listener + url + UTCDate" |
 | `podcast`         | Feeder podcast id |
 | `randomstr`       | Random string |
 | `randomint`       | Random integer |

@@ -18,7 +18,6 @@ describe('urlutil', () => {
       timestamp: 1507234920,
       listenerId: 'listener-id',
       listenerEpisode: 'listener-episode',
-      listenerSession: 'listener-session',
       adId: 9,
       campaignId: 8,
       creativeId: 7,
@@ -30,7 +29,7 @@ describe('urlutil', () => {
 
   it('expands non-transformed params', () => {
     let nonTransforms = ['ad', 'agent', 'campaign', 'creative', 'episode',
-      'flight', 'listener', 'listenerepisode', 'listenersession', 'podcast',
+      'flight', 'listener', 'listenerepisode', 'podcast',
       'referer'];
     let url = urlutil.expand(`http://foo.bar/{?${nonTransforms.join(',')}}`, TEST_IMPRESSION());
     let params = URI(url).query(true);
@@ -43,7 +42,6 @@ describe('urlutil', () => {
     expect(params.flight).to.equal('6');
     expect(params.listener).to.equal('listener-id');
     expect(params.listenerepisode).to.equal('listener-episode');
-    expect(params.listenersession).to.equal('listener-session');
     expect(params.podcast).to.equal('1234');
     expect(params.referer).to.equal('http://www.prx.org/');
   });
