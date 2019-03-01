@@ -160,7 +160,7 @@ describe('handler', () => {
   it('handles dynamodb records', async () => {
     sinon.stub(dynamo, 'write').callsFake(async (recs) => recs.length);
     sinon.stub(dynamo, 'get').callsFake(async () => [
-      {id: 'listener-session-3.the-digest', type: 'antebytes', any: 'thing', download: {}, impressions: [
+      {id: 'listener-episode-3.the-digest', type: 'antebytes', any: 'thing', download: {}, impressions: [
         {segment: 0, pings: ['ping', 'backs']},
         {segment: 1, pings: ['ping', 'backs']},
         {segment: 2, pings: ['ping', 'backs']},
@@ -181,17 +181,17 @@ describe('handler', () => {
     expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
     expect(dynamo.write.args[0][0][0].any).to.equal('thing');
     expect(dynamo.write.args[0][0][0].id).to.equal('listener-episode-4.the-digest');
-    expect(dynamo.write.args[0][0][0].listenerSession).to.be.undefined;
+    expect(dynamo.write.args[0][0][0].listenerEpisode).to.be.undefined;
     expect(dynamo.write.args[0][0][0].digest).to.be.undefined;
     expect(dynamo.write.args[0][0][1].type).to.equal('antebytespreview');
     expect(dynamo.write.args[0][0][1].some).to.equal('thing');
     expect(dynamo.write.args[0][0][1].id).to.equal('listener-episode-5.the-digest');
-    expect(dynamo.write.args[0][0][1].listenerSession).to.be.undefined;
+    expect(dynamo.write.args[0][0][1].listenerEpisode).to.be.undefined;
     expect(dynamo.write.args[0][0][1].digest).to.be.undefined;
 
     expect(kinesis.put.args[0][0].length).to.equal(1);
     expect(kinesis.put.args[0][0][0].type).to.equal('postbytes');
-    expect(kinesis.put.args[0][0][0].listenerSession).to.equal('listener-session-3');
+    expect(kinesis.put.args[0][0][0].listenerEpisode).to.equal('listener-episode-3');
     expect(kinesis.put.args[0][0][0].digest).to.equal('the-digest');
     expect(kinesis.put.args[0][0][0].any).to.equal('thing');
   });
