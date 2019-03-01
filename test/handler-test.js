@@ -180,12 +180,12 @@ describe('handler', () => {
     expect(dynamo.write.args[0][0].length).to.equal(2);
     expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
     expect(dynamo.write.args[0][0][0].any).to.equal('thing');
-    expect(dynamo.write.args[0][0][0].id).to.equal('listener-session-4.the-digest');
+    expect(dynamo.write.args[0][0][0].id).to.equal('listener-episode-4.the-digest');
     expect(dynamo.write.args[0][0][0].listenerSession).to.be.undefined;
     expect(dynamo.write.args[0][0][0].digest).to.be.undefined;
     expect(dynamo.write.args[0][0][1].type).to.equal('antebytespreview');
     expect(dynamo.write.args[0][0][1].some).to.equal('thing');
-    expect(dynamo.write.args[0][0][1].id).to.equal('listener-session-5.the-digest');
+    expect(dynamo.write.args[0][0][1].id).to.equal('listener-episode-5.the-digest');
     expect(dynamo.write.args[0][0][1].listenerSession).to.be.undefined;
     expect(dynamo.write.args[0][0][1].digest).to.be.undefined;
 

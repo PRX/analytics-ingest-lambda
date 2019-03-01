@@ -26,7 +26,6 @@
     "feederEpisode": "1234-5678",
     "listenerId": "some-listener-id",
     "listenerEpisode": "listener-episode-1",
-    "listenerSession": "listener-session-1",
     "remoteAgent": "AppleCoreMedia/1.0.0.14B100 (iPhone; U; CPU OS 10_1_1 like Mac OS X; en_us)",
     "remoteIp": "24.49.134.194, 127.0.0.1, 99.99.99.99, whatev",
     "remoteReferrer": "https://www.prx.org/technology/",
@@ -64,7 +63,6 @@
     "feederEpisode": "1234-5678",
     "listenerId": "some-listener-id",
     "listenerEpisode": "listener-episode-2",
-    "listenerSession": "listener-session-2",
     "remoteAgent": "aoeutnheoantuh",
     "remoteIp": "199.119.122.237",
     "remoteReferrer": "",
@@ -102,13 +100,13 @@
       }
     ],
     "digest": "the-digest",
-    "listenerSession": "listener-session-4",
+    "listenerEpisode": "listener-episode-4",
     "any": "thing"
   },
   {
     "type": "antebytespreview",
     "digest": "the-digest",
-    "listenerSession": "listener-session-5",
+    "listenerEpisode": "listener-episode-5",
     "some": "thing"
   },
   {

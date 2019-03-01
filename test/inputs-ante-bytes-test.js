@@ -18,17 +18,17 @@ describe('ante-bytes', () => {
   it('formats dynamodb records', () => {
     const bytes = new AnteBytes();
     const formatted = bytes.format({
-      listenerSession: 'ls1',
+      listenerEpisode: 'le1',
       digest: 'digest1',
       something: 'else',
     });
-    expect(formatted).to.eql({id: 'ls1.digest1', something: 'else'});
+    expect(formatted).to.eql({id: 'le1.digest1', something: 'else'});
   });
 
   it('removes duplicate flags', () => {
     const bytes = new AnteBytes();
     const formatted = bytes.format({
-      listenerSession: 'ls1',
+      listenerEpisode: 'le1',
       digest: 'digest1',
       download: {isDuplicate: true, cause: 'whatever', something: 'else'},
       impressions: [
@@ -38,7 +38,7 @@ describe('ante-bytes', () => {
       ]
     });
     expect(formatted).to.eql({
-      id: 'ls1.digest1',
+      id: 'le1.digest1',
       download: {something: 'else'},
       impressions: [{segment: 0}, {segment: 2}, {segment: 4}]
     });
@@ -54,21 +54,21 @@ describe('ante-bytes', () => {
     sinon.stub(dynamo, 'write').callsFake(recs => Promise.resolve(recs.length));
 
     const bytes = new AnteBytes([
-      {type: 'combined', listenerSession: 'ls1', digest: 'd1', test: 'one'},
-      {type: 'antebytes', listenerSession: 'ls2', digest: 'd2', test: 'two'},
-      {type: 'antebytespreview', listenerSession: 'ls3', digest: 'd3', test: 'three'},
-      {type: 'postbytes', listenerSession: 'ls4', digest: 'd4', test: 'four'},
-      {type: 'postbytespreview', listenerSession: 'ls5', digest: 'd5', test: 'five'},
-      {type: 'antebytes', listenerSession: 'ls2', digest: 'd2', test: 'duplicate'},
+      {type: 'combined', listenerEpisode: 'le1', digest: 'd1', test: 'one'},
+      {type: 'antebytes', listenerEpisode: 'le2', digest: 'd2', test: 'two'},
+      {type: 'antebytespreview', listenerEpisode: 'le3', digest: 'd3', test: 'three'},
+      {type: 'postbytes', listenerEpisode: 'le4', digest: 'd4', test: 'four'},
+      {type: 'postbytespreview', listenerEpisode: 'le5', digest: 'd5', test: 'five'},
+      {type: 'antebytes', listenerEpisode: 'le2', digest: 'd2', test: 'duplicate'},
     ]);
     expect(await bytes.insert()).to.eql([{dest: 'dynamodb', count: 3}]);
     expect(dynamo.write).to.have.been.calledOnce;
 
     const recs = dynamo.write.args[0][0];
     expect(recs.length).to.equal(3);
-    expect(recs[0]).to.eql({id: 'ls2.d2', type: 'antebytes', test: 'two'});
-    expect(recs[1]).to.eql({id: 'ls3.d3', type: 'antebytespreview', test: 'three'});
-    expect(recs[2]).to.eql({id: 'ls2.d2', type: 'antebytes', test: 'duplicate'});
+    expect(recs[0]).to.eql({id: 'le2.d2', type: 'antebytes', test: 'two'});
+    expect(recs[1]).to.eql({id: 'le3.d3', type: 'antebytespreview', test: 'three'});
+    expect(recs[2]).to.eql({id: 'le2.d2', type: 'antebytes', test: 'duplicate'});
   });
 
 });
