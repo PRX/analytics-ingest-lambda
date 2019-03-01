@@ -172,10 +172,11 @@ describe('handler', () => {
     const result = await handler(event);
     expect(result).to.match(/inserted 3/i);
     expect(infos.length).to.equal(2);
-    expect(warns.length).to.equal(0);
+    expect(warns.length).to.equal(1);
     expect(errs.length).to.equal(0);
     expect(infos[0]).to.match(/inserted 2 rows into dynamodb/i);
     expect(infos[1]).to.match(/inserted 1 rows into kinesis/i);
+    expect(warns[0]).to.match(/missing segment listener-episode-3.the-digest.4/i);
 
     expect(dynamo.write.args[0][0].length).to.equal(2);
     expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
