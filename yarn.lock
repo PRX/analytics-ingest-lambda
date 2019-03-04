@@ -988,9 +988,10 @@ propagate@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/propagate/-/propagate-1.0.0.tgz#00c2daeedda20e87e3782b344adba1cddd6ad709"
 
-prx-podagent@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.0.6.tgz#20d19679a32ad495ea8be7f3b7952e9d2c9368fd"
+prx-podagent@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.0.7.tgz#5f2bd9b213ead422b56ea8a3df8ce2c95087b33f"
+  integrity sha512-HhGdmcaEEyVmMHLifp2d5hxExC5Vu7+NDxA0UZl+m7oiVQiR/kSVSr+DOO42vbtgXcJgQZvCkqiWUT7PhhoheQ==
   dependencies:
     js-yaml "^3.9.1"
 
