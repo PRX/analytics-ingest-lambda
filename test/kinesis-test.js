@@ -64,7 +64,7 @@ describe('kinesis', () => {
   });
 
   it('uses the listener session as a partition key', async () => {
-    const recs = [{listenerSession: 'one'}, {listenerSession: 'two'}, {listenerSession: 'three'}];
+    const recs = [{listenerEpisode: 'one'}, {listenerEpisode: 'two'}, {listenerEpisode: 'three'}];
     expect(await kinesis.put(recs)).to.equal(3);
     expect(puts[0][0].PartitionKey).to.equal('one');
     expect(puts[0][1].PartitionKey).to.equal('two');

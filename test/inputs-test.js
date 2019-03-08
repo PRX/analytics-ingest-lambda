@@ -45,10 +45,10 @@ describe('inputs', () => {
   it('inserts dynamodb inputs', () => {
     sinon.stub(dynamo, 'write').callsFake(async (recs) => recs.length);
     sinon.stub(dynamo, 'get').callsFake(async () => [
-      {id: 'ls2.d2', type: 'antebytes', any: 'thing', download: {}, impressions: [
+      {id: 'le2.d2', type: 'antebytes', any: 'thing', download: {}, impressions: [
         {segment: 0, pings: ['ping', 'backs']},
       ]},
-      {id: 'ls3.d3', type: 'antebytes', what: 'ever', download: {}, impressions: [
+      {id: 'le3.d3', type: 'antebytes', what: 'ever', download: {}, impressions: [
         {segment: 0, pings: ['ping', 'backs']},
         {segment: 1, pings: ['ping', 'backs']},
         {segment: 2, pings: ['ping', 'backs']},
@@ -58,16 +58,16 @@ describe('inputs', () => {
     sinon.stub(logger, 'info');
 
     let inputs = new DynamoInputs([
-      {type: 'combined', listenerSession: 'ls1', digest: 'd1'},
-      {type: 'bytes', listenerSession: 'ls2', digest: 'd2'},
-      {type: 'segmentbytes', listenerSession: 'ls3', digest: 'd3', segment: 2},
-      {type: 'segmentbytes', listenerSession: 'ls3', digest: 'd3', segment: 1},
-      {type: 'antebytes', listenerSession: 'ls4', digest: 'd4'},
-      {type: 'antebytespreview', listenerSession: 'ls5', digest: 'd5'},
+      {type: 'combined', listenerEpisode: 'le1', digest: 'd1'},
+      {type: 'bytes', listenerEpisode: 'le2', digest: 'd2'},
+      {type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 2},
+      {type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 1},
+      {type: 'antebytes', listenerEpisode: 'le4', digest: 'd4'},
+      {type: 'antebytespreview', listenerEpisode: 'le5', digest: 'd5'},
     ]);
     return inputs.insertAll().then(inserts => {
       expect(inserts.length).to.equal(2);
-      expect(inserts.map(i => i.count)).to.eql([2, 2]);
+      expect(inserts.map(i => i.count)).to.eql([2, 3]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
         'dynamodb',
         'kinesis:foobar_stream'

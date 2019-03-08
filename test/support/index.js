@@ -9,7 +9,9 @@ beforeEach(() => {
   process.env.DDB_TABLE = 'foobar_table';
   process.env.DDB_ROLE = '';
   process.env.DDB_TTL = '';
+  process.env.DYNAMODB = '';
   process.env.KINESIS_STREAM = 'foobar_stream';
+  process.env.PINGBACKS = '';
   process.env.REDIS_HOST = '';
   process.env.REDIS_TTL = '7200';
 });
