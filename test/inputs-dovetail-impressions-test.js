@@ -74,7 +74,7 @@ describe('dovetail-impressions', () => {
 
   it('inserts impression records', () => {
     let inserts = {};
-    sinon.stub(bigquery, 'insert').callsFake((tbl, rows) => {
+    sinon.stub(bigquery, 'insert').callsFake((ds, tbl, rows) => {
       inserts[tbl] = rows;
       return Promise.resolve(rows.length);
     });

@@ -59,13 +59,9 @@ describe('handler', () => {
 
   it('handles bigquery records', async () => {
     const inserted = {};
-    sinon.stub(bigquery, 'dataset').resolves({
-      table: tbl => {
-        return {insert: async (rows) => {
-          inserted[tbl] = rows;
-          return Promise.resolve(rows.length);
-        }};
-      }
+    sinon.stub(bigquery, 'insert').callsFake((ds, tbl, rows) => {
+      inserted[tbl] = rows;
+      return Promise.resolve(rows.length);
     });
 
     const result = await handler(event);
