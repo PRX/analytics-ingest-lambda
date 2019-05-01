@@ -107,4 +107,50 @@ describe('pixel-trackers', () => {
     expect(results[1]).to.eql({count: 3, dest: 'foobar_dataset.bar'})
   })
 
+  it('catches table 404 errors', async () => {
+    sinon.stub(logger, 'error')
+    sinon.stub(bigquery, 'insert').callsFake(async () => {
+      const err = new Error('Table not found')
+      err.code = 404
+      throw err
+    })
+
+    const pixel2 = new PixelTrackers([{type: 'pixel', destination: 'foo.bar'}])
+    const results = await pixel2.insert()
+    expect(results.length).to.equal(1)
+    expect(results[0]).to.eql({count: 0, dest: 'foo.bar'})
+
+    expect(logger.error).to.have.callCount(1)
+    expect(logger.error.args[0][0]).to.match(/Table not found: foo.bar/)
+  })
+
+  it('catches bigquery insert errors', async () => {
+    sinon.stub(logger, 'error')
+    sinon.stub(bigquery, 'insert').callsFake(async () => {
+      const err = new Error('A failure occurred during this request.')
+      err.name = 'PartialFailureError'
+      err.response = {
+        kind: 'bigquery#tableDataInsertAllResponse',
+        insertErrors: [
+          {errors: [{location: 'timestamp', message: 'no such field.'}]},
+          {errors: [{location: 'other_thing', message: 'bad bad bad'}]},
+          {errors: [{location: 'timestamp', message: 'no such field.'}]},
+          {errors: [{message: 'just a message.'}]},
+          {errors: [{reason: 'just a reason.'}]},
+        ],
+      }
+      throw err
+    })
+
+    const pixel2 = new PixelTrackers([{type: 'pixel', destination: 'foo.bar'}])
+    const results = await pixel2.insert()
+    expect(results.length).to.equal(1)
+    expect(results[0]).to.eql({count: 0, dest: 'foo.bar'})
+
+    expect(logger.error).to.have.callCount(1)
+    const msg = logger.error.args[0][0]
+    expect(msg).to.match(/Insert errors on foo.bar:/)
+    expect(msg).to.match(/timestamp: no such field, other_thing: bad bad bad, just a message, just a reason/)
+  })
+
 })
