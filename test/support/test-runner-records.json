@@ -185,7 +185,8 @@
     "canonical": "https://www.prx.org/url1",
     "remoteAgent": "some-user-agent",
     "remoteIp": "50.21.204.248",
-    "remoteReferrer": "https://www.prx.org/technology/"
+    "remoteReferrer": "https://www.prx.org/technology/",
+    "userId": "my-explicit-user-id"
   },
   {
     "type": "pixel",

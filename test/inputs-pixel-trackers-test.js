@@ -14,6 +14,7 @@ describe('pixel-trackers', () => {
     remoteAgent: 'the-user-agent',
     remoteIp: '127.0.0.1',
     remoteReferrer: 'the-referer',
+    userId: 'the-user-id',
   }
 
   it('recognizes pixel records', () => {
@@ -45,7 +46,7 @@ describe('pixel-trackers', () => {
     expect(record.insertId.length).to.be.above(10)
     expect(record.json).to.eql({
       timestamp: 1490827132,
-      user_id: pixel.userId(data),
+      user_id: 'the-user-id',
       key: 'the-key',
       canonical: 'the-canonical',
       remote_agent: 'the-user-agent',
@@ -59,11 +60,11 @@ describe('pixel-trackers', () => {
     })
   })
 
-  it('generates unique user ids', async () => {
-    const record1 = await pixel.format(data)
-    const record2 = await pixel.format({...data, key: 'other-key'})
-    const record3 = await pixel.format({...data, canonical: 'other-canonical'})
-    const record4 = await pixel.format({...data, remoteIp: '127.0.0.2'})
+  it('generates unique user ids when not set', async () => {
+    const record1 = await pixel.format({...data, userId: undefined})
+    const record2 = await pixel.format({...data, userId: undefined, key: 'other-key'})
+    const record3 = await pixel.format({...data, userId: undefined, canonical: 'other-canonical'})
+    const record4 = await pixel.format({...data, userId: undefined, remoteIp: '127.0.0.2'})
     expect(record1.json.user_id).to.equal(record2.json.user_id)
     expect(record1.json.user_id).to.equal(record3.json.user_id)
     expect(record1.json.user_id).not.to.equal(record4.json.user_id)
