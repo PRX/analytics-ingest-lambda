@@ -4,30 +4,31 @@ const support  = require('./support');
 const decrypt  = require('../lib/decrypt');
 const bigquery = require('../lib/bigquery');
 
-describe('bigquery', () => {
-
-  it('memoizes the dataset', () => {
-    return bigquery.dataset(true).then(dataset => {
-      return bigquery.dataset(false).then(dataset2 => {
-        expect(dataset.id).to.equal(dataset2.id);
-        expect(dataset).to.equal(dataset2);
-      });
-    });
+const stubInsert = (fn) => {
+  sinon.stub(bigquery, 'client').resolves({
+    dataset: ds => { return {
+      table: tbl => { return {
+        insert: async (rows, opts) => fn(ds, tbl, rows, opts)
+      }}
+    }}
   });
+}
+
+describe('bigquery', () => {
 
   it('detects encrypted looking private keys', () => {
     sinon.stub(decrypt, 'decryptAws').resolves('okay');
-    return bigquery.dataset(true).then(dataset => {
+    return bigquery.key(true).then(key => {
       expect(decrypt.decryptAws).not.to.have.been.called;
       process.env.BQ_PRIVATE_KEY = 'this-looks-encrypted';
-      return bigquery.dataset(true).then(dataset2 => {
+      return bigquery.key(true).then(key2 => {
         expect(decrypt.decryptAws).to.have.been.called;
       });
     });
   });
 
   it('short circuits when inserting nothing', () => {
-    return bigquery.insert('thetable', []).then(count => {
+    return bigquery.insert('thedataset', 'thetable', []).then(count => {
       expect(count).to.equal(0);
     });
   });
@@ -37,19 +38,14 @@ describe('bigquery', () => {
     let inserted, insertOpts;
     beforeEach(() => {
       inserted = {};
-      sinon.stub(bigquery, 'dataset').resolves({
-        table: tbl => {
-          return {insert: (rows, opts) => {
-            inserted[tbl] = rows;
-            insertOpts = opts;
-            return Promise.resolve({});
-          }};
-        }
+      stubInsert((ds, tbl, rows, opts) => {
+        inserted[tbl] = rows;
+        insertOpts = opts;
       });
     });
 
     it('inserts raw rows', () => {
-      return bigquery.insert('thetable', [{id: 'foo'}, {id: 'bar'}]).then(count => {
+      return bigquery.insert('thedataset', 'thetable', [{id: 'foo'}, {id: 'bar'}]).then(count => {
         expect(count).to.equal(2);
         expect(inserted).to.have.keys('thetable');
         expect(inserted.thetable.length).to.equal(2);
@@ -66,18 +62,14 @@ describe('bigquery', () => {
     let thrown;
     beforeEach(() => {
       thrown = 0;
-      sinon.stub(bigquery, 'dataset').resolves({
-        table: tbl => {
-          return {insert: (rows, opts) => {
-            thrown++;
-            return Promise.reject(new Error(`err${thrown}`));
-          }};
-        }
+      stubInsert((ds, tbl, rows, opts) => {
+        thrown++;
+        throw new Error(`err${thrown}`);
       });
     });
 
     it('retries failures 2 times', () => {
-      return bigquery.insert('thetable', [{id: 'foo'}, {id: 'bar'}]).then(
+      return bigquery.insert('thedataset', 'thetable', [{id: 'foo'}, {id: 'bar'}]).then(
         count => {
           throw new Error('Should have gotten an error')
         },

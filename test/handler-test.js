@@ -59,18 +59,14 @@ describe('handler', () => {
 
   it('handles bigquery records', async () => {
     const inserted = {};
-    sinon.stub(bigquery, 'dataset').resolves({
-      table: tbl => {
-        return {insert: async (rows) => {
-          inserted[tbl] = rows;
-          return Promise.resolve(rows.length);
-        }};
-      }
+    sinon.stub(bigquery, 'insert').callsFake((ds, tbl, rows) => {
+      inserted[tbl] = rows;
+      return Promise.resolve(rows.length);
     });
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 5/i);
-    expect(infos.length).to.equal(3);
+    expect(result).to.match(/inserted 6/i);
+    expect(infos.length).to.equal(4);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0]).to.match(/1 rows into dt_downloads/);
@@ -78,7 +74,7 @@ describe('handler', () => {
     expect(infos[2]).to.match(/3 rows into dt_impressions/);
 
     // based on test-records
-    expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions');
+    expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions', 'pixels');
 
     expect(inserted['dt_downloads'].length).to.equal(1);
     expect(inserted['dt_downloads'][0].insertId).to.match(/^\w+\/1487703699$/);
@@ -155,6 +151,22 @@ describe('handler', () => {
     expect(previewJson.is_bytes).to.equal(true);
     expect(previewJson.is_duplicate).to.equal(false);
     expect(previewJson.cause).to.equal(null);
+
+    expect(inserted['pixels'].length).to.equal(1);
+    expect(inserted['pixels'][0].json).to.eql({
+      canonical: 'https://www.prx.org/url1',
+      city_geoname_id: null,
+      country_geoname_id: null,
+      key: 'key1',
+      latitude: null,
+      longitude: null,
+      postal_code: null,
+      remote_agent: 'some-user-agent',
+      remote_ip: '127.0.0.0',
+      remote_referrer: 'https://www.prx.org/technology/',
+      timestamp: 1490827132,
+      user_id: 'd24a63774631fde164fa2bc27e58db5e',
+    });
   });
 
   it('handles dynamodb records', async () => {

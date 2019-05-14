@@ -176,5 +176,26 @@
     "remoteReferrer": "",
     "timestamp": 1487803699,
     "url": "/1234/1234-5678/filename.mp3?foo=bar"
+  },
+  {
+    "type": "pixel",
+    "destination": "pixels",
+    "timestamp": 1490827132999,
+    "key": "test-runner-records1",
+    "canonical": "https://www.prx.org/url1",
+    "remoteAgent": "some-user-agent",
+    "remoteIp": "50.21.204.248",
+    "remoteReferrer": "https://www.prx.org/technology/",
+    "userId": "my-explicit-user-id"
+  },
+  {
+    "type": "pixel",
+    "destination": "pixels",
+    "timestamp": 1490827132999,
+    "key": "test-runner-records1",
+    "canonical": "https://www.prx.org/url1",
+    "remoteAgent": "some-other-agent",
+    "remoteIp": "127.0.0.1",
+    "remoteReferrer": "https://www.prx.org/technology/"
   }
 ]

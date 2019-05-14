@@ -23,21 +23,23 @@ describe('inputs', () => {
 
   it('inserts all bigquery inputs', () => {
     sinon.stub(logger, 'info');
-    sinon.stub(bigquery, 'insert').callsFake((tbl, rows) => Promise.resolve(rows.length));
+    sinon.stub(bigquery, 'insert').callsFake((ds, tbl, rows) => Promise.resolve(rows.length));
     let inputs = new BigqueryInputs([
       {type: 'combined',     listenerId: 'i1', timestamp: 0, impressions: [{}]},
       {type: 'foobar',       listenerId: 'fb', timestamp: 0},
       {type: 'combined',     listenerId: 'd1', timestamp: 0, download: {}},
       {type: 'combined',     listenerId: 'i2', timestamp: 999999, impressions: [{}]},
       {type: 'segmentbytes', listenerId: 'b1', timestamp: 999999},
-      {type: 'bytes',        listenerId: 'b2', timestamp: 999999}
+      {type: 'bytes',        listenerId: 'b2', timestamp: 999999},
+      {type: 'pixel', destination: 'foo.bar', timestamp: 999999},
     ]);
     return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(2);
-      expect(inserts.map(i => i.count)).to.eql([1, 2]);
+      expect(inserts.length).to.equal(3);
+      expect(inserts.map(i => i.count)).to.eql([1, 2, 1]);
       expect(inserts.map(i => i.dest).sort()).to.eql([
         'dt_downloads',
-        'dt_impressions'
+        'dt_impressions',
+        'foo.bar',
       ]);
     });
   });

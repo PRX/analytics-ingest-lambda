@@ -29,6 +29,11 @@ Records with the special type `postbytespreview`  will also be inserted into a
 "preview" BigQuery table, for running both legacy and IAB 2.0 compliant inserts
 in parallel for a program.
 
+Records with type `pixel` will also be inserted into BigQuery, under the dataset/table
+indicated in the `record.destination`. Since these destination tables are less
+controlled, errors on insert (missing table, bad schema, etc) will be logged and
+ignored.
+
 ## Pingbacks
 
 Records with type `combined`/`postbytes` and a special `impression[].pings` array will be pinged via
@@ -134,7 +139,7 @@ a `DDB_ROLE` that the lambda should assume while doing gets/writes.
 
 The 4 lambdas functions are deployed via a Cloudformation stack in the [Infrastructure repo](https://github.com/PRX/Infrastructure/blob/master/stacks/analytics-ingest-lambda.yml):
 
- - `AnalyticsBigqueryLambda` - insert downloads/impressions into BigQuery
+ - `AnalyticsBigqueryLambda` - insert downloads/impressions/pixels into BigQuery
  - `AnalyticsPingbacksLambda` - ping Adzerk impressions and 3rd-party pingbacks
  - `AnalyticsRedisLambda` - realtime Redis increments
  - `AnalyticsDynamodbLambda` - temporary store for IAB compliant downloads
