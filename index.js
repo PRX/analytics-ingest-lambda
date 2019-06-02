@@ -7,6 +7,15 @@ const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('.
 exports.handler = (event, context, callback) => {
   let records = [];
 
+  // debug timeouts
+  let timer = null;
+  if (process.env.DEBUG) {
+    timer = setTimeout(function() {
+      console.log('[TIMEOUT]');
+      console.log(JSON.stringify(event, null, 2));
+    }, 29000);
+  }
+
   // decode the base64 kinesis records
   if (!event || !event.Records) {
     logger.error(`Invalid event input: ${JSON.stringify(event)}`);
@@ -23,6 +32,7 @@ exports.handler = (event, context, callback) => {
 
   // nothing to do
   if (records.length === 0) {
+    clearTimeout(timer);
     return callback();
   }
 
@@ -47,10 +57,12 @@ exports.handler = (event, context, callback) => {
     // run inserts in parallel
     inputs.insertAll().then(
       results => {
+        clearTimeout(timer);
         let total = results.reduce((acc, r) => acc + r.count, 0);
         callback(null, `Inserted ${total} rows`);
       },
       err => {
+        clearTimeout(timer);
         callback(logger.errors(err));
       }
     );
