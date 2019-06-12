@@ -4,6 +4,10 @@ const support = require('./support');
 const logger = require('../lib/logger');
 const pingurl = require('../lib/pingurl');
 
+function parseXff(remoteIp) {
+  return pingurl.parseHeaders({remoteIp})['X-Forwarded-For'];
+}
+
 describe('pingurl', () => {
 
   it('handles bad urls', () => {
@@ -94,8 +98,15 @@ describe('pingurl', () => {
     expect(pingurl.parseHeaders()).to.eql({});
     expect(pingurl.parseHeaders({remoteAgent: ''})).to.eql({});
     expect(pingurl.parseHeaders({remoteAgent: 'foo'})).to.eql({'User-Agent': 'foo'});
-    expect(pingurl.parseHeaders({remoteIp: '999, 888, 777'})).to.eql({'X-Forwarded-For': '999, 888, 777'});
     expect(pingurl.parseHeaders({remoteReferrer: 'http://www.prx.org'})).to.eql({'Referer': 'http://www.prx.org'});
+  });
+
+  it('masks ips in x-forwarded-for', () => {
+    expect(parseXff('')).to.equal(undefined);
+    expect(parseXff('66.6.44.4')).to.equal('66.6.44.0');
+    expect(parseXff('2804:18:1012:6b65:1:3:3561:14b8')).to.equal('2804:18:1012:6b65:1:3:3561:0');
+    expect(parseXff(',blah ,  66.6.44.4')).to.equal('66.6.44.0');
+    expect(parseXff('192.168.0.1,66.6.44.4')).to.equal('192.168.0.0, 66.6.44.4');
   });
 
   it('proxies headers to request', () => {
@@ -104,7 +115,12 @@ describe('pingurl', () => {
       'Referer': 'bar',
       'X-Forwarded-For': '9.8.7.6'
     }};
-    let scope = nock('http://www.foo.bar', opts).get('/the/path').reply(200);
+    let optsMask = {reqheaders: {
+      'User-Agent': 'foo',
+      'Referer': 'bar',
+      'X-Forwarded-For': '9.8.7.0'
+    }};
+    let scope = nock('http://www.foo.bar', optsMask).get('/the/path').reply(200);
     let input = {remoteAgent: 'foo', remoteIp: '9.8.7.6', remoteReferrer: 'bar'};
     return pingurl.ping('http://www.foo.bar/the/path', input).then(resp => {
       expect(resp).to.equal(true);
