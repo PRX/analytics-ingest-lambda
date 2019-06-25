@@ -65,6 +65,15 @@ describe('urlutil', () => {
     expect(url3).to.equal('http://foo.bar/');
   });
 
+  it('masks ip addresses', () => {
+    let url1 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION());
+    let url2 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'));
+    let url3 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION('remoteIp', '  '));
+    expect(url1).to.equal('http://foo.bar/?ipmask=127.0.0.0');
+    expect(url2).to.equal('http://foo.bar/?ipmask=127.0.0.0');
+    expect(url3).to.equal('http://foo.bar/');
+  });
+
   it('returns timestamps in milliseconds', () => {
     let url1 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION());
     let url2 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION('timestamp', 1507234920010));

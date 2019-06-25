@@ -62,6 +62,7 @@ template.  Valid parameters are:
 | `creative`        | Adzerk creative id |
 | `flight`          | Adzerk flight id |
 | `ip`              | Request ip address |
+| `ipmask`          | Masked ip, with the last octet changed to 0s |
 | `listener`        | Unique string for this "listener" |
 | `listenerepisode` | Unique string for "listener + url" |
 | `podcast`         | Feeder podcast id |
