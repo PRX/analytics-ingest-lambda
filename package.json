@@ -55,7 +55,7 @@
     "follow-redirects": "1.7.0",
     "ip": "^1.1.5",
     "maxmind": "^2.12.0",
-    "prx-podagent": "0.0.8",
+    "prx-podagent": "0.0.9",
     "redis": "^2.8.0",
     "urijs": "^1.19.0",
     "uuid": "^3.3.2"
