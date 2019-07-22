@@ -743,7 +743,7 @@ jmespath@0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
 
-js-yaml@3.x, js-yaml@^3.12.0, js-yaml@^3.9.1:
+js-yaml@3.x, js-yaml@^3.12.0:
   version "3.12.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.1.tgz#295c8632a18a23e054cf5c9d3cecafe678167600"
   dependencies:
@@ -988,12 +988,10 @@ propagate@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/propagate/-/propagate-1.0.0.tgz#00c2daeedda20e87e3782b344adba1cddd6ad709"
 
-prx-podagent@0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.0.9.tgz#851422b8616283198664048ceb4cb257dd4fbea6"
-  integrity sha512-AgA43MqDuEVubMQb2qDu0XQyNSlR5ILPeDKVlOte721kB/rIFKzWYpWgkk4WPcK+QNFZKwIH8jiBPD+l4q6Ovw==
-  dependencies:
-    js-yaml "^3.9.1"
+prx-podagent@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.0.tgz#9b4508c801b324eb3373d9b598a5426f7272d1ff"
+  integrity sha512-tg+MDO98cTstni7TUJ8BDkiZa2IDj/geqLgxbbaorg/S8OZPi5o9GCwotZCvcpPYYUChUg1WI4tqk2WtgqVq8w==
 
 psl@^1.1.24:
   version "1.1.31"
