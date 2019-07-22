@@ -498,6 +498,11 @@ fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
+fast-safe-stringify@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.6.tgz#04b26106cc56681f51a044cfc0d76cf0008ac2c2"
+  integrity sha512-q8BZ89jjc+mz08rSxROs8VsrBBcn1SIw1kq9NjolL509tkABRk9io01RAjSaEv1Xb2uFLt8VtRiZbGp5H8iDtg==
+
 follow-redirects@1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.7.0.tgz#489ebc198dc0e7f64167bd23b03c4c19b5784c76"
@@ -793,6 +798,13 @@ jws@^3.1.5:
   dependencies:
     jwa "^1.2.0"
     safe-buffer "^5.0.1"
+
+lambda-log@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/lambda-log/-/lambda-log-2.3.0.tgz#2c8b3f9e29ed6a5d2c1a9acadcadfd423be0bb75"
+  integrity sha512-L0q4b9/K/2wH2DNra4mkDXA7naCJ/7aqBhss+nNyGa8Zf74J2q7flLh4RDUPUquXFRYidNURfTGrBOucuLGiUg==
+  dependencies:
+    fast-safe-stringify "^2.0.6"
 
 levn@~0.3.0:
   version "0.3.0"
