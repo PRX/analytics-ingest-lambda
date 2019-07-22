@@ -24,7 +24,7 @@ describe('handler', () => {
     infos = [];
     warns = [];
     errs = [];
-    sinon.stub(logger, 'info').callsFake(msg => infos.push(msg));
+    sinon.stub(logger, 'info').callsFake((msg, meta) => infos.push({msg, meta}));
     sinon.stub(logger, 'error').callsFake(msg => errs.push(msg));
     sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
   });
@@ -69,9 +69,12 @@ describe('handler', () => {
     expect(infos.length).to.equal(4);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0]).to.match(/1 rows into dt_downloads/);
-    expect(infos[1]).to.match(/1 rows into dt_downloads_preview/);
-    expect(infos[2]).to.match(/3 rows into dt_impressions/);
+    expect(infos[0].msg).to.match(/1 rows into dt_downloads/);
+    expect(infos[0].meta).to.contain({dest: 'dt_downloads', rows: 1});
+    expect(infos[1].msg).to.match(/1 rows into dt_downloads_preview/);
+    expect(infos[1].meta).to.contain({dest: 'dt_downloads_preview', rows: 1});
+    expect(infos[2].msg).to.match(/3 rows into dt_impressions/);
+    expect(infos[2].meta).to.contain({dest: 'dt_impressions', rows: 3});
 
     // based on test-records
     expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions', 'pixels');
@@ -186,8 +189,10 @@ describe('handler', () => {
     expect(infos.length).to.equal(2);
     expect(warns.length).to.equal(1);
     expect(errs.length).to.equal(0);
-    expect(infos[0]).to.match(/inserted 2 rows into dynamodb/i);
-    expect(infos[1]).to.match(/inserted 1 rows into kinesis/i);
+    expect(infos[0].msg).to.match(/inserted 2 rows into dynamodb/i);
+    expect(infos[0].meta).to.contain({dest: 'dynamodb', rows: 2});
+    expect(infos[1].msg).to.match(/inserted 1 rows into kinesis/i);
+    expect(infos[1].meta).to.contain({dest: 'kinesis:foobar_stream', rows: 1});
     expect(warns[0]).to.match(/missing segment listener-episode-3.the-digest.4/i);
 
     expect(dynamo.write.args[0][0].length).to.equal(2);
@@ -221,7 +226,8 @@ describe('handler', () => {
     expect(infos.length).to.equal(1);
     expect(warns.length).to.equal(1);
     expect(errs.length).to.equal(0);
-    expect(infos[0]).to.match(/2 rows into www.foo.bar/);
+    expect(infos[0].msg).to.match(/2 rows into www.foo.bar/);
+    expect(infos[0].meta).to.contain({dest: 'www.foo.bar', rows: 2});
     expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
     expect(warns[0]).to.match(/ping2/);
 
@@ -238,7 +244,8 @@ describe('handler', () => {
     expect(infos.length).to.equal(1);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0]).to.match(/4 rows into redis:/);
+    expect(infos[0].msg).to.match(/4 rows into redis:/);
+    expect(infos[0].meta).to.contain({dest: 'redis://127.0.0.1', rows: 4});
 
     let keys = [
       support.redisKeys('downloads.episodes.*'),
