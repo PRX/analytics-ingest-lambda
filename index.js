@@ -2,6 +2,7 @@
 
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
+const timestamp = require('./lib/timestamp');
 const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
 
 exports.handler = (event, context, callback) => {
@@ -10,10 +11,7 @@ exports.handler = (event, context, callback) => {
   // debug timeouts
   let timer = null;
   if (process.env.DEBUG) {
-    timer = setTimeout(function() {
-      console.log('[TIMEOUT]');
-      console.log(JSON.stringify(event, null, 2));
-    }, 29000);
+    timer = setTimeout(() => logger.error('TIMEOUT', {event}), 29000);
   }
 
   // decode the base64 kinesis records
@@ -27,7 +25,19 @@ exports.handler = (event, context, callback) => {
         logger.error(`Invalid record input: ${JSON.stringify(r)}`);
         return null;
       }
-    }).filter(r => r);
+    }).filter(r => {
+      if (process.env.PROCESS_AFTER && r && r.timestamp) {
+        const after = timestamp.toEpochSeconds(parseInt(process.env.PROCESS_AFTER));
+        const time = timestamp.toEpochSeconds(r.timestamp);
+        return time > after;
+      } else if (process.env.PROCESS_UNTIL && r && r.timestamp) {
+        const until = timestamp.toEpochSeconds(parseInt(process.env.PROCESS_UNTIL));
+        const time = timestamp.toEpochSeconds(r.timestamp);
+        return time <= until;
+      } else {
+        return !!r;
+      }
+    });
   }
 
   // nothing to do

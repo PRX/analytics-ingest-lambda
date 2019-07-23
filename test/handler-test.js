@@ -28,6 +28,10 @@ describe('handler', () => {
     sinon.stub(logger, 'error').callsFake(msg => errs.push(msg));
     sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
   });
+  afterEach(() => {
+    process.env.PROCESS_AFTER = '';
+    process.env.PROCESS_UNTIL = '';
+  });
 
   it('complains about insane inputs', async () => {
     const result = await handler({foo: 'bar'});
@@ -55,6 +59,18 @@ describe('handler', () => {
     expect(result).to.match(/inserted 0/i);
     expect(errs.length).to.equal(1);
     expect(errs[0]).to.match(/unrecognized input record/i);
+  });
+
+  it('filters out records before a timestamp', async () => {
+    process.env.PROCESS_AFTER = 1000;
+    const result = await handler(support.buildEvent([{timestamp: 900}, {timestamp: 1000}]));
+    expect(result).to.be.undefined;
+  });
+
+  it('filters out records after a timestamp', async () => {
+    process.env.PROCESS_UNTIL = 1000;
+    const result = await handler(support.buildEvent([{timestamp: 1001}, {timestamp: 1100}]));
+    expect(result).to.be.undefined;
   });
 
   it('handles bigquery records', async () => {
