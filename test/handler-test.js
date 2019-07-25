@@ -230,6 +230,29 @@ describe('handler', () => {
     expect(kinesis.put.args[0][0][0].any).to.equal('thing');
   });
 
+  it('throws dynamodb throttling errors', async () => {
+    const bad = new Error('Blah blah throughput exceeded');
+    bad.code = 'ProvisionedThroughputExceededException';
+    bad.statusCode = 400;
+    sinon.stub(dynamo, 'client').resolves({batchGetItem: () => { throw bad }});
+
+    let err = null;
+    try {
+      process.env.DYNAMODB = 'true';
+      const rec = {type: 'bytes', timestamp: 1234, listenerEpisode: 'le', digest: 'd'};
+      const result = await handler(support.buildEvent([rec]));
+    } catch (e) {
+      err = e;
+    }
+    if (err) {
+      expect(err.message).to.match(/throughput exceeded/);
+      expect(err.code).to.equal('ProvisionedThroughputExceededException');
+      expect(err.statusCode).to.equal(400);
+    } else {
+      expect.fail('should have thrown an error');
+    }
+  });
+
   it('handles pingback records', async () => {
     process.env.PINGBACKS = 'true';
     const ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
