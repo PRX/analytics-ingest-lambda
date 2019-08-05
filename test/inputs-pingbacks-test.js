@@ -84,4 +84,20 @@ describe('pingbacks', () => {
     expect(warns.sort()[5]).to.match(/PINGRETRY/);
   });
 
+  it('does not ping duplicate records', async () => {
+    sinon.stub(logger, 'warn');
+    pingbacks = new Pingbacks([
+      {
+        type: 'combined',
+        remoteAgent: 'googlebot',
+        impressions: [{adId: 11, isDuplicate: false, pings: ['http://foo.bar/ping1']}]
+      }
+    ]);
+    expect(pingbacks._records.length).to.equal(1);
+
+    const result = await pingbacks.insert();
+    expect(result.length).to.equal(0);
+    expect(logger.warn).not.to.have.been.called;
+  })
+
 });
