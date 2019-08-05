@@ -50,6 +50,15 @@ describe('redis-increments', () => {
     });
   });
 
+  it('does not increment duplicate records', async () => {
+    let incr = new RedisIncrements([
+      {...record(1490827132, 'combined', 1234, 'abcd'), remoteAgent: 'googlebot'}
+    ]);
+    expect(incr._records.length).to.equal(1);
+    let result = await incr.insert();
+    expect(result.length).to.equal(0);
+  });
+
   it('increments redis counts', () => {
     let incr = new RedisIncrements([
       record(1490827132, 'download', 1234, 'abcd'),
