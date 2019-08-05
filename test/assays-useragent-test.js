@@ -10,6 +10,7 @@ describe('useragent', () => {
       expect(look.name).to.equal(23);
       expect(look.type).to.equal(36);
       expect(look.os).to.equal(42);
+      expect(look.bot).to.equal(false);
     });
   });
 
@@ -18,6 +19,7 @@ describe('useragent', () => {
       expect(look.name).to.be.null;
       expect(look.type).to.equal(40);
       expect(look.os).to.equal(42);
+      expect(look.bot).to.equal(false);
     });
   });
 
@@ -26,6 +28,7 @@ describe('useragent', () => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
     });
   });
 
@@ -34,6 +37,16 @@ describe('useragent', () => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
+    });
+  });
+
+  it('handle bots', () => {
+    return agent.look('googlebot').then(look => {
+      expect(look.name).to.be.null;
+      expect(look.type).to.be.null;
+      expect(look.os).to.be.null;
+      expect(look.bot).to.equal(true);
     });
   });
 
@@ -43,11 +56,13 @@ describe('useragent', () => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
       return agent.look(`${str}  `);
     }).then(look => {
       expect(look.name).to.equal(11);
       expect(look.type).to.equal(36);
       expect(look.os).to.equal(43);
+      expect(look.bot).to.equal(false);
     });
   });
 
