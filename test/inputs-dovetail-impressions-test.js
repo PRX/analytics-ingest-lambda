@@ -32,10 +32,10 @@ describe('dovetail-impressions', () => {
     expect(impression.isBytes({type: 'postbytespreview'})).to.be.true;
   });
 
-  it('formats table inserts', () => {
+  it('formats table inserts', async () => {
     const rec = {type: 'combined', timestamp: 1490827132999, listenerEpisode: 'something'};
 
-    const format1 = impression.format(rec, {adId: 1, isDuplicate: true});
+    const format1 = await impression.format(rec, {adId: 1, isDuplicate: true});
     expect(format1).to.have.keys('insertId', 'json');
     expect(format1.insertId.length).to.be.above(10);
     expect(format1.json).to.have.keys(
@@ -49,18 +49,18 @@ describe('dovetail-impressions', () => {
     expect(format1.json.listener_session.length).to.be.above(10);
     expect(format1.json.is_duplicate).to.equal(true);
 
-    const format2 = impression.format(rec, {adId: 2, isDuplicate: false});
+    const format2 = await impression.format(rec, {adId: 2, isDuplicate: false});
     expect(format2.json.timestamp).to.equal(1490827132);
     expect(format2.json.listener_session).to.equal(format1.json.listener_session);
     expect(format2.json.is_duplicate).to.equal(false);
     expect(format2.insertId).not.to.equal(format1.insertId);
   });
 
-  it('creates unique insert ids for ads', () => {
-    const r1 = impression.format({listenerEpisode: 'req1'}, {adId: 1});
-    const r2 = impression.format({listenerEpisode: 'req1'}, {adId: 1});
-    const r3 = impression.format({listenerEpisode: 'req1'}, {adId: 2});
-    const r4 = impression.format({listenerEpisode: 'req2'}, {adId: 1});
+  it('creates unique insert ids for ads', async () => {
+    const r1 = await impression.format({listenerEpisode: 'req1'}, {adId: 1});
+    const r2 = await impression.format({listenerEpisode: 'req1'}, {adId: 1});
+    const r3 = await impression.format({listenerEpisode: 'req1'}, {adId: 2});
+    const r4 = await impression.format({listenerEpisode: 'req2'}, {adId: 1});
     expect(r1.insertId).to.equal(r2.insertId);
     expect(r1.insertId).not.to.equal(r3.insertId);
     expect(r1.insertId).not.to.equal(r4.insertId);
