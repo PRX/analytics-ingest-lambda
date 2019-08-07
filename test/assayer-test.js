@@ -41,7 +41,7 @@ describe('assayer', () => {
 
     it('checks for bots', async () => {
       const info = await assayer.test({remoteAgent: 'googlebot'})
-      expect(info.isDuplicate).to.equal(true)
+      expect(info.isDuplicate).to.equal(false) // TODO: bot-filter preview
       expect(info.cause).to.equal('bot')
     })
 
@@ -83,7 +83,7 @@ describe('assayer', () => {
 
     it('checks for bots', async () => {
       const info = await assayer.testImpression({remoteAgent: 'googlebot'}, {isDuplicate: false})
-      expect(info.isDuplicate).to.equal(true)
+      expect(info.isDuplicate).to.equal(false) // TODO: bot-filter preview
       expect(info.cause).to.equal('bot')
     })
 

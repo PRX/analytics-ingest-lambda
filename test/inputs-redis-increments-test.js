@@ -56,7 +56,7 @@ describe('redis-increments', () => {
     ]);
     expect(incr._records.length).to.equal(1);
     let result = await incr.insert();
-    expect(result.length).to.equal(0);
+    expect(result.length).to.equal(1); // TODO: bot-filter preview
   });
 
   it('increments redis counts', () => {
