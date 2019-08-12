@@ -84,4 +84,21 @@ describe('pingbacks', () => {
     expect(warns.sort()[5]).to.match(/PINGRETRY/);
   });
 
+  it('does not ping duplicate records', async () => {
+    nock('http://foo.bar').get('/ping1').reply(200); // TODO: bot-filter preview
+    sinon.stub(logger, 'warn');
+    pingbacks = new Pingbacks([
+      {
+        type: 'combined',
+        remoteAgent: 'googlebot',
+        impressions: [{adId: 11, isDuplicate: false, pings: ['http://foo.bar/ping1']}]
+      }
+    ]);
+    expect(pingbacks._records.length).to.equal(1);
+
+    const result = await pingbacks.insert();
+    expect(result.length).to.equal(1); // TODO: bot-filter preview
+    expect(logger.warn).not.to.have.been.called;
+  })
+
 });

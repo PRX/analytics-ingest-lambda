@@ -1,53 +1,68 @@
 'use strict';
 
 const support = require('./support');
-const lookagent = require('../lib/lookagent');
+const agent = require('../lib/assays/useragent');
 
-describe('lookagent', () => {
+describe('useragent', () => {
 
   it('looks up agent strings', () => {
-    return lookagent.look('Stitcher/Android').then(look => {
+    return agent.look('Stitcher/Android').then(look => {
       expect(look.name).to.equal(23);
       expect(look.type).to.equal(36);
       expect(look.os).to.equal(42);
+      expect(look.bot).to.equal(false);
     });
   });
 
   it('handle partial matching agents', () => {
-    return lookagent.look('Mozilla/5.0 (Linux; U; Android 6.0.1;px5/MXC89L)').then(look => {
+    return agent.look('Mozilla/5.0 (Linux; U; Android 6.0.1;px5/MXC89L)').then(look => {
       expect(look.name).to.be.null;
       expect(look.type).to.equal(40);
       expect(look.os).to.equal(42);
+      expect(look.bot).to.equal(false);
     });
   });
 
   it('handles blanks', () => {
-    return lookagent.look('').then(look => {
+    return agent.look('').then(look => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
     });
   });
 
   it('handle nonsense', () => {
-    return lookagent.look('ontehunteho').then(look => {
+    return agent.look('ontehunteho').then(look => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
+    });
+  });
+
+  it('handle bots', () => {
+    return agent.look('googlebot').then(look => {
+      expect(look.name).to.be.null;
+      expect(look.type).to.be.null;
+      expect(look.os).to.be.null;
+      expect(look.bot).to.equal(true);
     });
   });
 
   it('respects blanks', () => {
     let str = 'Downcast/2.9.16 (iPhone; iOS 10.3.2; Scale/2.00)';
-    return lookagent.look(` ${str}`).then(look => {
+    return agent.look(` ${str}`).then(look => {
       expect(look.name).to.be.null;
       expect(look.type).to.be.null;
       expect(look.os).to.be.null;
-      return lookagent.look(`${str}  `);
+      expect(look.bot).to.equal(false);
+      return agent.look(`${str}  `);
     }).then(look => {
       expect(look.name).to.equal(11);
       expect(look.type).to.equal(36);
       expect(look.os).to.equal(43);
+      expect(look.bot).to.equal(false);
     });
   });
 
