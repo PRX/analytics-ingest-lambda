@@ -125,7 +125,7 @@ async function run() {
   console.log(`Built lookup of ${Object.keys(lookup).length} prefixes`);
 
   // write to json lookup file
-  const json = JSON.stringify({providers, ranges, lookup});
+  const json = JSON.stringify({providers, ranges, lookup, lookupParts: PREFIX_PARTS});
   await util.promisify(fs.writeFile)(`${DB_DIR}/datacenters.json`, json);
   console.log(`Wrote ${json.length} bytes to db/datacenters.json`);
 }
