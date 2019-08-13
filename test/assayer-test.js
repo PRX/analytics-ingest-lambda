@@ -45,6 +45,12 @@ describe('assayer', () => {
       expect(info.cause).to.equal('bot')
     })
 
+    it('checks for datacenters', async () => {
+      const info = await assayer.test({remoteIp: '3.1.87.65'})
+      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.cause).to.equal('datacenter: Amazon AWS')
+    })
+
   })
 
   describe('testImpression', async () => {
@@ -85,6 +91,12 @@ describe('assayer', () => {
       const info = await assayer.testImpression({remoteAgent: 'googlebot'}, {isDuplicate: false})
       expect(info.isDuplicate).to.equal(false) // TODO: bot-filter preview
       expect(info.cause).to.equal('bot')
+    })
+
+    it('checks for datacenters', async () => {
+      const info = await assayer.testImpression({remoteIp: '3.1.87.65'}, {isDuplicate: false})
+      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.cause).to.equal('datacenter: Amazon AWS')
     })
 
   })
