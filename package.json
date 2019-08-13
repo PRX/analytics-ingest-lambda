@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "geolite": "node bin/getmaxmind.js",
+    "datacenters": "node bin/getdatacenters.js",
     "start": "npm run start-bigquery && npm run start-dynamodb && npm run start-pingbacks && npm run start-redis",
     "start-bigquery": "DYNAMODB=0 PINGBACKS=0  REDIS_HOST=0 node test/integration/runner.js",
     "start-dynamodb": "DYNAMODB=1 PINGBACKS=0  REDIS_HOST=0 node test/integration/runner.js",

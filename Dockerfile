@@ -13,6 +13,8 @@ ADD yarn.lock ./
 ADD package.json ./
 RUN npm install --quiet --global yarn && yarn install
 ADD ./bin/getmaxmind.js ./bin/
-RUN yarn run geolite
+ADD ./bin/getdatacenters.js ./bin/
+RUN yarn geolite
+RUN yarn datacenters
 ADD . .
 RUN yarn run build
