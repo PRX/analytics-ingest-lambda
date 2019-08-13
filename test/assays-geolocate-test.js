@@ -89,7 +89,7 @@ describe('geolocate', () => {
       expect(look.postal).to.equal('01000');
       expect(look.latitude).to.be.within(-24, -23);
       expect(look.longitude).to.be.within(-47, -46);
-      expect(look.masked).to.equal('2804:18:1012:6b65:1:3:3561:0');
+      expect(look.masked).to.equal('2804:18:1012:6b65:1:3:3561::');
     });
   });
 
