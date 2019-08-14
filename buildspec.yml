@@ -5,18 +5,14 @@ env:
     PRX_LAMBDA_CODE_CONFIG_PARAMETERS: "AnalyticsIngestLambdaCodeS3ObjectVersion"
     PRX_LAMBDA_ARCHIVE_BUILD_PATH: "/app/build.zip"
   parameter-store:
-    AIL_ACCESS_KEY_ID: "/prx/test/analytics-ingest-lambda/AWS_ACCESS_KEY_ID"
-    AIL_DEFAULT_REGION: "/prx/test/analytics-ingest-lambda/AWS_DEFAULT_REGION"
-    AIL_SECRET_ACCESS_KEY: "/prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY"
+    AWS_ACCESS_KEY_ID: "/prx/test/analytics-ingest-lambda/AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "/prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY"
     CODECOV_TOKEN: "/prx/test/dovetail.prx.org/CODECOV_TOKEN"
 phases:
   build:
     commands:
       - "cd $(ls -d */|head -n 1)"
       - "cp env-example .env"
-      - "export AWS_ACCESS_KEY_ID=$AIL_ACCESS_KEY_ID"
-      - "export AWS_DEFAULT_REGION=$AIL_DEFAULT_REGION"
-      - "export AWS_SECRET_ACCESS_KEY=$AIL_SECRET_ACCESS_KEY"
       - "docker-compose build"
       - "docker-compose run test"
   post_build:
