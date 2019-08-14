@@ -15,7 +15,17 @@ const Prefix = 'config/datacenters';
 
 // load datacenter csvs from S3
 async function run() {
-  const data = await s3.listObjects({Bucket, Prefix}).promise();
+  let data;
+  try {
+    data = await s3.listObjects({Bucket, Prefix}).promise();
+  } catch (err) {
+    if (err.code === 'CredentialsError') {
+      console.error('No AWS S3 credentials found!');
+      console.error('Did you remember to set S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY?');
+      process.exit(1);
+    }
+    throw err;
+  }
   const keys = data.Contents.map(c => c.Key).filter(k => k.endsWith('.csv'));
 
   // sanity check

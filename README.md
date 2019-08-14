@@ -148,7 +148,8 @@ The 4 lambdas functions are deployed via a Cloudformation stack in the [Infrastr
 
 # Docker
 
-This repo is now dockerized!
+This repo is now dockerized! You'll need some read-only S3 credentials in your
+`.env` file for the `bin/getdatacenters.js` script to succeed during build:
 
 ```
 docker-compose build

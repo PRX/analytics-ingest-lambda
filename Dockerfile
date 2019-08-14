@@ -18,10 +18,10 @@ ADD ./bin/getmaxmind.js ./bin/
 RUN yarn geolite
 
 # download datacenter ip lists
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
+ARG S3_ACCESS_KEY_ID
+ARG S3_SECRET_ACCESS_KEY
 ADD ./bin/getdatacenters.js ./bin/
-RUN yarn datacenters
+RUN AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY yarn datacenters
 
 # finish building
 ADD . .
