@@ -37,4 +37,11 @@ describe('iputil', () => {
     expect(iputil.fixed('2804:18:1012::61:14b8')).to.equal('2804:0018:1012:0000:0000:0000:0061:14b8');
   });
 
+  it('converts to fixed length strings and returns the kind of ip', () => {
+    expect(iputil.fixedKind('blah')).to.eql(['blah', null]);
+    expect(iputil.fixedKind('1234.5678.1234.5678')).to.eql(['1234.5678.1234.5678', null]);
+    expect(iputil.fixedKind('192.68.0.1')).to.eql(['192.068.000.001', 'v4']);
+    expect(iputil.fixedKind('2804:18:1012::61:14b8')).to.eql(['2804:0018:1012:0000:0000:0000:0061:14b8', 'v6']);
+  });
+
 });

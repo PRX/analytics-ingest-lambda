@@ -1030,11 +1030,6 @@ neat-csv@^5.1.0:
     get-stream "^5.1.0"
     to-readable-stream "^2.1.0"
 
-netparser@^1.6.9:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/netparser/-/netparser-1.6.9.tgz#2e5fa121aa50b6fd1b3c3e65a43d61267db3cc83"
-  integrity sha512-DQ86dRaCRatoEPW+Aj79qE2CReBH/Yt8v0DDGMLgVcvo7oTuMHGovfxOSzB1589gB42azQIoEpSCjfhxDhHXmA==
-
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"

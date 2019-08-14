@@ -5,10 +5,8 @@ const util = require('util');
 const neatCsv = require('neat-csv');
 const ipaddr = require('ipaddr.js');
 const IPCIDR = require('ip-cidr');
-const netparser = require('netparser');
 const s3 = new (require('aws-sdk')).S3();
 
-const PREFIX_PARTS = 2;
 const DB_DIR = `${__dirname}/../db`;
 const Bucket = 'prx-dovetail';
 const Prefix = 'config/datacenters';
@@ -101,41 +99,20 @@ async function run() {
   });
   console.log(`Condensed to ${condensed.length} IP ranges`);
 
-  // normalize providers/ranges
+  // normalize providers
   const providers = [...new Set(condensed.map(range => range[2]))];
+  console.log(`Normalized ${providers.length} providers`);
+
+  // break out ranges into v4 / v6
   const ranges = condensed.map(([startIp, endIp, provider]) => {
     return [normal(startIp), normal(endIp), providers.indexOf(provider)];
   });
-  console.log(`Normalized ${providers.length} providers`);
-
-  // key by prefix (first 2 blocks) for fast lookup
-  const lookup = {};
-  ranges.forEach(([start, end, provider], idx) => {
-    const sep = start.indexOf('.') > -1 ? '.' : ':';
-
-    // get networks in range
-    const netBits = (sep === '.' ? 8 : 16) * PREFIX_PARTS;
-    const allNets = [start];
-    while (allNets[allNets.length - 1] < end) {
-      const prev = allNets[allNets.length - 1];
-      const next = netparser.nextNetwork(`${prev}/${netBits}`).replace(`/${netBits}`, '');
-      allNets.push(normal(ipaddr.parse(next)));
-    }
-
-    // look for unique prefixes
-    const prefixes = allNets.map(ip => ip.split(sep).slice(0, PREFIX_PARTS).join(sep));
-    const uniques = [...new Set(prefixes)];
-
-    // add to lookup
-    uniques.forEach(prefix => {
-      lookup[prefix] = lookup[prefix] || [];
-      lookup[prefix].push(idx);
-    });
-  });
-  console.log(`Built lookup of ${Object.keys(lookup).length} prefixes`);
+  const rangesV4 = ranges.filter(([startIp]) => startIp.includes('.'));
+  const rangesV6 = ranges.filter(([startIp]) => startIp.includes(':'));
+  console.log(`Calculated ranges: ${rangesV4.length} ipv4, ${rangesV6.length} ipv6`);
 
   // write to json lookup file
-  const json = JSON.stringify({providers, ranges, lookup, lookupParts: PREFIX_PARTS});
+  const json = JSON.stringify({providers, v4: rangesV4, v6: rangesV6});
   await util.promisify(fs.writeFile)(`${DB_DIR}/datacenters.json`, json);
   console.log(`Wrote ${json.length} bytes to db/datacenters.json`);
 }
