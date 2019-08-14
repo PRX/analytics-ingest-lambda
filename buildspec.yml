@@ -14,9 +14,9 @@ phases:
     commands:
       - "cd $(ls -d */|head -n 1)"
       - "cp env-example .env"
-      - "echo AWS_ACCESS_KEY_ID=$AIL_ACCESS_KEY_ID >> .env"
-      - "echo AWS_DEFAULT_REGION=$AIL_DEFAULT_REGION >> .env"
-      - "echo AWS_SECRET_ACCESS_KEY=$AIL_SECRET_ACCESS_KEY >> .env"
+      - "export AWS_ACCESS_KEY_ID=$AIL_ACCESS_KEY_ID"
+      - "export AWS_DEFAULT_REGION=$AIL_DEFAULT_REGION"
+      - "export AWS_SECRET_ACCESS_KEY=$AIL_SECRET_ACCESS_KEY"
       - "docker-compose build"
       - "docker-compose run test"
   post_build:
