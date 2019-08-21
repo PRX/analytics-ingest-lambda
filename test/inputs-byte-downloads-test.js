@@ -134,6 +134,7 @@ describe('byte-downloads', () => {
       requestUuid: 'the-request',
       timestamp: 1234,
       type: 'postbytes',
+      url: 'the-url',
     });
   });
 
