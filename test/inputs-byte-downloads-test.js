@@ -128,6 +128,7 @@ describe('byte-downloads', () => {
         segment: 2,
       }],
       listenerEpisode: 'the-listener-episode',
+      listenerId: 'the-listener-id',
       remoteAgent: 'the-agent',
       remoteIp: 'the-ip',
       remoteReferrer: 'the-referer',
