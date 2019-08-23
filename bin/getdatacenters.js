@@ -43,6 +43,9 @@ async function run() {
   const rowCount = csvs.map(c => c.length).reduce((a, b) => a + b, 0);
   console.log(`Loaded ${csvs.length} CSVs (${rowCount} rows) from S3`);
 
+  // track parsing errors and range overlaps
+  let hasErrors = false;
+
   // parse csvs, convert cidrs to ranges
   const rawRanges = [];
   csvs.forEach(csv => {
@@ -53,7 +56,8 @@ async function run() {
         if (start.kind() === end.kind()) {
           rawRanges.push([start, end, row['2']]);
         } else {
-          console.warn(`  Mismatched range [${row['0']}, ${row['1']}, ${row['2']}]`);
+          console.error(`  Mismatched range [${row['0']}, ${row['1']}, ${row['2']}]`);
+          hasErrors = true;
         }
       } else if (row['0'] && row['1']) {
         const cidr = new IPCIDR(row['0']);
@@ -62,13 +66,19 @@ async function run() {
           const end = ipaddr.parse(cidr.end());
           rawRanges.push([start, end, row['1']]);
         } else {
-          console.warn(`  Invalid cidr [${row['0']}, ${row['1']}]`);
+          console.error(`  Invalid cidr [${row['0']}, ${row['1']}]`);
+          hasErrors = true;
         }
       } else {
-        console.warn(`  Invalid row [${row['0']}, ${row['1']}, ${row['2']}, ${row['3']}]`);
+        console.error(`  Invalid row [${row['0']}, ${row['1']}, ${row['2']}, ${row['3']}]`);
+        hasErrors = true;
       }
     });
   });
+  if (hasErrors) {
+    console.error('ERROR: fix invalid cidrs/rows before continuing');
+    process.exit(1);
+  }
 
   // sort by start-ip
   const normalV4 = ip => ip.octets.map(n => `00${n}`.substr(-3, 3)).join('.');
@@ -88,14 +98,19 @@ async function run() {
         if (provider === prevProvider) {
           condensed[prev][1] = normal(endIp) > normal(prevEndIp) ? endIp : prevEndIp;
         } else {
-          console.warn(`  Skipping row: [${startIp}, ${endIp}, ${provider}]`);
-          console.warn(`       Keeping: [${prevStartIp}, ${prevEndIp}, ${prevProvider}]`);
+          console.error(`  Skipping row: [${startIp}, ${endIp}, ${provider}]`);
+          console.error(`       Keeping: [${prevStartIp}, ${prevEndIp}, ${prevProvider}]`);
+          hasErrors = true;
         }
       } else {
         condensed.push([startIp, endIp, provider]);
       }
     }
   });
+  if (hasErrors) {
+    console.error('ERROR: fix range conflicts before continuing');
+    process.exit(1);
+  }
   console.log(`Condensed to ${condensed.length} IP ranges`);
 
   // normalize providers
