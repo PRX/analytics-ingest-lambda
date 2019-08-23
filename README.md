@@ -98,13 +98,14 @@ run pingbacks or increment redis for `"bytes": "preview"` programs).
 
 # Installation
 
-To get started, first run an `npm install`.  Then run `npm run geolite` to download
-the [GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/).
+To get started, first run `yarn`.  Then run `yarn geolite` to download the
+[GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), and
+`yarn datacenters` to load the remote datacenter ip list.
 
 ## Unit Tests
 
 And hey, to just run the unit tests locally, you don't need anything!  Just
-`npm test` to your heart's content.
+`yarn test` to your heart's content.
 
 There are some dynamodb tests that use an actual table, and will be skipped.  To
 also run these, set `TEST_DDB_TABLE` and `TEST_DDB_ROLE` to something in AWS you
@@ -116,7 +117,7 @@ The integration test simply runs the lambda function against a test-event (the
 same way you might in the lambda web console), and outputs the result.
 
 Copy `env-example` to `.env`, and fill in your information. Now when you run
-`npm start`, you should see the test event run 4 times, and do some work for
+`yarn start`, you should see the test event run 4 times, and do some work for
 all of the lambda functions.
 
 ## BigQuery
@@ -147,7 +148,8 @@ The 4 lambdas functions are deployed via a Cloudformation stack in the [Infrastr
 
 # Docker
 
-This repo is now dockerized!
+This repo is now dockerized! You'll need some read-only S3 credentials in your
+`.env` file for the `bin/getdatacenters.js` script to succeed during build:
 
 ```
 docker-compose build

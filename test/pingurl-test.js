@@ -104,7 +104,7 @@ describe('pingurl', () => {
   it('masks ips in x-forwarded-for', () => {
     expect(parseXff('')).to.equal(undefined);
     expect(parseXff('66.6.44.4')).to.equal('66.6.44.0');
-    expect(parseXff('2804:18:1012:6b65:1:3:3561:14b8')).to.equal('2804:18:1012:6b65:1:3:3561:0');
+    expect(parseXff('2804:18:1012:6b65:1:3:3561:14b8')).to.equal('2804:18:1012:6b65:1:3:3561::');
     expect(parseXff(',blah ,  66.6.44.4')).to.equal('66.6.44.0');
     expect(parseXff('192.168.0.1,66.6.44.4')).to.equal('192.168.0.0, 66.6.44.4');
   });
