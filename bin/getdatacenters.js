@@ -8,14 +8,14 @@ const IPCIDR = require('ip-cidr');
 const s3 = new (require('aws-sdk')).S3();
 
 const DB_DIR = `${__dirname}/../db`;
-const Bucket = 'prx-dovetail';
-const Prefix = 'config/datacenters';
+const BUCKET = 'prx-dovetail';
+const PREFIX = 'config/datacenters';
 
 // load datacenter csvs from S3
 async function run() {
   let data;
   try {
-    data = await s3.listObjects({Bucket, Prefix}).promise();
+    data = await s3.listObjects({Bucket: BUCKET, Prefix: PREFIX}).promise();
   } catch (err) {
     if (err.code === 'CredentialsError') {
       console.error('No AWS S3 credentials found!');
@@ -28,17 +28,17 @@ async function run() {
 
   // sanity check
   if (data.Contents.length < 1) {
-    console.error(`Got 0 CSVs at s3://${Bucket}/${Prefix}*`);
+    console.error(`Got 0 CSVs at s3://${BUCKET}/${PREFIX}*`);
     process.exit(1);
   }
   if (data.Contents.length > 10) {
-    console.error(`Got > 10 CSVs at s3://${Bucket}/${Prefix}*`);
+    console.error(`Got > 10 CSVs at s3://${BUCKET}/${PREFIX}*`);
     process.exit(1);
   }
 
   // load actual csv datas
   const csvs = await Promise.all(keys.map(async (Key) => {
-    const resp = await s3.getObject({Bucket, Key}).promise();
+    const resp = await s3.getObject({Bucket: BUCKET, Key}).promise();
     return await neatCsv(resp.Body.toString(), {headers: ['0', '1', '2', '3']});
   }));
   const rowCount = csvs.map(c => c.length).reduce((a, b) => a + b, 0);
