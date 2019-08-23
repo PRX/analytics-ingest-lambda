@@ -20,7 +20,6 @@ async function run() {
     if (err.code === 'CredentialsError') {
       console.error('No AWS S3 credentials found!');
       console.error('Did you remember to set S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY?');
-      process.exit(1);
     }
     throw err;
   }
