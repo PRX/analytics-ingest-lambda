@@ -17,7 +17,7 @@ describe('datacenters', () => {
   it('returns nulls for non-matches', async () => {
     expect(await center.look('127.0.0.1')).to.eql(NULL);
     expect(await center.look('3.5.127.255')).to.eql(NULL);
-    expect(await center.look('3.9.102.102')).to.eql(NULL);
+    expect(await center.look('3.12.102.102')).to.eql(NULL);
     expect(await center.look('2401:6500:ff00::')).to.eql(NULL);
   });
 
