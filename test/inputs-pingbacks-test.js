@@ -85,7 +85,6 @@ describe('pingbacks', () => {
   });
 
   it('does not ping duplicate records', async () => {
-    nock('http://foo.bar').get('/ping1').reply(200); // TODO: bot-filter preview
     sinon.stub(logger, 'warn');
     pingbacks = new Pingbacks([
       {
@@ -97,7 +96,7 @@ describe('pingbacks', () => {
     expect(pingbacks._records.length).to.equal(1);
 
     const result = await pingbacks.insert();
-    expect(result.length).to.equal(1); // TODO: bot-filter preview
+    expect(result.length).to.equal(0);
     expect(logger.warn).not.to.have.been.called;
   })
 
