@@ -98,9 +98,9 @@ run pingbacks or increment redis for `"bytes": "preview"` programs).
 
 # Installation
 
-To get started, first run `yarn`.  Then run `yarn geolite` to download the
-[GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), and
-`yarn datacenters` to load the remote datacenter ip list.
+To get started, first run `yarn`.  Then run `yarn dbs` to download the
+[GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), remote
+datacenter IP lists, and domain threat lists.
 
 ## Unit Tests
 

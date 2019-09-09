@@ -13,15 +13,11 @@ ADD yarn.lock ./
 ADD package.json ./
 RUN npm install --quiet --global yarn && yarn install
 
-# download geolite database
-ADD ./bin/getmaxmind.js ./bin/
-RUN yarn geolite
-
-# download datacenter ip lists
+# download dbs (geolite, datacenters, domainthreats)
+ADD ./bin ./bin
 ARG S3_ACCESS_KEY_ID
 ARG S3_SECRET_ACCESS_KEY
-ADD ./bin/getdatacenters.js ./bin/
-RUN AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY yarn datacenters
+RUN AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY yarn dbs
 
 # finish building
 ADD . .
