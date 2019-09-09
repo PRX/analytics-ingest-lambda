@@ -45,9 +45,9 @@ describe('assayer', () => {
       expect(info.cause).to.equal('bot')
     })
 
-    it('checks for datacenters', async () => {
+    it('checks for datacenters, but does not mark duplicates', async () => {
       const info = await assayer.test({remoteIp: '3.1.87.65'})
-      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.isDuplicate).to.equal(false)
       expect(info.cause).to.equal('datacenter: Amazon AWS')
     })
 
@@ -93,9 +93,9 @@ describe('assayer', () => {
       expect(info.cause).to.equal('bot')
     })
 
-    it('checks for datacenters', async () => {
+    it('checks for datacenters, but does not mark duplicates', async () => {
       const info = await assayer.testImpression({remoteIp: '3.1.87.65'}, {isDuplicate: false})
-      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.isDuplicate).to.equal(false)
       expect(info.cause).to.equal('datacenter: Amazon AWS')
     })
 
