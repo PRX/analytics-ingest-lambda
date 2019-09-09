@@ -1152,6 +1152,15 @@ propagate@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/propagate/-/propagate-1.0.0.tgz#00c2daeedda20e87e3782b344adba1cddd6ad709"
 
+prx-ip-filter@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/prx-ip-filter/-/prx-ip-filter-0.0.1.tgz#5a64fb3af70c4d1e3baf5fe83d885afe70dd4fb2"
+  integrity sha512-6ao8AJq+b+qg+qunEiQ/WbvP8i6HGtMeemqGOwjEiDM1RoTP0sr4s7VU308o9OutELW2baXzLzu77Qqutrl1ag==
+  dependencies:
+    ip-cidr "^2.0.6"
+    ipaddr.js "^1.9.1"
+    neat-csv "^5.1.0"
+
 prx-podagent@0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.0.tgz#9b4508c801b324eb3373d9b598a5426f7272d1ff"
