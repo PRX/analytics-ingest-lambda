@@ -45,6 +45,12 @@ describe('assayer', () => {
       expect(info.cause).to.equal('bot')
     })
 
+    it('checks for domain threats', async () => {
+      const info = await assayer.test({remoteReferrer: 'http://cav.is/any/thing'})
+      expect(info.isDuplicate).to.equal(true)
+      expect(info.cause).to.equal('domainthreat')
+    })
+
     it('checks for datacenters, but does not mark duplicates', async () => {
       const info = await assayer.test({remoteIp: '3.1.87.65'})
       expect(info.isDuplicate).to.equal(false)
