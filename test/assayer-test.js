@@ -41,13 +41,13 @@ describe('assayer', () => {
 
     it('checks for bots', async () => {
       const info = await assayer.test({remoteAgent: 'googlebot'})
-      expect(info.isDuplicate).to.equal(false) // TODO: bot-filter preview
+      expect(info.isDuplicate).to.equal(true)
       expect(info.cause).to.equal('bot')
     })
 
-    it('checks for datacenters', async () => {
+    it('checks for datacenters, but does not mark duplicates', async () => {
       const info = await assayer.test({remoteIp: '3.1.87.65'})
-      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.isDuplicate).to.equal(false)
       expect(info.cause).to.equal('datacenter: Amazon AWS')
     })
 
@@ -89,13 +89,13 @@ describe('assayer', () => {
 
     it('checks for bots', async () => {
       const info = await assayer.testImpression({remoteAgent: 'googlebot'}, {isDuplicate: false})
-      expect(info.isDuplicate).to.equal(false) // TODO: bot-filter preview
+      expect(info.isDuplicate).to.equal(true)
       expect(info.cause).to.equal('bot')
     })
 
-    it('checks for datacenters', async () => {
+    it('checks for datacenters, but does not mark duplicates', async () => {
       const info = await assayer.testImpression({remoteIp: '3.1.87.65'}, {isDuplicate: false})
-      expect(info.isDuplicate).to.equal(false) // TODO: ip-filter preview
+      expect(info.isDuplicate).to.equal(false)
       expect(info.cause).to.equal('datacenter: Amazon AWS')
     })
 
