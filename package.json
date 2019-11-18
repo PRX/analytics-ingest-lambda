@@ -60,7 +60,7 @@
     "lambda-log": "^2.3.0",
     "maxmind": "^2.12.0",
     "prx-ip-filter": "^0.0.1",
-    "prx-podagent": "0.1.0",
+    "prx-podagent": "0.1.2",
     "redis": "^2.8.0",
     "urijs": "^1.19.0",
     "uuid": "^3.3.2"

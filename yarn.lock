@@ -1161,10 +1161,10 @@ prx-ip-filter@^0.0.1:
     ipaddr.js "^1.9.1"
     neat-csv "^5.1.0"
 
-prx-podagent@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.0.tgz#9b4508c801b324eb3373d9b598a5426f7272d1ff"
-  integrity sha512-tg+MDO98cTstni7TUJ8BDkiZa2IDj/geqLgxbbaorg/S8OZPi5o9GCwotZCvcpPYYUChUg1WI4tqk2WtgqVq8w==
+prx-podagent@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.2.tgz#7926f25ec07161e437f69f1ba2c2275478b74b5a"
+  integrity sha512-A7i7bFxj73kGeg4wQlviZ2Rzfhn8M3U77FMWOIxuQzbFsQWJQntbP55FasW+km0m0ViS4OgB5h19u8wHhhx3uQ==
 
 psl@^1.1.24:
   version "1.1.31"
