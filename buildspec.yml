@@ -9,6 +9,9 @@ env:
     S3_SECRET_ACCESS_KEY: "/prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY"
     CODECOV_TOKEN: "/prx/test/dovetail.prx.org/CODECOV_TOKEN"
 phases:
+  install:
+    runtime-versions:
+      docker: 18
   build:
     commands:
       - "cd $(ls -d */|head -n 1)"
