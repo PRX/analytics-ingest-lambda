@@ -84,11 +84,11 @@ describe('geolocate', () => {
 
   it('handles ipv6', () => {
     return geo.look('blah,blah, 2804:18:1012:6b65:1:3:3561:14b8').then(look => {
-      expect(look.city).to.equal(3448439);
+      expect(look.city).to.equal(3471868);
       expect(look.country).to.equal(3469034);
-      expect(look.postal).to.equal('01000');
+      expect(look.postal).to.equal('18147');
       expect(look.latitude).to.be.within(-24, -23);
-      expect(look.longitude).to.be.within(-47, -46);
+      expect(look.longitude).to.be.within(-48, -46);
       expect(look.masked).to.equal('2804:18:1012:6b65:1:3:3561::');
     });
   });

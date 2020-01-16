@@ -1,9 +1,10 @@
 'use strict';
 const fs = require('fs');
-const http = require('http');
+const https = require('https');
 const targz = require('targz');
+const dotenv = require('dotenv');
 
-const URL = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz';
+const URL = 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&suffix=tar.gz';
 const DB_DIR = `${__dirname}/../db`;
 const GZ_FILE = `${DB_DIR}/GeoLite2-City.tar.gz`;
 const DB_FILE = `${DB_DIR}/GeoLite2-City.mmdb`;
@@ -25,9 +26,16 @@ try {
   }
 }
 
+// need maxmind creds
+dotenv.config();
+if (!process.env.MAXMIND_LICENSE_KEY) {
+  console.error('You must set a MAXMIND_LICENSE_KEY');
+  process.exit(1);
+}
+
 // download file
 let file = fs.createWriteStream(GZ_FILE);
-http.get(URL, res => {
+https.get(`${URL}&license_key=${process.env.MAXMIND_LICENSE_KEY}`, res => {
   if (res.statusCode === 200) {
     res.pipe(file);
     res.on('error', err => console.error(err) && process.exit(1));
