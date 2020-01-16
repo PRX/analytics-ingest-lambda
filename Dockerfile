@@ -16,9 +16,13 @@ RUN npm install --quiet --global yarn && yarn install
 
 # download dbs (geolite, datacenters, domainthreats)
 ADD ./bin ./bin
+ARG MAXMIND_LICENSE_KEY
 ARG S3_ACCESS_KEY_ID
 ARG S3_SECRET_ACCESS_KEY
-RUN AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY yarn dbs
+RUN MAXMIND_LICENSE_KEY=$MAXMIND_LICENSE_KEY \
+    AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID \
+    AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY \
+    yarn dbs
 
 # finish building
 ADD . .
