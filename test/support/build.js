@@ -6,7 +6,7 @@ exports.buildRecord = (record) => {
     eventSource: 'aws:kinesis',
     eventVersion: '1.0',
     kinesis: {
-      data: new Buffer(JSON.stringify(record), 'utf-8').toString('base64')
+      data: Buffer.from(JSON.stringify(record), 'utf-8').toString('base64')
     }
   };
 };

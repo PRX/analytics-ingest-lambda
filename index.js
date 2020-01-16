@@ -20,7 +20,7 @@ exports.handler = (event, context, callback) => {
   } else {
     records = event.Records.map(r => {
       try {
-        return JSON.parse(new Buffer(r.kinesis.data, 'base64').toString('utf-8'));
+        return JSON.parse(Buffer.from(r.kinesis.data, 'base64').toString('utf-8'));
       } catch (decodeErr) {
         logger.error(`Invalid record input: ${JSON.stringify(r)}`);
         return null;
