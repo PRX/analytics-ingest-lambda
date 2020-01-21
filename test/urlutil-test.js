@@ -51,6 +51,21 @@ describe('urlutil', () => {
     expect(urlutil.expand(url)).to.equal(url);
   });
 
+  it('throws invalid template errors', () => {
+    let err = null;
+    try {
+      const url = 'https://some/host/<showid>/<adid>/<pos>?IP={ip}';
+      expect(urlutil.expand(url, TEST_IMPRESSION())).to.equal(url);
+    } catch (e) {
+      err = e;
+    }
+    if (err) {
+      expect(err.message).to.match(/Invalid Literal "https:/);
+    } else {
+      expect.fail('should have thrown an error');
+    }
+  });
+
   it('gets the md5 digest for the agent', () => {
     let url = urlutil.expand('http://foo.bar/?ua={agentmd5}', TEST_IMPRESSION());
     expect(url).to.equal('http://foo.bar/?ua=da08af6021d3ec8b8d27558ca92c314e');
