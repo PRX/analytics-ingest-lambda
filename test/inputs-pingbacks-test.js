@@ -62,11 +62,15 @@ describe('pingbacks', () => {
       ]},
       {type: 'combined', impressions: [
         {isDuplicate: false, pings: ['http://foo.bar/ping2', 'http://bar.foo/ping3']}
+      ]},
+      {type: 'combined', impressions: [
+        {isDuplicate: false, pings: ['https://pingback.podtrac.com/<showid>/<adid>/<pos>?IP={ip}']}
       ]}
     ], 1000, 0);
 
-    let warns = [];
+    let warns = [], errors = [];
     sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
+    sinon.stub(logger, 'error').callsFake(msg => errors.push(msg));
 
     const result = await pingbacks.insert();
     expect(result.length).to.equal(1);
@@ -82,6 +86,10 @@ describe('pingbacks', () => {
     expect(warns.sort()[3]).to.match(/PINGRETRY/);
     expect(warns.sort()[4]).to.match(/PINGRETRY/);
     expect(warns.sort()[5]).to.match(/PINGRETRY/);
+
+    expect(errors.length).to.equal(1);
+    expect(errors[0]).to.match(/PINGFAIL/);
+    expect(errors[0]).to.match(/invalid literal/i);
   });
 
   it('does not ping duplicate records', async () => {
