@@ -1,5 +1,6 @@
 'use strict';
 
+const zlib = require('zlib');
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
 const timestamp = require('./lib/timestamp');
@@ -18,14 +19,24 @@ exports.handler = (event, context, callback) => {
   if (!event || !event.Records) {
     logger.error(`Invalid event input: ${JSON.stringify(event)}`);
   } else {
-    records = event.Records.map(r => {
+    // concat in the log filter case: an event record contains a set of records.
+    records = [].concat.apply([], event.Records.map(r => {
       try {
         return JSON.parse(Buffer.from(r.kinesis.data, 'base64').toString('utf-8'));
       } catch (decodeErr) {
-        logger.error(`Invalid record input: ${JSON.stringify(r)}`);
-        return null;
+          // In the case that our kinesis data is base64 + gzipped,
+          // it is coming from the dovetail-router log filter subscription.
+          try{
+              const buffer = Buffer.from(r.kinesis.data, 'base64');
+              const unzipped = zlib.gunzipSync(buffer)
+              return JSON.parse(unzipped).logEvents.map(logLine => JSON.parse(logLine.message));
+          }
+          catch (decodeErr){
+            logger.error(`Invalid record input: ${decodeErr} ${JSON.stringify(r)}`);
+            return null;
+          }
       }
-    }).filter(r => {
+    })).filter(r => {
       if (process.env.PROCESS_AFTER && r && r.timestamp) {
         const after = timestamp.toEpochSeconds(parseInt(process.env.PROCESS_AFTER));
         const time = timestamp.toEpochSeconds(r.timestamp);

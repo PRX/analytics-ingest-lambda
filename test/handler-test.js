@@ -299,4 +299,11 @@ describe('handler', () => {
     expect(all[3].length).to.equal(0);
   });
 
-});
+  it('handles log subscription filter input', async () => {
+    const result = await handler({"Records": [{"kinesis": {"data": "H4sIAAg0L14AA9VSO0/DMBjc+ysqi7EoftvpFonQBRaSrUHIadwoUl5KXCpU9b/zOaUtMHVDeIit3Pl8d/ZhNoeBGjuOprTpR2/Rco4eojR6e46TJFrFaHGidPvWDh7UlAkOH0IoO4N1V66Gbtd7PDD7MahNkxcmqJp+AOmqa++BUlZt+W1H4gZrGr+FYooDTAKqgvXdU5TGSfq6lZoWmJGc6JBTlWvQUybkYlvkhhN8Fhp3+bgZqt7BIY9V7ewwguR6AifCS9e5aLMBG2j6+Xp1EL/b1v2kHy6riVQV3h8TlGlOseBScg2T4lhhpvxMmMaKEKklDrlSTAkqYQGJ9NnjRc1VULQzje+JCI0JFxANivzF+7oOf/QhQ81YZmiZoWuZGVpkyIEUFDpB89bu66q1GTpmLbqIHRe35wqpFNLfKgbjWnIlJVOaEUolx5CWK6GwlJKGhN2ai/+vXPzPc50e6Ow4+wT7VNt9mAMAAA=="}}]});
+    expect(result).to.match(/inserted 0/i);
+    expect(errs.length).to.equal(3);
+    expect(errs[0]).to.match(/Unrecognized input record/i);
+    expect(errs[0]).to.match(/"msg":"impression"/i);
+    });
+  });
