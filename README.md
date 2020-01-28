@@ -148,6 +148,14 @@ The 4 lambdas functions are deployed via a Cloudformation stack in the [Infrastr
 
 # Docker
 
+To get started, first make sure you have the MaxMind env vars set up as
+these are needed for the docker build. Look for them in the staging
+site using AWS 'SSM':
+
+```
+aws ssm get-parameter --with-decryption --name /prx/test/analytics-ingest-lambda/MAXMIND_LICENSE_KEY
+```
+
 This repo is now dockerized! You'll need some read-only S3 credentials in your
 `.env` file for the `bin/getdatacenters.js` script to succeed during build:
 
