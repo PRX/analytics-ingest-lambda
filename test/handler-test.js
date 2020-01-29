@@ -8,12 +8,8 @@ const kinesis   = require('../lib/kinesis');
 const logger    = require('../lib/logger');
 const index     = require('../index');
 
-function handler(event) {
-  return new Promise((resolve, reject) => {
-    index.handler(event, {}, (err, res) => {
-      err ? reject(err) : resolve(res);
-    });
-  });
+async function handler(event) {
+  return await index.handler(event);
 }
 
 describe('handler', () => {
