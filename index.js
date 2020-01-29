@@ -1,7 +1,6 @@
 'use strict';
 
-const zlib = require('zlib');
-const { promisify } = require('util');
+const { getRecordsFromEvent } = require('./lib/get-records');
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
 const timestamp = require('./lib/timestamp');
@@ -16,28 +15,10 @@ exports.handler = async (event) => {
     timer = setTimeout(() => logger.error('TIMEOUT', {event}), 29000);
   }
 
-  // decode the base64 kinesis records
   if (!event || !event.Records) {
     logger.error(`Invalid event input: ${JSON.stringify(event)}`);
   } else {
-    // concat in the log filter case: an event record contains a set of records.
-    records = [].concat.apply([], await Promise.all(event.Records.map(async r => {
-      try {
-        return JSON.parse(Buffer.from(r.kinesis.data, 'base64').toString('utf-8'));
-      } catch (decodeErr) {
-          // In the case that our kinesis data is base64 + gzipped,
-          // it is coming from the dovetail-router log filter subscription.
-          try{
-              const buffer = Buffer.from(r.kinesis.data, 'base64');
-              const unzipped = await promisify(zlib.gunzip)(buffer)
-              return JSON.parse(unzipped).logEvents.map(logLine => JSON.parse(logLine.message));
-          }
-          catch (decodeErr){
-            logger.error(`Invalid record input: ${decodeErr} ${JSON.stringify(r)}`);
-            return null;
-          }
-      }
-    }))).filter(r => {
+    records = (await getRecordsFromEvent(event)).filter(r => {
       if (process.env.PROCESS_AFTER && r && r.timestamp) {
         const after = timestamp.toEpochSeconds(parseInt(process.env.PROCESS_AFTER));
         const time = timestamp.toEpochSeconds(r.timestamp);
