@@ -89,6 +89,6 @@ exports.handler = async (event) => {
     return `Inserted ${total} rows`;
   } catch(err) {
       clearTimeout(timer);
-      return logger.errors(err);
+      throw logger.errors(err);
   }
 };
