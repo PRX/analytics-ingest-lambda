@@ -15,6 +15,55 @@ describe('ante-bytes', () => {
     expect(bytes.check({type: 'antebytespreview'})).to.be.true;
   });
 
+  it('recognizes and formats the antebytes record from dt-router', () => {
+
+    const dtAntebytesRecord = {
+      "time": "2020-01-23T12:10:43.177Z",
+      "level": "info",
+      "msg": "impression",
+      "confirmed": true,
+      "digest": "digest1",
+      "download": {
+        "adCount": 1,
+        "cause": "something",
+        "isDuplicate": false
+      },
+      "feederEpisode": "cc2db84c-a8f6-4146-a2d9-dec62ae54564",
+      "feederPodcast": 213,
+      "impressions": [
+        {
+          "isDuplicate": false,
+          "placementsKey": "two",
+          "segment": 2,
+          "targetPath": ":Some-target",
+          "zoneName": "test_feeder_pre_1"
+        }
+      ],
+      "listenerEpisode": "le1",
+      "type": "antebytes",
+    }
+    const bytes = new AnteBytes();
+    expect(bytes.check(dtAntebytesRecord)).to.be.true;
+    const formatted = bytes.format(dtAntebytesRecord);
+    expect(formatted).to.eql({
+      id: 'le1.digest1',
+      feederEpisode: "cc2db84c-a8f6-4146-a2d9-dec62ae54564",
+      feederPodcast: 213,
+      confirmed: true,
+      download: {adCount: 1},
+      impressions: [{
+          segment: 2,
+          placementsKey: "two",
+          targetPath: ":Some-target",
+          zoneName: "test_feeder_pre_1"}
+      ],
+      level: "info",
+      msg: "impression",
+      time: "2020-01-23T12:10:43.177Z",
+      type: "antebytes",
+    });
+  });
+
   it('formats dynamodb records', () => {
     const bytes = new AnteBytes();
     const formatted = bytes.format({

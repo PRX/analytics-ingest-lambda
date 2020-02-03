@@ -43,7 +43,8 @@ describe('dovetail-impressions', () => {
       'digest', 'listener_session',
       'is_confirmed', 'is_bytes', 'segment',
       'ad_id', 'campaign_id', 'creative_id', 'flight_id',
-      'is_duplicate', 'cause'
+      'is_duplicate', 'cause',
+      'placements_key', 'target_path', 'zone_name',
     );
     expect(format1.json.timestamp).to.equal(1490827132);
     expect(format1.json.listener_session.length).to.be.above(10);
@@ -85,13 +86,14 @@ describe('dovetail-impressions', () => {
       {type: 'combined', listenerEpisode: 'listen2', timestamp: 1490827132999, impressions: [{adId: 1}, {adId: 2}]},
       {type: 'combined', listenerEpisode: 'listen3', timestamp: 1490837132, impressions: [{isDuplicate: true, adId: 3}]},
       {type: 'postbytespreview', listenerEpisode: 'listen4', timestamp: 1490837132, impressions: [{adId: 4}]},
-      {type: 'postbytes', listenerEpisode: 'listen5', timestamp: 1490827132999, impressions: [{adId: 5}]}
+      {type: 'postbytes', listenerEpisode: 'listen5', timestamp: 1490827132999, impressions: [{adId: 5}]},
+      {type: 'combined', listenerEpisode: 'listen6', timestamp: 1490837132, impressions: [{targetPath: ':Some-target', zoneName: 'some_pre1', placementsKey: '2' }]},
     ]);
     return impression2.insert().then(result => {
       expect(result.length).to.equal(2);
 
       expect(result[0].dest).to.equal('dt_impressions');
-      expect(result[0].count).to.equal(4);
+      expect(result[0].count).to.equal(5);
       expect(inserts['dt_impressions'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][0].json.ad_id).to.equal(1);
       expect(inserts['dt_impressions'][0].json.is_bytes).to.equal(false);
@@ -104,6 +106,9 @@ describe('dovetail-impressions', () => {
       expect(inserts['dt_impressions'][3].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][3].json.ad_id).to.equal(5);
       expect(inserts['dt_impressions'][3].json.is_bytes).to.equal(true);
+      expect(inserts['dt_impressions'][4].json.target_path).to.equal(':Some-target');
+      expect(inserts['dt_impressions'][4].json.zone_name).to.equal('some_pre1');
+      expect(inserts['dt_impressions'][4].json.placements_key).to.equal('2');
 
       expect(result[1].dest).to.equal('dt_impressions_preview');
       expect(result[1].count).to.equal(1);
