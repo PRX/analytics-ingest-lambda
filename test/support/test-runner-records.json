@@ -197,5 +197,93 @@
     "remoteAgent": "some-other-agent",
     "remoteIp": "127.0.0.1",
     "remoteReferrer": "https://www.prx.org/technology/"
+  },
+  {
+    "time": "2020-02-02T13:43:22.255Z",
+    "level": "info",
+    "msg": "impression",
+    "confirmed": false,
+    "digest": "wnsvQwQVPFelXmZY_vqaMOsqyhD3YnFnMwWnTkuX4-I",
+    "download": {
+      "adCount": null,
+      "cause": null,
+      "isDuplicate": false
+    },
+    "feederEpisode": "cc2db84c-a8f6-4146-a2d9-dec62ae54564",
+    "feederPodcast": 213,
+    "impressions": [
+      {
+        "adId": null,
+        "campaignId": null,
+        "cause": null,
+        "creativeId": null,
+        "flightId": null,
+        "isDuplicate": null,
+        "placementsKey": "two",
+        "segment": null,
+        "targetPath": null,
+        "zoneName": "test_feeder_pre_1"
+      }
+    ],
+    "listenerEpisode": "MH-634tixaEyhbGivo73KdSsWVPKIDw6-SYhkRN0r_M",
+    "listenerId": "f19b29e0-3272-4b15-9807-4eea9232ed9e",
+    "remoteAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
+    "remoteIp": "127.0.0.1",
+    "remoteReferrer": "",
+    "requestUuid": "Fe-tWxB8grDbVZsAAACJ",
+    "request_id": "Fe-tWxB8grDbVZsAAACJ",
+    "timestamp": 1580672602,
+    "type": "antebytes",
+    "url": "/213/cc2db84c-a8f6-4146-a2d9-dec62ae54564/05_99_Percent_Forgotten.mp3/"
+  },
+  {
+    "time": "2020-02-02T13:43:22.255Z",
+    "level": "info",
+    "msg": "impression",
+    "confirmed": false,
+    "digest": "wnsvQwQVPFelXmZY_vqaMOsqyhD3YnFnMwWnTkuX4-I",
+    "feederEpisode": "cc2db84c-a8f6-4146-a2d9-dec62ae54564",
+    "feederPodcast": 213,
+    "download": {
+      "isDuplicate": false,
+      "cause": null,
+      "adCount": 2
+    },
+    "impressions": [
+      {
+        "segment": 0,
+        "adId": 12,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": false,
+        "cause": null,
+        "pings": ["http://dovetail.prxu.org"],
+        "targetPath": ":",
+        "zoneName": "test_feeder_pre_1"
+      },
+      {
+        "segment": 2,
+        "adId": 98,
+        "campaignId": 34,
+        "creativeId": 56,
+        "flightId": 78,
+        "isDuplicate": true,
+        "cause": "something",
+        "pings": ["https://foo.bar/this/should/not/fire"],
+        "targetPath": ":Country-US",
+        "zoneName": "test_feeder_pre_2"
+      }
+    ],
+    "listenerEpisode": "MH-634tixaEyhbGivo73KdSsWVPKIDw6-SYhkRN0r_M",
+    "listenerId": "f19b29e0-3272-4b15-9807-4eea9232ed9e",
+    "remoteAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
+    "remoteIp": "127.0.0.1",
+    "remoteReferrer": "",
+    "requestUuid": "Fe-tWxB8grDbVZsAAACJ",
+    "request_id": "Fe-tWxB8grDbVZsAAACJ",
+    "timestamp": 1580672602,
+    "type": "combined",
+    "url": "/213/cc2db84c-a8f6-4146-a2d9-dec62ae54564/05_99_Percent_Forgotten.mp3/"
   }
 ]
