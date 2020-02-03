@@ -197,17 +197,17 @@ describe('handler', () => {
     process.env.DYNAMODB = 'true';
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 3/i);
+    expect(result).to.match(/inserted 4/i);
     expect(infos.length).to.equal(2);
     expect(warns.length).to.equal(1);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/inserted 2 rows into dynamodb/i);
-    expect(infos[0].meta).to.contain({dest: 'dynamodb', rows: 2});
+    expect(infos[0].msg).to.match(/inserted 3 rows into dynamodb/i);
+    expect(infos[0].meta).to.contain({dest: 'dynamodb', rows: 3});
     expect(infos[1].msg).to.match(/inserted 1 rows into kinesis/i);
     expect(infos[1].meta).to.contain({dest: 'kinesis:foobar_stream', rows: 1});
     expect(warns[0]).to.match(/missing segment listener-episode-3.the-digest.4/i);
 
-    expect(dynamo.write.args[0][0].length).to.equal(2);
+    expect(dynamo.write.args[0][0].length).to.equal(3);
     expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
     expect(dynamo.write.args[0][0][0].any).to.equal('thing');
     expect(dynamo.write.args[0][0][0].id).to.equal('listener-episode-4.the-digest');
@@ -218,6 +218,9 @@ describe('handler', () => {
     expect(dynamo.write.args[0][0][1].id).to.equal('listener-episode-5.the-digest');
     expect(dynamo.write.args[0][0][1].listenerEpisode).to.be.undefined;
     expect(dynamo.write.args[0][0][1].digest).to.be.undefined;
+    expect(dynamo.write.args[0][0][2].type).to.equal('antebytes');
+    expect(dynamo.write.args[0][0][2].time).to.equal('2020-02-02T13:43:22.255Z');
+    expect(dynamo.write.args[0][0][2].msg).to.equal('impression');
 
     expect(kinesis.put.args[0][0].length).to.equal(1);
     expect(kinesis.put.args[0][0][0].type).to.equal('postbytes');
