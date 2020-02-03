@@ -17,3 +17,14 @@ exports.buildEvent = (records) => {
     Records: records.map(r => exports.buildRecord(r))
   };
 };
+
+// build an event from input style and kinesis style recs
+exports.buildMixedStyleEvent = (inputStyleRecords, kinesisStyleRecords) => {
+  const res= {
+    // Here we process the input style records, turning them into kinesis style
+    // recs.
+    // Just pass the kinesisStyleRecords through.
+    Records: inputStyleRecords.map(r => exports.buildRecord(r)).concat(kinesisStyleRecords)
+  };
+  return res
+};

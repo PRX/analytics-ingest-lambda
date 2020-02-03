@@ -3,14 +3,18 @@
 if (!process.env.BQ_CLIENT_EMAIL) {
   require('dotenv').config();
 }
-const { buildEvent } = require('../support/build');
+const { buildMixedStyleEvent } = require('../support/build');
 const handler = require('../../index').handler;
 
 // bigquery does not like timestamps more than 7 days in the past
-const testRecords = require('../support/test-runner-records').map(rec => {
+const testRecordSets = require('../support/test-runner-records');
+
+const testInputStyleRecords = testRecordSets.inputStyleRecords.map(rec => {
   return {...rec, timestamp: new Date().getTime()};
 }).filter(r => r.type !== 'foo')
-const testEvent = buildEvent(testRecords);
+
+const testEvent = buildMixedStyleEvent(testInputStyleRecords,
+  testRecordSets.kinesisEventStyleRecords);
 
 // decode pingback settings
 if (process.env.REDIS_HOST && process.env.REDIS_HOST !== '0') {
