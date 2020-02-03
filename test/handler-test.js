@@ -72,7 +72,7 @@ describe('handler', () => {
   it('handles bigquery records', async () => {
     const inserted = {};
     sinon.stub(bigquery, 'insert').callsFake((ds, tbl, rows) => {
-      inserted[tbl] = rows;
+      inserted[tbl] = rows.sort((a, b)=> a.insertId < b.insertId ? -1 : 1 );
       return Promise.resolve(rows.length);
     });
 
