@@ -298,11 +298,31 @@ describe('handler', () => {
     expect(all[3].length).to.equal(0);
   });
 
-  it('handles log subscription filter input', async () => {
+  it('handles unknown input records parsed from the log subscription filter style kinesis input', async () => {
+    /* unknown records in the format of
+    {
+        "id": "35238420546692656231100808647663783122640070475706662913",
+        "timestamp": 1580145427114,
+        "message": "{\"msg\":\"impression\",\"testing\":\" newline\"}\n"
+    } */
+
     const result = await handler({"Records": [{"kinesis": {"data": "H4sIAAg0L14AA9VSO0/DMBjc+ysqi7EoftvpFonQBRaSrUHIadwoUl5KXCpU9b/zOaUtMHVDeIit3Pl8d/ZhNoeBGjuOprTpR2/Rco4eojR6e46TJFrFaHGidPvWDh7UlAkOH0IoO4N1V66Gbtd7PDD7MahNkxcmqJp+AOmqa++BUlZt+W1H4gZrGr+FYooDTAKqgvXdU5TGSfq6lZoWmJGc6JBTlWvQUybkYlvkhhN8Fhp3+bgZqt7BIY9V7ewwguR6AifCS9e5aLMBG2j6+Xp1EL/b1v2kHy6riVQV3h8TlGlOseBScg2T4lhhpvxMmMaKEKklDrlSTAkqYQGJ9NnjRc1VULQzje+JCI0JFxANivzF+7oOf/QhQ81YZmiZoWuZGVpkyIEUFDpB89bu66q1GTpmLbqIHRe35wqpFNLfKgbjWnIlJVOaEUolx5CWK6GwlJKGhN2ai/+vXPzPc50e6Ow4+wT7VNt9mAMAAA=="}}]});
     expect(result).to.match(/inserted 0/i);
     expect(errs.length).to.equal(3);
     expect(errs[0]).to.match(/Unrecognized input record/i);
     expect(errs[0]).to.match(/"msg":"impression"/i);
-    });
   });
+
+  it('handles dt-router antebytes input records parsed from the log subscription filter style kinesis input', async () => {
+    /* records in the format of
+    {
+        "id": "35238420546692656231100808647663783122640070475706662913",
+        "timestamp": 1580145427114,
+        "message": "{\"msg\":\"impression\",\"type\":\"antebytes\" ..... }\n"
+    } */
+    sinon.stub(dynamo, 'write').callsFake(async (recs) => recs.length);
+    process.env.DYNAMODB = 'true';
+    const result = await handler({"Records": [{"kinesis": {"data": "H4sIAAMrN14AA41UW3OiSBR+z6+gqH2YqQpCN80t++RGzTiOM050czVFNXDArgBNoNVxUvnv2zTG6L7sWpbgd75z+c453a9nmvzoBTQNzWCxq0C/0PRBf9EPp8P5vH811M87Ct+WULdGH9sOkT8IYfvdmPPsqubrqrWbdNuYOS2ihJqsqGoZmvHSkJSMldmRx1zUQIvWBVvYMi1kYs98/ONbfzGcL55S18eJZaMI+QHBXuTLeB4NiJMmESXIeg/UrKMmrlklZJIRywXUjQz5qIyKcM256MexLENX4NNHBcMNlOKU/np4UySWtPXZDrZ9gi2HuC7x5cMjlmfZXvtEtm95CLm+awXE82zPwa58kYr89xoP0QSTjRa0aPuEHN9CxJHSZCP/xduPo039ulReS/1iqdpkWFh+F8i+IPYFxj3sOA9L/Xyp57CBXNFYmXIFFU3WAYcpKDjmZcrqAhJpTGnegMQSlsnKFHtbNpuf2583sxHkd8XDfbh5odMfzctuNbDvy1E53d6Wi+f1HTHGKlwiNyPntI0mi6XJJV+XbaRynedtNrpu4OMvawbrKmcxFfCe/k3CKUAC9bBiDU86sXGMk8gnsUH91DUIIq5BcRIYCcQupuAQxyUqf+c640lMlQKM7PNjzY3EHlVl4+S4rKKiLCtPsZNSY7megm3gmJLmLFuJY+RU0B6schpD0S7XBHZKjth2M2kga/EPqqB1BmJGxeoD+81L+E73UxdyMGEnMpSaQrTU357agbNGQHnatOkXw7WJYL/ocLeKrtiGe/YkmTe3N7PJeLB1jfn96vn6u1WH025p9jGUIKkOBREOwDJs7GGDRMgxArndBgGgAbYxJAEovxoKLqCfdUpkXv6b5Tk1nZ6lfZrSmJWCN6s/tXEpINckoP2Ya3caskJEQuez1q+qHG4hmjBhOrbXs13t0+TLYvrtXMvZM2hXED/zz9rlquYFmF7Qs3q2PPo939fmNKU123sdFTOuVCUIe5Js9dCR6RpSqGuoFWGPv6xlW/9es074CAxx++svP6sH0c1D0+/3L78eE8P/4h1OtqS1J9v1sGvh1iCvVOVKZSuinRym4q/r7qyaclvN/7PqpuWEQRDOoI5l08MRrzMu5Ox6RWWbciP0ww3y1t1yZ29n/wDBjpD43QUAAA=="}}]})
+    expect(result).to.match(/inserted 1/i);
+  })
+});
