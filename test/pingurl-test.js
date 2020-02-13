@@ -40,6 +40,14 @@ describe('pingurl', () => {
     );
   });
 
+  it('is totally ok with any 2XX status code', () => {
+    let scope = nock('http://www.foo.bar').get('/the/path').reply(204);
+    return pingurl.ping('http://www.foo.bar/the/path').then(resp => {
+      expect(resp).to.equal(true);
+      expect(scope.isDone()).to.equal(true);
+    });
+  });
+
   it('throws http errors', () => {
     let scope = nock('http://www.foo.bar').get('/').reply(404);
     return pingurl.ping('http://www.foo.bar/').then(
