@@ -57,8 +57,10 @@
                     "cause": null,
                     "pings": [
                         "https://dovetail.prxu.org/ping",
+                        "https://dovetail.prxu.org/pin{g",
                         "https://dovetail.prxu.org/ping{?uuid}",
-                        "https://dovetail.prxu.org/{randomint}"
+                        "https://dovetail.prxu.org/{randomint}",
+                        "https://expired.badssl.com/"
                     ]
                 }
             ],
