@@ -54,7 +54,7 @@
         "flightId": 78,
         "isDuplicate": false,
         "cause": null,
-        "pings": ["http://www.foo.bar/ping4"]
+        "pings": ["http://www.adzerk.bar/ping4"]
       }
     ],
     "confirmed": true,
