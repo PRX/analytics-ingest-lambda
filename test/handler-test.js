@@ -257,15 +257,19 @@ describe('handler', () => {
     const ping1 = nock('http://www.foo.bar').get('/ping1').reply(200);
     const ping2 = nock('http://www.foo.bar').get('/ping2').reply(404);
     const ping3 = nock('http://www.foo.bar').get('/ping3').reply(200);
-    const ping4 = nock('http://www.foo.bar').get('/ping4').reply(200);
+    const ping4 = nock('http://www.adzerk.bar').get('/ping4').reply(200);
 
     const result = await handler(event);
     expect(result).to.match(/inserted 2/i);
-    expect(infos.length).to.equal(1);
+    expect(infos.length).to.equal(3);
     expect(warns.length).to.equal(1);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/2 rows into www.foo.bar/);
-    expect(infos[0].meta).to.contain({dest: 'www.foo.bar', rows: 2});
+    expect(infos[0].msg).to.equal('PINGED');
+    expect(infos[0].meta).to.contain({url: 'http://www.foo.bar/ping1'});
+    expect(infos[1].msg).to.match(/1 rows into www.foo.bar/);
+    expect(infos[1].meta).to.contain({dest: 'www.foo.bar', rows: 1});
+    expect(infos[2].msg).to.match(/1 rows into www.adzerk.bar/);
+    expect(infos[2].meta).to.contain({dest: 'www.adzerk.bar', rows: 1});
     expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
     expect(warns[0]).to.match(/ping2/);
 
