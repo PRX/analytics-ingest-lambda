@@ -25,6 +25,9 @@ describe('pingbacks', () => {
   });
 
   it('pings combined records', async () => {
+    const infos = [];
+    sinon.stub(logger, 'info').callsFake((msg, args) => infos.push({msg, args}));
+
     nock('http://www.foo.bar').get('/ping1').reply(200);
     nock('https://www.foo.bar').get('/ping2/11').reply(200);
     nock('http://bar.foo').get('/ping3').reply(200);
@@ -48,6 +51,16 @@ describe('pingbacks', () => {
     expect(result.map(r => r.dest).sort()).to.eql(['bar.foo', 'www.foo.bar']);
     expect(result.find(r => r.dest === 'bar.foo').count).to.equal(1);
     expect(result.find(r => r.dest === 'www.foo.bar').count).to.equal(4);
+
+    expect(infos.length).to.equal(5);
+    expect(infos.map(i => i.msg)).to.eql(['PINGED', 'PINGED', 'PINGED', 'PINGED', 'PINGED']);
+    expect(infos.map(i => i.args.url).sort()).to.eql([
+      'http://bar.foo/ping3',
+      'http://www.foo.bar/ping1',
+      'http://www.foo.bar/ping5/55',
+      'https://www.foo.bar/ping2/11',
+      'https://www.foo.bar/ping4?url=dovetail.prxu.org%2Fabc%2Ftheguid%2Fpath.mp3%3Ffoo%3Dbar'
+    ]);
   });
 
   it('complains about failed pings', async () => {
@@ -68,7 +81,8 @@ describe('pingbacks', () => {
       ]}
     ], 1000, 0);
 
-    let warns = [], errors = [];
+    let infos = [], warns = [], errors = [];
+    sinon.stub(logger, 'info').callsFake(msg => infos.push(msg));
     sinon.stub(logger, 'warn').callsFake(msg => warns.push(msg));
     sinon.stub(logger, 'error').callsFake(msg => errors.push(msg));
 
@@ -76,6 +90,7 @@ describe('pingbacks', () => {
     expect(result.length).to.equal(1);
     expect(result[0].dest).to.equal('foo.bar');
     expect(result[0].count).to.equal(1);
+    expect(infos).to.eql(['PINGED']);
 
     expect(warns.length).to.equal(6);
     expect(warns.sort()[0]).to.match(/PINGFAIL/);
@@ -107,5 +122,27 @@ describe('pingbacks', () => {
     expect(result.length).to.equal(0);
     expect(logger.warn).not.to.have.been.called;
   })
+
+  it('does not log adzerk pingbacks', async () => {
+    const infos = [];
+    sinon.stub(logger, 'info').callsFake(msg => infos.push(msg));
+
+    nock('http://engine.adzerk.net').get('/ping1').reply(200);
+    nock('https://www.adzerk.bar').get('/ping2').reply(200);
+
+    pingbacks = new Pingbacks([
+      {type: 'combined', impressions: [
+        {isDuplicate: false, pings: ['http://engine.adzerk.net/ping1']},
+        {isDuplicate: false, pings: ['https://www.adzerk.bar/ping2']}
+      ]},
+    ]);
+
+    const result = await pingbacks.insert();
+    expect(result.length).to.equal(2);
+    expect(result.map(r => r.dest).sort()).to.eql(['engine.adzerk.net', 'www.adzerk.bar']);
+    expect(result.find(r => r.dest === 'engine.adzerk.net').count).to.equal(1);
+    expect(result.find(r => r.dest === 'www.adzerk.bar').count).to.equal(1);
+    expect(infos.length).to.equal(0);
+  });
 
 });
