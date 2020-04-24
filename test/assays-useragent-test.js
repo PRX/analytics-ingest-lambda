@@ -66,4 +66,14 @@ describe('useragent', () => {
     });
   });
 
+  it('handles uri decode errors', () => {
+    let str = 'decodeURIComponent cannot handle this: %E0%A4%A';
+    return agent.look(` ${str}`).then(look => {
+      expect(look.name).to.be.null;
+      expect(look.type).to.be.null;
+      expect(look.os).to.be.null;
+      expect(look.bot).to.equal(false);
+    });
+  });
+
 });
