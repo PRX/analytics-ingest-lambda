@@ -83,13 +83,13 @@ describe('geolocate', () => {
   });
 
   it('handles ipv6', () => {
-    return geo.look('blah,blah, 2804:18:1012:6b65:1:3:3561:14b8').then(look => {
-      expect(look.city).to.equal(3471868);
-      expect(look.country).to.equal(3469034);
-      expect(look.postal).to.equal('18147');
-      expect(look.latitude).to.be.within(-24, -23);
-      expect(look.longitude).to.be.within(-48, -46);
-      expect(look.masked).to.equal('2804:18:1012:6b65:1:3:3561::');
+    return geo.look('blah,blah, 2a03:b600:0066:0000:0000:0000:184f:c4a1').then(look => {
+      expect(look.city).to.equal(5516233);
+      expect(look.country).to.equal(6252001);
+      expect(look.postal).to.equal('79101');
+      expect(look.latitude).to.be.within(34, 36);
+      expect(look.longitude).to.be.within(-102, -100);
+      expect(look.masked).to.equal('2a03:b600:66::184f:0');
     });
   });
 
