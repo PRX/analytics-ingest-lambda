@@ -44,14 +44,15 @@ describe('byte-downloads', () => {
   it('formats bad original records', () => {
     sinon.stub(logger, 'warn');
 
-    expect(bytes.format({type: 'bytes'}, null)).to.be.null;
+    expect(bytes.format({type: 'bytes', listenerEpisode: 'le', digest: 'd'}, null)).to.be.null;
     expect(bytes.format({type: 'segmentbytes', segment: 99}, originalRecord)).to.be.null;
     expect(bytes.format({type: 'segmentbytes', segment: null}, originalRecord)).to.be.null;
-    expect(logger.warn).to.have.callCount(3);
+    expect(logger.warn).to.have.callCount(1);
+    expect(logger.warn.args[0][0]).to.match(/DDB missing le.d/i);
 
     expect(bytes.format({type: 'bytes'}, {type: 'unknown'})).to.be.null;
-    expect(logger.warn).to.have.callCount(4);
-    expect(logger.warn.args[3][0]).to.match(/unknown ddb record type/i);
+    expect(logger.warn).to.have.callCount(2);
+    expect(logger.warn.args[1][0]).to.match(/unknown ddb record type/i);
   });
 
   it('formats record post-bytes types', () => {
@@ -226,10 +227,8 @@ describe('byte-downloads', () => {
       expect(inserts[3].impressions[0].segment).to.eql(3);
       expect(inserts[3].impressions[0].adId).to.eql(31);
 
-      expect(logger.warn).to.have.callCount(3);
+      expect(logger.warn).to.have.callCount(1);
       expect(logger.warn.args[0][0]).to.equal('DDB missing le2.does-not-exist');
-      expect(logger.warn.args[1][0]).to.equal('DDB missing segment le1.d1.0');
-      expect(logger.warn.args[2][0]).to.equal('DDB missing segment le2.d2.4');
     });
   });
 
