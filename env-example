@@ -9,6 +9,7 @@ DDB_TABLE=
 DDB_ROLE=
 DDB_TTL=
 KINESIS_STREAM=
+KINESIS_RETRY_STREAM=
 # pingbacks mode
 PINGBACKS=
 # redis mode

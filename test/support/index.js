@@ -11,6 +11,7 @@ beforeEach(() => {
   process.env.DDB_TTL = '';
   process.env.DYNAMODB = '';
   process.env.KINESIS_STREAM = 'foobar_stream';
+  process.env.KINESIS_RETRY_STREAM = 'foobar_retry_stream';
   process.env.PINGBACKS = '';
   process.env.REDIS_HOST = '';
   process.env.REDIS_TTL = '7200';
