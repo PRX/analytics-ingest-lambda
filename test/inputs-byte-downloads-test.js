@@ -267,9 +267,15 @@ describe('byte-downloads', () => {
       expect(retries[1].retryCount).to.equal(3);
       expect(retries[1].retryAt).to.equal(9999999999999);
 
-      expect(logger.warn).to.have.callCount(2);
-      expect(logger.warn.args[0][0]).to.equal('DDB missing le3.out-of-retries');
-      expect(logger.warn.args[1][0]).to.equal('DDB missing le3.out-of-time');
+      expect(logger.warn).to.have.callCount(4);
+      expect(logger.warn.args[0][0]).to.equal('DDB retrying le3.brand-new');
+      expect(logger.warn.args[0][1]).to.eql({ddb: 'retrying', count: 1});
+      expect(logger.warn.args[1][0]).to.equal('DDB retrying le3.still-retryable');
+      expect(logger.warn.args[1][1]).to.eql({ddb: 'retrying', count: 3});
+      expect(logger.warn.args[2][0]).to.equal('DDB missing le3.out-of-retries');
+      expect(logger.warn.args[2][1]).to.eql({ddb: 'missing'});
+      expect(logger.warn.args[3][0]).to.equal('DDB missing le3.out-of-time');
+      expect(logger.warn.args[3][1]).to.eql({ddb: 'missing'});
     });
   });
 
