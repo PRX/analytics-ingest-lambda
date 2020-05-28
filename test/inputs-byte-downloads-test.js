@@ -47,12 +47,10 @@ describe('byte-downloads', () => {
     expect(bytes.format({type: 'bytes', listenerEpisode: 'le', digest: 'd'}, null)).to.be.null;
     expect(bytes.format({type: 'segmentbytes', segment: 99}, originalRecord)).to.be.null;
     expect(bytes.format({type: 'segmentbytes', segment: null}, originalRecord)).to.be.null;
-    expect(logger.warn).to.have.callCount(1);
-    expect(logger.warn.args[0][0]).to.match(/DDB missing le.d/i);
 
     expect(bytes.format({type: 'bytes'}, {type: 'unknown'})).to.be.null;
-    expect(logger.warn).to.have.callCount(2);
-    expect(logger.warn.args[1][0]).to.match(/unknown ddb record type/i);
+    expect(logger.warn).to.have.callCount(1);
+    expect(logger.warn.args[0][0]).to.match(/unknown ddb record type/i);
   });
 
   it('formats record post-bytes types', () => {
@@ -140,6 +138,23 @@ describe('byte-downloads', () => {
     });
   });
 
+  it('formats retry records', () => {
+    sinon.stub(Date, 'now').returns(9999);
+    expect(bytes.formatRetry({})).to.eql({retryCount: 1, retryAt: 9999});
+    expect(bytes.formatRetry({retryCount: 2})).to.eql({retryCount: 3, retryAt: 9999});
+    expect(bytes.formatRetry({retryAt: 8888})).to.eql({retryCount: 1, retryAt: 8888});
+    expect(bytes.formatRetry({retryCount: 2, retryAt: 8888})).to.eql({retryCount: 3, retryAt: 8888});
+  });
+
+  it('checks if records are retryable', () => {
+    sinon.stub(Date, 'now').returns(400000);
+    expect(bytes.shouldRetry({})).to.equal(true);
+    expect(bytes.shouldRetry({retryCount: 19})).to.equal(true);
+    expect(bytes.shouldRetry({retryCount: 20})).to.equal(false);
+    expect(bytes.shouldRetry({retryAt: 100000})).to.equal(true);
+    expect(bytes.shouldRetry({retryAt: 99999})).to.equal(false);
+  });
+
   it('looks up dynamodb records', async () => {
     const bytes = new ByteDownloads([
       {listenerEpisode: 'le1', digest: 'd1', type: 'bytes'},
@@ -167,9 +182,13 @@ describe('byte-downloads', () => {
   });
 
   it('inserts kinesis records', () => {
-    let inserts = [];
+    let inserts = [], retries = [];
     sinon.stub(kinesis, 'put').callsFake((recs) => {
       inserts = inserts.concat(recs);
+      return Promise.resolve(recs.length);
+    });
+    sinon.stub(kinesis, 'putRetry').callsFake((recs) => {
+      retries = retries.concat(recs);
       return Promise.resolve(recs.length);
     });
 
@@ -183,17 +202,25 @@ describe('byte-downloads', () => {
     const bytes = new ByteDownloads([
       {listenerEpisode: 'le1', digest: 'd1', type: 'bytes', timestamp: 1234},
       {listenerEpisode: 'le1', digest: 'd1', type: 'bytes', timestamp: 5678, isDuplicate: true},
-      {listenerEpisode: 'le2', digest: 'does-not-exist', type: 'bytes'},
       {listenerEpisode: 'le1', digest: 'd1', segment: 2, type: 'segmentbytes'},
       {listenerEpisode: 'le1', digest: 'd1', segment: 0, type: 'segmentbytes'},
       {listenerEpisode: 'le2', digest: 'd2', segment: 3, type: 'segmentbytes'},
       {listenerEpisode: 'le2', digest: 'd2', segment: 4, type: 'segmentbytes'},
+      // ignored segment not in the DDB record
+      {listenerEpisode: 'le2', digest: 'd2', segment: 999, type: 'segmentbytes'},
+      // le.digests not found in DDB (retry candidates)
+      {type: 'bytes', listenerEpisode: 'le3', digest: 'brand-new'},
+      {type: 'bytes', listenerEpisode: 'le3', digest: 'still-retryable', retryCount: 2, retryAt: 9999999999999},
+      {type: 'bytes', listenerEpisode: 'le3', digest: 'out-of-retries', retryCount: 999},
+      {type: 'bytes', listenerEpisode: 'le3', digest: 'out-of-time', retryAt: 1000},
     ]);
 
     return bytes.insert().then(result => {
-      expect(result.length).to.equal(1);
+      expect(result.length).to.equal(2);
       expect(result[0].dest).to.equal('kinesis:foobar_stream');
       expect(result[0].count).to.equal(4);
+      expect(result[1].dest).to.equal('kinesis:foobar_retry_stream');
+      expect(result[1].count).to.equal(2);
 
       expect(inserts.length).to.equal(4);
 
@@ -227,8 +254,28 @@ describe('byte-downloads', () => {
       expect(inserts[3].impressions[0].segment).to.eql(3);
       expect(inserts[3].impressions[0].adId).to.eql(31);
 
-      expect(logger.warn).to.have.callCount(1);
-      expect(logger.warn.args[0][0]).to.equal('DDB missing le2.does-not-exist');
+      expect(retries.length).to.equal(2);
+
+      expect(retries[0].type).to.equal('bytes');
+      expect(retries[0].digest).to.equal('brand-new');
+      expect(retries[0].retryCount).to.equal(1);
+      expect(retries[0].retryAt).to.be.at.most(new Date().getTime());
+      expect(retries[0].retryAt).to.be.at.least(new Date().getTime() - 10);
+
+      expect(retries[1].type).to.equal('bytes');
+      expect(retries[1].digest).to.equal('still-retryable');
+      expect(retries[1].retryCount).to.equal(3);
+      expect(retries[1].retryAt).to.equal(9999999999999);
+
+      expect(logger.warn).to.have.callCount(4);
+      expect(logger.warn.args[0][0]).to.equal('DDB retrying le3.brand-new');
+      expect(logger.warn.args[0][1]).to.eql({ddb: 'retrying', count: 1});
+      expect(logger.warn.args[1][0]).to.equal('DDB retrying le3.still-retryable');
+      expect(logger.warn.args[1][1]).to.eql({ddb: 'retrying', count: 3});
+      expect(logger.warn.args[2][0]).to.equal('DDB missing le3.out-of-retries');
+      expect(logger.warn.args[2][1]).to.eql({ddb: 'missing'});
+      expect(logger.warn.args[3][0]).to.equal('DDB missing le3.out-of-time');
+      expect(logger.warn.args[3][1]).to.eql({ddb: 'missing'});
     });
   });
 

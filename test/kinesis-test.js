@@ -29,6 +29,21 @@ describe('kinesis', () => {
     }
   });
 
+  it('requires a KINESIS_RETRY_STREAM env', async () => {
+    let err = null;
+    try {
+      delete process.env.KINESIS_RETRY_STREAM;
+      await kinesis.putRetry('anything');
+    } catch (e) {
+      err = e;
+    }
+    if (err) {
+      expect(err.message).to.match(/must set a KINESIS_RETRY_STREAM/);
+    } else {
+      expect.fail('should have thrown an error');
+    }
+  });
+
   it('changes kinesis arns into stream names', () => {
     process.env.KINESIS_STREAM = 'table_name';
     expect(kinesis.stream()).to.equal('table_name');
@@ -40,6 +55,7 @@ describe('kinesis', () => {
 
   it('puts nothing', async () => {
     expect(await kinesis.put([])).to.equal(0);
+    expect(await kinesis.putRetry([])).to.equal(0);
     expect(puts.length).to.equal(0);
   });
 
