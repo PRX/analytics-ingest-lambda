@@ -43,7 +43,7 @@
     "chai": "^4.2.0",
     "codecov": "^3.1.0",
     "dotenv": "^6.2.0",
-    "fakeredis": "^2.0.0",
+    "ioredis-mock": "^4.21.1",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "nock": "^10.0.6",
@@ -56,12 +56,12 @@
     "@google-cloud/bigquery": "^2.0.6",
     "aws-sdk": "^2.395.0",
     "follow-redirects": "1.7.0",
+    "ioredis": "^4.17.3",
     "ipaddr.js": "^1.9.1",
     "lambda-log": "^2.3.0",
     "maxmind": "^2.12.0",
     "prx-ip-filter": "^0.0.1",
     "prx-podagent": "0.1.4",
-    "redis": "^2.8.0",
     "urijs": "^1.19.0",
     "uuid": "^3.3.2"
   }

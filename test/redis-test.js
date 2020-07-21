@@ -5,8 +5,8 @@ const Redis = require('../lib/redis');
 
 describe('redis', () => {
 
-  let redis = new Redis('redis:127.0.0.1:6379');
-  beforeEach(() => redis.connect());
+  let redis;
+  beforeEach(() => redis = new Redis('redis://127.0.0.1:6379'));
   afterEach(() => redis.disconnect());
 
   it('generates date keys', () => {
@@ -58,7 +58,7 @@ describe('redis', () => {
       expect(reply).to.equal(5);
       return support.redisHget('foo', 'bar');
     }).then(reply => {
-      expect(reply).to.equal(5);
+      expect(reply).to.equal('5');
     });
   });
 
