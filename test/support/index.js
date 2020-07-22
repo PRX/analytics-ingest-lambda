@@ -15,6 +15,8 @@ beforeEach(() => {
   process.env.PINGBACKS = '';
   process.env.REDIS_HOST = '';
   process.env.REDIS_TTL = '7200';
+  process.env.REDIS_IMPRESSIONS_HOST = '';
+  process.env.REDIS_IMPRESSIONS_TTL = '90000';
 });
 
 // global includes
