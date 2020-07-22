@@ -40,6 +40,21 @@ describe('timestamp', () => {
     expect(timestamp.toDateString(4102444800)).to.equal('21000101');
   });
 
+  it('gets an iso date string for milliseconds timestamps', () => {
+    expect(timestamp.toISODateString(1490827132000)).to.equal('2017-03-29');
+    expect(timestamp.toISODateString(1490827132999)).to.equal('2017-03-29');
+    expect(timestamp.toISODateString(1490831999999)).to.equal('2017-03-29');
+    expect(timestamp.toISODateString(1490832000000)).to.equal('2017-03-30');
+    expect(timestamp.toISODateString(946684800001)).to.equal('2000-01-01');
+    expect(timestamp.toISODateString(946684700000)).to.equal('+031969-03-30');
+  });
+
+  it('gets an iso date string for second timestamps', () => {
+    expect(timestamp.toISODateString(1490827132)).to.equal('2017-03-29');
+    expect(timestamp.toISODateString(0)).to.equal('1970-01-01');
+    expect(timestamp.toISODateString(4102444800)).to.equal('2100-01-01');
+  });
+
   it('gets a date string without the Z', () => {
     expect(timestamp.toISOExtendedZ(1490827132)).to.equal('2017-03-29T22:38:52Z');
     expect(timestamp.toISOExtendedZ(4102444800)).to.equal('2100-01-01T00:00:00Z');

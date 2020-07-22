@@ -53,6 +53,7 @@
         "creativeId": 56,
         "flightId": 78,
         "isDuplicate": false,
+        "targetPath": ":",
         "cause": null,
         "pings": ["http://www.adzerk.bar/ping4"]
       }

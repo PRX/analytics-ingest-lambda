@@ -99,17 +99,26 @@ describe('inputs', () => {
 
   it('inserts redis increment inputs', () => {
     process.env.REDIS_HOST = 'whatev';
+    process.env.REDIS_IMPRESSIONS_HOST = 'other';
     sinon.stub(logger, 'info');
     let inputs = new RedisInputs([
       {type: 'combined', feederPodcast: null, timestamp: 0, download: {}},
       {type: 'foobar',   feederPodcast: 1, timestamp: 0},
-      {type: 'combined', feederPodcast: 1, timestamp: 0, download: {}},
-      {type: 'combined', feederPodcast: 1, timestamp: 999999}
+      {type: 'combined', feederPodcast: 1, timestamp: 0, download: {}, impressions: [
+        {flightId: 1234, targetPath: ':'}
+      ]},
+      {type: 'combined', feederPodcast: 1, timestamp: 999999, impressions: [
+        {flightId: 5678, targetPath: ':'},
+        {flightId: 9012, targetPath: ':', isDuplicate: true},
+        {flightId: 3456}
+      ]}
     ], true);
     return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(1);
+      expect(inserts.length).to.equal(2);
       expect(inserts[0].count).to.equal(2);
-      expect(inserts[0].dest).to.equal('redis://whatev');
+      expect(inserts[0].dest).to.equal('redis://other');
+      expect(inserts[1].count).to.equal(2);
+      expect(inserts[1].dest).to.equal('redis://whatev');
     });
   });
 
