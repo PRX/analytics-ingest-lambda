@@ -280,25 +280,26 @@ describe('handler', () => {
 
   it('handles redis records', async () => {
     process.env.REDIS_HOST = 'redis://127.0.0.1:6379';
+    process.env.REDIS_IMPRESSIONS_HOST = 'cluster://127.0.0.1:6379';
     const result = await handler(event);
-    expect(result).to.match(/inserted 4/i);
-    expect(infos.length).to.equal(1);
+    expect(result).to.match(/inserted 5/i);
+    expect(infos.length).to.equal(2);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/4 rows into redis:/);
-    expect(infos[0].meta).to.contain({dest: 'redis://127.0.0.1', rows: 4});
+    expect(infos[0].msg).to.match(/1 rows into cluster:/);
+    expect(infos[0].meta).to.contain({dest: 'cluster://127.0.0.1', rows: 1});
+    expect(infos[1].msg).to.match(/4 rows into redis:/);
+    expect(infos[1].meta).to.contain({dest: 'redis://127.0.0.1', rows: 4});
 
     let keys = [
       support.redisKeys('downloads.episodes.*'),
       support.redisKeys('downloads.podcasts.*'),
-      support.redisKeys('impressions.episodes.*'),
-      support.redisKeys('impressions.podcasts.*')
+      support.redisKeys('impression:*')
     ];
     const all = await Promise.all(keys);
     expect(all[0].length).to.equal(2);
     expect(all[1].length).to.equal(2);
-    expect(all[2].length).to.equal(0);
-    expect(all[3].length).to.equal(0);
+    expect(all[2].length).to.equal(1);
   });
 
   it('handles unknown input records parsed from the log subscription filter style kinesis input', async () => {

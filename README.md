@@ -75,7 +75,8 @@ template.  Valid parameters are:
 ## Redis
 
 To give some semblance of live metrics, this lambda can also directly `INCR`
-the Redis cache used by [castle.prx.org](https://github.com/PRX/castle.prx.org).
+the Redis cache used by [castle.prx.org](https://github.com/PRX/castle.prx.org)
+and [augury.prx.org](https://github.com/PRX/augury.prx.org).
 This operates on type `combined`/`postbytes` records, and like Pingbacks, will
 be allowed to fail without retry.
 

@@ -15,6 +15,8 @@ beforeEach(() => {
   process.env.PINGBACKS = '';
   process.env.REDIS_HOST = '';
   process.env.REDIS_TTL = '7200';
+  process.env.REDIS_IMPRESSIONS_HOST = '';
+  process.env.REDIS_IMPRESSIONS_TTL = '90000';
 });
 
 // global includes
@@ -28,35 +30,25 @@ const _sinon = require('sinon');
 beforeEach(() => global.sinon = _sinon.createSandbox());
 afterEach(() => global.sinon.restore());
 
-// fake redis - TODO: lib doesn't handle connect/quit correctly
-const redis = require('redis');
-const fakeRedis = require('fakeredis');
+// ioredis mock
+const Redis = require('../../lib/redis');
+const RedisMock = require('ioredis-mock');
 let fakeClient;
 beforeEach(() => {
-  fakeClient = fakeRedis.createClient({fast: true});
-  let _on = fakeClient.on, _quit = fakeClient.quit;
-  fakeClient.on = (e, fn) => (e === 'connect') ? fn() : _on.call(fakeClient, e, fn);
-  fakeClient.quit = () => fakeClient.emit('end') && _quit.call(fakeClient);
-  sinon.stub(redis, 'createClient').returns(fakeClient);
+  fakeClient = new RedisMock();
+  sinon.stub(Redis, 'buildConn').returns(fakeClient);
 });
-afterEach(() => exports.redisCommand('flushdb'));
 
 // redis helpers
-exports.redisCommand = function() {
-  let cmd = arguments[0], args = [].slice.call(arguments, 1);
-  let client = fakeRedis.createClient({fast: true});
-  return new Promise((resolve, reject) => {
-    client[cmd].call(client, args, (err, reply) => err ? reject(err) : resolve(reply));
-  });
-}
-exports.redisKeys = pattern => exports.redisCommand('keys', pattern);
-exports.redisHget = (key, field) => exports.redisCommand('hget', key, field);
-exports.redisTTL = key => exports.redisCommand('ttl', key);
+exports.redisKeys = pattern => fakeClient.keys(pattern);
+exports.redisHget = (key, field) => fakeClient.hget(key, field);
+exports.redisHgetAll = (key) => fakeClient.hgetall(key);
+exports.redisTTL = key => fakeClient.ttl(key);
 exports.redisGetAll = pattern => {
   return exports.redisKeys(pattern).then(keys => {
     let mapAll = {};
     return Promise.all(keys.map(key => {
-      return exports.redisCommand('hgetall', key).then(all => mapAll[key] = all);
+      return exports.redisHgetAll(key).then(all => mapAll[key] = all);
     })).then(() => mapAll);
   });
 }
