@@ -294,7 +294,7 @@ describe('handler', () => {
     let keys = [
       support.redisKeys('downloads.episodes.*'),
       support.redisKeys('downloads.podcasts.*'),
-      support.redisKeys('impression:*')
+      support.redisKeys('dovetail:impression:*')
     ];
     const all = await Promise.all(keys);
     expect(all[0].length).to.equal(2);

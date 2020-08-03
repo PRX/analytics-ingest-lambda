@@ -59,22 +59,22 @@ describe('redis-actuals', () => {
 
     expect(await act.insert()).to.eql([{count: 5, dest: 'cluster://127.0.0.1'}])
 
-    const keys = await support.redisKeys('impression:*')
+    const keys = await support.redisKeys('dovetail:impression:*')
     expect(keys.length).to.equal(3)
     expect(keys.sort()).to.eql([
-      'impression:2017-03-29:actuals',
-      'impression:2017-03-31:actuals',
-      'impression:2017-04-01:actuals'
+      'dovetail:impression:2017-03-29:actuals',
+      'dovetail:impression:2017-03-31:actuals',
+      'dovetail:impression:2017-04-01:actuals'
     ])
 
-    expect(await support.redisHgetAll('impression:2017-03-29:actuals')).to.eql({
+    expect(await support.redisHgetAll('dovetail:impression:2017-03-29:actuals')).to.eql({
       '11': '2',
       '22': '1'
     })
-    expect(await support.redisHgetAll('impression:2017-03-31:actuals')).to.eql({
+    expect(await support.redisHgetAll('dovetail:impression:2017-03-31:actuals')).to.eql({
       '11': '1'
     })
-    expect(await support.redisHgetAll('impression:2017-04-01:actuals')).to.eql({
+    expect(await support.redisHgetAll('dovetail:impression:2017-04-01:actuals')).to.eql({
       '11': '1',
     })
   })
@@ -87,11 +87,11 @@ describe('redis-actuals', () => {
 
     expect(await act.insert()).to.eql([{count: 1, dest: 'cluster://127.0.0.1'}])
 
-    const keys = await support.redisKeys('impression:*')
+    const keys = await support.redisKeys('dovetail:impression:*')
     expect(keys.length).to.equal(1)
-    expect(keys.sort()).to.eql(['impression:2017-03-29:actuals'])
+    expect(keys.sort()).to.eql(['dovetail:impression:2017-03-29:actuals'])
 
-    expect(await support.redisTTL('impression:2017-03-29:actuals')).to.eql(9876)
+    expect(await support.redisTTL('dovetail:impression:2017-03-29:actuals')).to.eql(9876)
   })
 
 })
