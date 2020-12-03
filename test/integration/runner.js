@@ -5,6 +5,7 @@ if (!process.env.BQ_CLIENT_EMAIL) {
 }
 const { buildMixedStyleEvent } = require('../support/build');
 const handler = require('../../index').handler;
+const pingurl = require('../../lib/pingurl');
 
 // bigquery does not like timestamps more than 7 days in the past
 const testRecordSets = require('../support/test-runner-records');
@@ -41,6 +42,7 @@ async function main() {
   try {
     const result = await handler(testEvent);
     console.log('\nExited success:', result);
+    pingurl.destroyAgents();
   } catch (err) {
     console.error('\n\nExited with error!');
     console.error(err);
