@@ -42,7 +42,6 @@ async function main() {
   try {
     const result = await handler(testEvent);
     console.log('\nExited success:', result);
-    pingurl.destroyAgents();
   } catch (err) {
     console.error('\n\nExited with error!');
     console.error(err);
