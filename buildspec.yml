@@ -5,6 +5,8 @@ env:
     PRX_LAMBDA_CODE_CONFIG_PARAMETERS: "AnalyticsIngestLambdaCodeS3ObjectVersion"
     PRX_LAMBDA_ARCHIVE_BUILD_PATH: "/app/build.zip"
   parameter-store:
+    DOCKERHUB_USERNAME: "/prx/DOCKERHUB_USERNAME"
+    DOCKERHUB_PASSWORD: "/prx/DOCKERHUB_PASSWORD"
     MAXMIND_LICENSE_KEY: "/prx/test/analytics-ingest-lambda/MAXMIND_LICENSE_KEY"
     S3_ACCESS_KEY_ID: "/prx/test/analytics-ingest-lambda/AWS_ACCESS_KEY_ID"
     S3_SECRET_ACCESS_KEY: "/prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY"
@@ -13,6 +15,10 @@ phases:
   install:
     runtime-versions:
       docker: 18
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub...
+      - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
   build:
     commands:
       - "cd $(ls -d */|head -n 1)"
