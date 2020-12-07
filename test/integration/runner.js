@@ -5,6 +5,7 @@ if (!process.env.BQ_CLIENT_EMAIL) {
 }
 const { buildMixedStyleEvent } = require('../support/build');
 const handler = require('../../index').handler;
+const pingurl = require('../../lib/pingurl');
 
 // bigquery does not like timestamps more than 7 days in the past
 const testRecordSets = require('../support/test-runner-records');
@@ -37,12 +38,15 @@ if (process.env.REDIS_HOST && process.env.REDIS_HOST !== '0') {
 /**
  * Run the test event for real, against your .env settings
  */
-handler(testEvent, null, (err, result) => {
-  if (err) {
-    console.error('Exited with error!');
+async function main() {
+  try {
+    const result = await handler(testEvent);
+    console.log('\nExited success:', result);
+  } catch (err) {
+    console.error('\n\nExited with error!');
     console.error(err);
+    console.error('\n');
     process.exit(1);
-  } else {
-    console.log('Exited success:', result);
   }
-});
+}
+main()

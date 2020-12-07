@@ -40,6 +40,7 @@
   },
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
   "devDependencies": {
+    "aws-sdk": "^2.802.0",
     "chai": "^4.2.0",
     "codecov": "^3.1.0",
     "dotenv": "^6.2.0",
@@ -53,16 +54,15 @@
   },
   "dependencies": {
     "@aws/dynamodb-batch-iterator": "^0.7.1",
-    "@google-cloud/bigquery": "^2.0.6",
-    "aws-sdk": "^2.395.0",
-    "follow-redirects": "1.7.0",
-    "ioredis": "^4.17.3",
-    "ipaddr.js": "^1.9.1",
-    "lambda-log": "^2.3.0",
-    "maxmind": "^2.12.0",
+    "@google-cloud/bigquery": "^5.5.0",
+    "follow-redirects": "^1.13.0",
+    "ioredis": "^4.19.2",
+    "ipaddr.js": "^2.0.0",
+    "lambda-log": "^2.4.0",
+    "maxmind": "^4.3.1",
     "prx-ip-filter": "^0.0.1",
     "prx-podagent": "0.1.8",
-    "urijs": "^1.19.0",
-    "uuid": "^3.3.2"
+    "urijs": "^1.19.2",
+    "uuid": "^8.3.1"
   }
 }
