@@ -1,8 +1,7 @@
 version: 0.2
 env:
   variables:
-    PRX_LAMBDA_CODE_S3_KEY: "lambda/PRX-analytics-ingest-lambda.zip"
-    PRX_LAMBDA_CODE_CONFIG_PARAMETERS: "AnalyticsIngestLambdaCodeS3ObjectVersion"
+    PRX_LAMBDA_CODE_CONFIG_PARAMETERS: "AnalyticsIngestLambdaCodeS3ObjectKey"
     PRX_LAMBDA_ARCHIVE_BUILD_PATH: "/app/build.zip"
   parameter-store:
     DOCKERHUB_USERNAME: "/prx/DOCKERHUB_USERNAME"
