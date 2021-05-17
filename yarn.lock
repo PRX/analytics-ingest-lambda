@@ -1401,10 +1401,10 @@ prx-ip-filter@^0.0.1:
     ipaddr.js "^1.9.1"
     neat-csv "^5.1.0"
 
-prx-podagent@0.1.10:
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.10.tgz#853e047073a559465951983163f1b2320e98fbb6"
-  integrity sha512-yBuMaW/RgAPU2NduhiG12cfAa+tZ5GwconLmGIlCkKCOMk1wxKHDX6X8C9TQsKzcqZ18EFQmK6VfKHU19Yb76A==
+prx-podagent@0.1.12:
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/prx-podagent/-/prx-podagent-0.1.12.tgz#6a1af36e484d366b89758c92216858c2df06bfa3"
+  integrity sha512-soLMQVKPaHyTZrKerN/CqqQbVVd952fqx6jqrrC7O+RnUxwqHoKmfFHnxQelGCk9dycBsRuC5tHcD5rHj/ZFMw==
 
 psl@^1.1.24:
   version "1.1.31"
