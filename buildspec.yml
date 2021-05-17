@@ -10,6 +10,9 @@ env:
     S3_ACCESS_KEY_ID: "/prx/test/analytics-ingest-lambda/AWS_ACCESS_KEY_ID"
     S3_SECRET_ACCESS_KEY: "/prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY"
     CODECOV_TOKEN: "/prx/test/dovetail.prx.org/CODECOV_TOKEN"
+  exported-variables:
+    - PRX_LAMBDA_CODE_CONFIG_PARAMETERS
+    - PRX_LAMBDA_CODE_CONFIG_VALUE
 phases:
   install:
     runtime-versions:
@@ -26,4 +29,4 @@ phases:
       - "docker-compose run test"
   post_build:
     commands:
-      - 'curl -sO "https://raw.githubusercontent.com/PRX/Infrastructure/master/ci/utility/post_build.sh" && chmod +x post_build.sh && bash ./post_build.sh'
+      - 'curl -sO "https://raw.githubusercontent.com/PRX/Infrastructure/master/ci/utility/post_build.sh" && chmod +x post_build.sh && . ./post_build.sh'
