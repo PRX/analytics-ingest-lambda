@@ -289,7 +289,7 @@
                       "ad": { "id": "vastad1" },
                       "creative": { "id": "vastcreative1" },
                       "pricing": {
-                        "value": 100.0,
+                        "value": 100.11,
                         "currency": "USD",
                         "model": "CPM"
                       }
