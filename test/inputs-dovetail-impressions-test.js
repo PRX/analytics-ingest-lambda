@@ -118,8 +118,6 @@ describe('dovetail-impressions', () => {
       expect(inserts['dt_impressions'][5].json.vast_price_currency).to.equal('USD');
       expect(inserts['dt_impressions'][5].json.vast_price_model).to.equal('CPM');
 
-      console.log(inserts['dt_impressions'][5].json);
-
       expect(result[1].dest).to.equal('dt_impressions_preview');
       expect(result[1].count).to.equal(1);
       expect(inserts['dt_impressions_preview'][0].json.listener_session.length).to.be.above(10);
