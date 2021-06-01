@@ -77,7 +77,7 @@ describe('handler', () => {
     });
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 6/i);
+    expect(result).to.match(/inserted 7/i);
     expect(infos.length).to.equal(4);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
@@ -85,8 +85,8 @@ describe('handler', () => {
     expect(infos[0].meta).to.contain({dest: 'dt_downloads', rows: 1});
     expect(infos[1].msg).to.match(/1 rows into dt_downloads_preview/);
     expect(infos[1].meta).to.contain({dest: 'dt_downloads_preview', rows: 1});
-    expect(infos[2].msg).to.match(/3 rows into dt_impressions/);
-    expect(infos[2].meta).to.contain({dest: 'dt_impressions', rows: 3});
+    expect(infos[2].msg).to.match(/4 rows into dt_impressions/);
+    expect(infos[2].meta).to.contain({dest: 'dt_impressions', rows: 4});
 
     // based on test-records
     expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions', 'pixels');
@@ -119,7 +119,7 @@ describe('handler', () => {
     expect(Math.abs(downloadJson.latitude - 40.3772)).to.be.below(1);
     expect(Math.abs(downloadJson.longitude + 105.5217)).to.be.below(1);
 
-    expect(inserted['dt_impressions'].length).to.equal(3);
+    expect(inserted['dt_impressions'].length).to.equal(4);
     expect(inserted['dt_impressions'][0].insertId.length).to.be.above(10);
     expect(inserted['dt_impressions'][1].insertId.length).to.be.above(10);
     expect(inserted['dt_impressions'][2].insertId.length).to.be.above(10);
@@ -157,6 +157,14 @@ describe('handler', () => {
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(false);
     expect(impressionJson.cause).to.equal(null);
+
+    impressionJson = inserted['dt_impressions'][3].json;
+    expect(impressionJson.vast_advertiser).to.equal('vastadvertiser1');
+    expect(impressionJson.vast_ad_id).to.equal('vastad1');
+    expect(impressionJson.vast_creative_id).to.equal('vastcreative1');
+    expect(impressionJson.vast_price_value).to.equal(10.00);
+    expect(impressionJson.vast_price_currency).to.equal('USD');
+    expect(impressionJson.vast_price_model).to.equal('CPM');
 
     let previewJson = inserted['dt_downloads_preview'][0].json;
     expect(previewJson.listener_session.length).to.be.above(10);
@@ -261,7 +269,7 @@ describe('handler', () => {
     const result = await handler(event);
     expect(result).to.match(/inserted 2/i);
     expect(infos.length).to.equal(3);
-    expect(warns.length).to.equal(1);
+    expect(warns.length).to.equal(2);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('PINGED');
     expect(infos[0].meta).to.contain({url: 'http://www.foo.bar/ping1'});
@@ -282,12 +290,12 @@ describe('handler', () => {
     process.env.REDIS_HOST = 'redis://127.0.0.1:6379';
     process.env.REDIS_IMPRESSIONS_HOST = 'cluster://127.0.0.1:6379';
     const result = await handler(event);
-    expect(result).to.match(/inserted 5/i);
+    expect(result).to.match(/inserted 6/i);
     expect(infos.length).to.equal(2);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/1 rows into cluster:/);
-    expect(infos[0].meta).to.contain({dest: 'cluster://127.0.0.1', rows: 1});
+    expect(infos[0].msg).to.match(/2 rows into cluster:/);
+    expect(infos[0].meta).to.contain({dest: 'cluster://127.0.0.1', rows: 2});
     expect(infos[1].msg).to.match(/4 rows into redis:/);
     expect(infos[1].meta).to.contain({dest: 'redis://127.0.0.1', rows: 4});
 

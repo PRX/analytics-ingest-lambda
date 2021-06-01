@@ -168,5 +168,43 @@
     "timestamp": 1580672602,
     "type": "antebytes",
     "url": "/213/cc2db84c-a8f6-4146-a2d9-dec62ae54564/05_99_Percent_Forgotten.mp3/"
+  },
+  {
+    "type": "postbytes",
+    "impressions": [
+      {
+        "segment": 3,
+        "adId": 104,
+        "campaignId": 105,
+        "creativeId": 106,
+        "flightId": 107,
+        "isDuplicate": false,
+        "targetPath": ":",
+        "cause": null,
+        "pings": ["http://www.adzerk.bar/ping4"],
+        "vast": {
+          "advertiser": "vastadvertiser1",
+          "ad": { "id": "vastad1" },
+          "creative": { "id": "vastcreative1" },
+          "pricing": {
+            "value": 10.0,
+            "currency": "USD",
+            "model": "CPM"
+          }
+        }
+      }
+    ],
+    "confirmed": true,
+    "digest": "the-digest-vast",
+    "feederPodcast": 1234,
+    "feederEpisode": "1234-vast",
+    "listenerId": "some-listener-id-vast",
+    "listenerEpisode": "listener-episode-2-vast",
+    "remoteAgent": "aoeutnheoantuh-vast",
+    "remoteIp": "199.119.122.237",
+    "remoteReferrer": "",
+    "requestUuid": "req-uuid-vast",
+    "timestamp": 1487703699888,
+    "url": "program-name/the/path-here-vast"
   }
 ]
