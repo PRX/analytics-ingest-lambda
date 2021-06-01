@@ -265,6 +265,48 @@
             "timestamp": 1580672602,
             "type": "combined",
             "url": "/213/cc2db84c-a8f6-4146-a2d9-dec62ae54564/05_99_Percent_Forgotten.mp3/"
+        },
+        {
+            "type": "postbytes",
+            "impressions": [
+                {
+                    "segment": 0,
+                    "adId": 76,
+                    "campaignId": 34,
+                    "creativeId": 56,
+                    "flightId": 78,
+                    "isDuplicate": false,
+                    "cause": null,
+                    "pings": [
+                        "https://dovetail.prxu.org/ping",
+                        "https://dovetail.prxu.org/pin{g",
+                        "https://dovetail.prxu.org/ping{?uuid}",
+                        "https://dovetail.prxu.org/{randomint}",
+                        "https://expired.badssl.com/"
+                    ],
+                    "vast": {
+                      "advertiser": "vastadvertiser1",
+                      "ad": { "id": "vastad1" },
+                      "creative": { "id": "vastcreative1" },
+                      "pricing": {
+                        "value": 100.0,
+                        "currency": "USD",
+                        "model": "CPM"
+                      }
+                    }
+                }
+            ],
+            "confirmed": true,
+            "digest": "the-digest-vast",
+            "feederPodcast": 1234,
+            "feederEpisode": "1234-vast",
+            "listenerId": "some-listener-id-vast",
+            "listenerEpisode": "listener-episode-2-vast",
+            "remoteAgent": "some agent string vast",
+            "remoteIp": "127.0.0.1",
+            "remoteReferrer": "",
+            "timestamp": 1487803701,
+            "url": "/1234/1234-vast/filename.mp3?foo=bar"
         }
     ],
     "kinesisEventStyleRecords": [
