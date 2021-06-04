@@ -88,12 +88,13 @@ describe('dovetail-impressions', () => {
       {type: 'postbytespreview', listenerEpisode: 'listen4', timestamp: 1490837132, impressions: [{adId: 4}]},
       {type: 'postbytes', listenerEpisode: 'listen5', timestamp: 1490827132999, impressions: [{adId: 5}]},
       {type: 'combined', listenerEpisode: 'listen6', timestamp: 1490837132, impressions: [{targetPath: ':Some-target', zoneName: 'some_pre1', placementsKey: '2' }]},
+      {type: 'combined', listenerEpisode: 'listen7', timestamp: 1490827132999, impressions: [{vast: {advertiser: 'vastadvertiser1', ad: {id: 'vastadid1'}, creative: {id: 'vastcreativeid1'}, pricing: {value: '100.00', currency: 'USD', model: 'CPM'}}, targetPath: ':Some-target', zoneName: 'some_pre1', placementsKey: '2' }]},
     ]);
     return impression2.insert().then(result => {
       expect(result.length).to.equal(2);
 
       expect(result[0].dest).to.equal('dt_impressions');
-      expect(result[0].count).to.equal(5);
+      expect(result[0].count).to.equal(6);
       expect(inserts['dt_impressions'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][0].json.ad_id).to.equal(1);
       expect(inserts['dt_impressions'][0].json.is_bytes).to.equal(false);
@@ -109,6 +110,13 @@ describe('dovetail-impressions', () => {
       expect(inserts['dt_impressions'][4].json.target_path).to.equal(':Some-target');
       expect(inserts['dt_impressions'][4].json.zone_name).to.equal('some_pre1');
       expect(inserts['dt_impressions'][4].json.placements_key).to.equal('2');
+
+      expect(inserts['dt_impressions'][5].json.vast_advertiser).to.equal('vastadvertiser1');
+      expect(inserts['dt_impressions'][5].json.vast_ad_id).to.equal('vastadid1');
+      expect(inserts['dt_impressions'][5].json.vast_creative_id).to.equal('vastcreativeid1');
+      expect(inserts['dt_impressions'][5].json.vast_price_value).to.equal(100.00);
+      expect(inserts['dt_impressions'][5].json.vast_price_currency).to.equal('USD');
+      expect(inserts['dt_impressions'][5].json.vast_price_model).to.equal('CPM');
 
       expect(result[1].dest).to.equal('dt_impressions_preview');
       expect(result[1].count).to.equal(1);
