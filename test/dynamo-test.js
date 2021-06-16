@@ -8,156 +8,104 @@ function throws(promise) {
 
 describe('dynamo', () => {
 
-  it('requires a DDB_TABLE env', async () => {
-    let err = null;
-    try {
+  describe('#update', () => {
+  });
+
+  describe('#updateParams', () => {
+    it('requires a DDB_TABLE env', async () => {
       delete process.env.DDB_TABLE;
-      await dynamo.get('anything');
-    } catch (e) {
-      err = e;
-    }
-    if (err) {
-      expect(err.message).to.match(/must set a DDB_TABLE/);
-    } else {
-      expect.fail('should have thrown an error');
-    }
-  });
-
-  it('requires an id field', async () => {
-    let err = null;
-    try {
-      await dynamo.get('anything', null);
-    } catch (e) {
-      err = e;
-    }
-    if (err) {
-      expect(err.message).to.match(/must specify an id field/);
-    } else {
-      expect.fail('should have thrown an error');
-    }
-  });
-
-  it('requires identifiers to write', async () => {
-    const data1 = [
-      {id: 'testid1', hello: 'world', number: 10},
-      {some: 'other1', things: 99},
-      {id: 'testid2', some: 'other2', things: 100},
-    ];
-    let err = null;
-    try {
-      await dynamo.write(data1);
-    } catch (e) {
-      err = e;
-    }
-    if (err) {
-      expect(err.message).to.match(/must include the field 'id'/);
-    } else {
-      expect.fail('should have thrown an error');
-    }
-  });
-
-  it('formats records for write', async () => {
-    const format = await dynamo.formatWrite({id: 'something', other: 'data', goes: 'here'});
-    expect(format).to.have.keys('PutRequest');
-    expect(format.PutRequest).to.have.keys('Item');
-    expect(format.PutRequest.Item).to.have.keys('id', 'payload');
-    expect(format.PutRequest.Item.id).to.eql({S: 'something'});
-    expect(format.PutRequest.Item.payload).to.have.keys('B');
-    expect(format.PutRequest.Item.payload.B.length).to.be.above(20);
-  });
-
-  it('formats records with a TTL for write', async () => {
-    process.env.DDB_TTL = 100;
-    const now = Math.round(new Date().getTime() / 1000);
-    const format = await dynamo.formatWrite({id: 'something', other: 'data', goes: 'here'});
-    expect(format).to.have.keys('PutRequest');
-    expect(format.PutRequest).to.have.keys('Item');
-    expect(format.PutRequest.Item).to.have.keys('id', 'payload', 'expiration');
-    if (format.PutRequest.Item.expiration.N === `${now + 100}`) {
-      expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 100}`});
-    } else {
-      expect(format.PutRequest.Item.expiration).to.eql({N: `${now + 101}`});
-    }
-  });
-
-  it('throws get errors', async () => {
-    sinon.stub(dynamo, 'client').resolves({batchGetItem: () => { throw new Error('something'); }});
-    expect(await throws(dynamo.get('testid1'))).to.match(/ddb \w+ - something/i);
-  });
-
-  it('throws put errors', async () => {
-    sinon.stub(dynamo, 'client').resolves({batchWriteItem: () => { throw new Error('something'); }});
-    expect(await throws(dynamo.write({id: 'testid1'}))).to.match(/ddb \w+ - something/i);
-  });
-
-  it('throws delete errors', async () => {
-    sinon.stub(dynamo, 'client').resolves({batchWriteItem: () => { throw new Error('something'); }});
-    expect(await throws(dynamo.delete('testid1'))).to.match(/ddb \w+ - something/i);
-  });
-
-  (process.env.TEST_DDB_TABLE ? describe : xdescribe)('with a real table', () => {
-
-    beforeEach(async () => {
-      process.env.DDB_TABLE = process.env.TEST_DDB_TABLE;
-      process.env.DDB_ROLE = process.env.TEST_DDB_ROLE || '';
-      await dynamo.delete(['testid1', 'testid2']);
+      expect(await throws(dynamo.update())).to.match(/must set a DDB_TABLE/i);
     });
 
-    it('round trips data', async () => {
-      const data1 = {id: 'testid1', hello: 'world', number: 10};
-      expect(await dynamo.write(data1)).to.equal(1);
-
-      const data2 = await dynamo.get('testid1');
-      expect(data2).to.eql(data1);
+    it('sets params', async () => {
+      const params = await dynamo.updateParams('my-id');
+      expect(params.Key).to.eql({id: {S: 'my-id'}});
+      expect(params.ReturnValues).to.eql('ALL_OLD');
+      expect(params.TableName).to.eql(process.env.DDB_TABLE);
     });
 
-    it('round trips with an expiration', async () => {
+    it('deflates payloads', async () => {
+      const params = await dynamo.updateParams('my-id', {some: 'payload'});
+      expect(params.AttributeUpdates).to.have.keys('payload');
+      expect(params.AttributeUpdates.payload.Action).to.eql('PUT');
+
+      const deflated = await dynamo.deflate({some: 'payload'});
+      expect(params.AttributeUpdates.payload.Value.B).to.eql(deflated);
+    });
+
+    it('stringifies segments', async () => {
+      const params = await dynamo.updateParams('my-id', null, [1, '2', 'three']);
+      expect(params.AttributeUpdates).to.have.keys('segments');
+      expect(params.AttributeUpdates.segments.Action).to.eql('ADD');
+      expect(params.AttributeUpdates.segments.Value).to.eql({SS: ['1', '2', 'three']});
+    });
+
+    it('optionally adds an expiration', async () => {
       process.env.DDB_TTL = 100;
-      const data1 = {id: 'testid1', hello: 'world', number: 10};
-      expect(await dynamo.write(data1)).to.equal(1);
+      const now = Math.round(new Date().getTime() / 1000);
 
-      const data2 = await dynamo.get('testid1');
-      expect(data2).to.eql(data1);
+      const params = await dynamo.updateParams('my-id');
+      expect(params.AttributeUpdates).to.have.keys('expiration');
+      if (params.AttributeUpdates.expiration.N === `${now + 100}`) {
+        expect(params.AttributeUpdates.expiration).to.eql({N: `${now + 100}`});
+      } else {
+        expect(params.AttributeUpdates.expiration).to.eql({N: `${now + 101}`});
+      }
     });
-
-    it('deletes data', async () => {
-      await dynamo.write([{id: 'testid1'}, {id: 'testid2'}]);
-      const ids = ['testid2', 'testid1', 'testid1', 'this-does-not-exist'];
-      expect(await dynamo.delete(ids)).to.equal(3);
-    });
-
-    it('gets null for missing keys', async () => {
-      expect(await dynamo.get('this-does-not-exist')).to.be.null;
-    });
-
-    it('overrides the id field', async () => {
-      const data1 = [
-        {mykey: 'testid1', hello: 'world', number: 10},
-        {mykey: 'testid2', some: 'other', things: 99},
-      ];
-      expect(await dynamo.write(data1, 'mykey')).to.equal(2);
-
-      const data2 = await dynamo.get(['testid1', 'testid2'], 'mykey');
-      expect(data2.length).to.equal(2);
-      expect(data2).to.eql(data1);
-    });
-
-    it('returns data in the order of the keys', async () => {
-      const data1 = [
-        {id: 'testid1', hello: 'world', number: 10},
-        {id: 'testid2', some: 'other1', things: 99},
-        {id: 'testid2', some: 'other2', things: 100},
-      ];
-      expect(await dynamo.write(data1)).to.equal(2);
-
-      const data2 = await dynamo.get(['testid2', 'testid1', 'this-does-not-exist', 'testid1']);
-      expect(data2.length).to.equal(4);
-      expect(data2[0]).to.eql(data1[2]);
-      expect(data2[3]).to.eql(data1[0]);
-      expect(data2[2]).to.be.null;
-      expect(data2[3]).to.eql(data1[0]);
-    });
-
   });
 
+  describe('#updateResult', () => {
+    it('returns null when no payload', async () => {
+      const Attributes = {segments: {SS: ['1', '2']}};
+      expect(await dynamo.updateResult('id', null, null, {})).to.be.null;
+      expect(await dynamo.updateResult('id', null, ['1'], {})).to.be.null;
+      expect(await dynamo.updateResult('id', null, ['1'], {Attributes})).to.be.null;
+    });
+
+    it('returns null when no segments', async () => {
+      const Attributes = {payload: {B: await dynamo.deflate({foo: 'bar'})}};
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, null, {})).to.be.null;
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, [], {Attributes})).to.be.null;
+    });
+
+    it('returns null when segments all already set', async () => {
+      const Attributes = {
+        payload: {B: await dynamo.deflate({foo: 'bar'})},
+        segments: {SS: ['1', '2', '3']}
+      };
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['1'], {Attributes})).to.be.null;
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['2', '1'], {Attributes})).to.be.null;
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['2', '3', '1'], {Attributes})).to.be.null;
+    });
+
+    it('returns all segments when first setting payload', async () => {
+      const Attributes = {segments: {SS: ['1', '2']}};
+      const result = await dynamo.updateResult('my-id', {foo: 'bar'}, ['2', '3'], {Attributes});
+      expect(result.length).to.equal(3);
+      expect(result[0]).to.equal('my-id');
+      expect(result[1]).to.eql({foo: 'bar'});
+      expect(result[2]).to.eql(['1', '2', '3']);
+    });
+
+    it('returns all segments when first setting segments', async () => {
+      const Attributes = {payload: {B: await dynamo.deflate({foo: 'bar'})}};
+      const result = await dynamo.updateResult('my-id', null, ['1', '2'], {Attributes});
+      expect(result.length).to.equal(3);
+      expect(result[0]).to.equal('my-id');
+      expect(result[1]).to.eql({foo: 'bar'});
+      expect(result[2]).to.eql(['1', '2']);
+    });
+
+    it('returns new segments when subsequently setting segments', async () => {
+      const Attributes = {
+        payload: {B: await dynamo.deflate({foo: 'bar'})},
+        segments: {SS: ['1', '2']}
+      };
+      const result = await dynamo.updateResult('my-id', {foo: 'changed'}, ['1', '2', '3'], {Attributes});
+      expect(result.length).to.equal(3);
+      expect(result[0]).to.equal('my-id');
+      expect(result[1]).to.eql({foo: 'changed'});
+      expect(result[2]).to.eql(['3']);
+    });
+  });
 });
