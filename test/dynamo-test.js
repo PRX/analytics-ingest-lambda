@@ -8,10 +8,8 @@ function throws(promise) {
 
 describe('dynamo', () => {
 
-  describe('#update', () => {
-  });
-
   describe('#updateParams', () => {
+
     it('requires a DDB_TABLE env', async () => {
       delete process.env.DDB_TABLE;
       expect(await throws(dynamo.update())).to.match(/must set a DDB_TABLE/i);
@@ -46,15 +44,18 @@ describe('dynamo', () => {
 
       const params = await dynamo.updateParams('my-id');
       expect(params.AttributeUpdates).to.have.keys('expiration');
-      if (params.AttributeUpdates.expiration.N === `${now + 100}`) {
-        expect(params.AttributeUpdates.expiration).to.eql({N: `${now + 100}`});
+      expect(params.AttributeUpdates.expiration.Action).to.eql('PUT');
+      if (params.AttributeUpdates.expiration.Value.N === `${now + 100}`) {
+        expect(params.AttributeUpdates.expiration.Value).to.eql({N: `${now + 100}`});
       } else {
-        expect(params.AttributeUpdates.expiration).to.eql({N: `${now + 101}`});
+        expect(params.AttributeUpdates.expiration.Value).to.eql({N: `${now + 101}`});
       }
     });
+
   });
 
   describe('#updateResult', () => {
+
     it('returns null when no payload', async () => {
       const Attributes = {segments: {SS: ['1', '2']}};
       expect(await dynamo.updateResult('id', null, null, {})).to.be.null;
@@ -107,5 +108,47 @@ describe('dynamo', () => {
       expect(result[1]).to.eql({foo: 'changed'});
       expect(result[2]).to.eql(['3']);
     });
+
   });
+
+  // only run actual "update" tests with a real table
+  (process.env.TEST_DDB_TABLE ? describe : xdescribe)('#update', () => {
+    const DATA = {hello: 'world', number: 10};
+
+    beforeEach(async () => {
+      process.env.DDB_TABLE = process.env.TEST_DDB_TABLE;
+      process.env.DDB_ROLE = process.env.TEST_DDB_ROLE || '';
+      await dynamo.delete('testid1');
+    });
+
+    it('round trips payload data', async () => {
+      expect(await dynamo.update('testid1', DATA)).to.be.null;
+      expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', DATA, ['1']]);
+    });
+
+    it('sets an expiration', async () => {
+      process.env.DDB_TTL = 100;
+      expect(await dynamo.update('testid1', DATA)).to.be.null;
+      expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', DATA, ['1']]);
+
+      // directly get item to check for expiration
+      const result = await dynamo.get('testid1');
+      expect(result.Item.expiration.N).to.match(/[0-9]+/)
+    });
+
+    it('returns new segments', async () => {
+      expect(await dynamo.update('testid1')).to.be.null;
+      expect(await dynamo.update('testid1', null, ['1'])).to.be.null;
+
+      const result1 = await dynamo.update('testid1', DATA, null);
+      expect(result1).to.eql(['testid1', DATA, ['1']]);
+
+      const result2 = await dynamo.update('testid1', null, [1, 2]);
+      expect(result2).to.eql(['testid1', DATA, ['2']]);
+
+      expect(await dynamo.update('testid1', null, ['1', 2])).to.be.null;
+    });
+
+  });
+
 });
