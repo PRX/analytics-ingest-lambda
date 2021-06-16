@@ -2,11 +2,62 @@
 
 require('./support');
 const dynamo = require('../lib/dynamo');
+const logger = require('../lib/logger');
 function throws(promise) {
   return promise.then(() => expect.fail('should have thrown an error'), err => err);
 }
 
 describe('dynamo', () => {
+
+  describe('#updateAll', () => {
+
+    it('limits concurrent updates', async () => {
+      sinon.stub(logger, 'error');
+
+      // stub promises as update is called
+      const promises = [], resolvers = [], rejectors = [];
+      sinon.stub(dynamo, 'update').callsFake(() => {
+        const p = new Promise((res, rej) => {
+          resolvers.push(res);
+          rejectors.push(rej);
+        });
+        promises.push(p);
+        return p;
+      })
+
+      // to start, we should see 5 calls
+      const updateAllPromise = dynamo.updateAll(Array(10).fill('my-id'), 5);
+      expect(promises.length).to.equal(5);
+
+      // resolving any picks up new
+      resolvers[0](0);
+      resolvers[3](3);
+      resolvers[4](4);
+      await new Promise(r => process.nextTick(r));
+      expect(promises.length).to.equal(8);
+
+      // as do errors
+      rejectors[1](1);
+      rejectors[5](5);
+      await new Promise(r => process.nextTick(r));
+      expect(promises.length).to.equal(10);
+      expect(logger.error).to.have.callCount(2);
+      expect(logger.error.args[0][0]).to.match(/DDB Error/)
+      expect(logger.error.args[1][0]).to.match(/DDB Error/)
+
+      // finish up
+      resolvers[2](2);
+      resolvers[6](6);
+      resolvers[7](7);
+      resolvers[8](8);
+      resolvers[9](9);
+
+      const result = await updateAllPromise;
+      expect(result.success).to.eql([0, 3, 4, 2, 6, 7, 8, 9]);
+      expect(result.failures).to.eql(['my-id', 'my-id']);
+    });
+
+  });
 
   describe('#updateParams', () => {
 
