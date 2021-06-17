@@ -13,6 +13,7 @@ describe('dynamo', () => {
 
     it('limits concurrent updates', async () => {
       sinon.stub(logger, 'error');
+      sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
 
       // stub promises as update is called
       const promises = [], resolvers = [], rejectors = [];
@@ -26,7 +27,9 @@ describe('dynamo', () => {
       })
 
       // to start, we should see 5 calls
-      const updateAllPromise = dynamo.updateAll(Array(10).fill('my-id'), 5);
+      const args = ['my-id', {my: 'data'}, ['my', 'segments']]
+      const updateAllPromise = dynamo.updateAll(Array(10).fill(args), 5);
+      await new Promise(r => process.nextTick(r));
       expect(promises.length).to.equal(5);
 
       // resolving any picks up new
@@ -54,7 +57,7 @@ describe('dynamo', () => {
 
       const result = await updateAllPromise;
       expect(result.success).to.eql([0, 3, 4, 2, 6, 7, 8, 9]);
-      expect(result.failures).to.eql(['my-id', 'my-id']);
+      expect(result.failures).to.eql([args, args]);
     });
 
   });
@@ -107,17 +110,17 @@ describe('dynamo', () => {
 
   describe('#updateResult', () => {
 
-    it('returns null when no payload', async () => {
+    it('returns null payload', async () => {
       const Attributes = {segments: {SS: ['1', '2']}};
-      expect(await dynamo.updateResult('id', null, null, {})).to.be.null;
-      expect(await dynamo.updateResult('id', null, ['1'], {})).to.be.null;
-      expect(await dynamo.updateResult('id', null, ['1'], {Attributes})).to.be.null;
+      expect(await dynamo.updateResult('id', null, null, {})).to.eql(['id', null, null]);
+      expect(await dynamo.updateResult('id', null, ['1'], {})).to.eql(['id', null, {1: false}])
+      expect(await dynamo.updateResult('id', null, ['1'], {Attributes})).to.eql(['id', null, {1: false, 2: false}])
     });
 
     it('returns null when no segments', async () => {
       const Attributes = {payload: {B: await dynamo.deflate({foo: 'bar'})}};
-      expect(await dynamo.updateResult('id', {foo: 'bar'}, null, {})).to.be.null;
-      expect(await dynamo.updateResult('id', {foo: 'bar'}, [], {Attributes})).to.be.null;
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, null, {})).to.eql(['id', {foo: 'bar'}, null]);
+      expect(await dynamo.updateResult('id', {foo: 'bar'}, [], {Attributes})).to.eql(['id', {foo: 'bar'}, null]);
     });
 
     it('returns null when segments all already set', async () => {
@@ -125,9 +128,15 @@ describe('dynamo', () => {
         payload: {B: await dynamo.deflate({foo: 'bar'})},
         segments: {SS: ['1', '2', '3']}
       };
-      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['1'], {Attributes})).to.be.null;
-      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['2', '1'], {Attributes})).to.be.null;
-      expect(await dynamo.updateResult('id', {foo: 'bar'}, ['2', '3', '1'], {Attributes})).to.be.null;
+
+      const result1 = await dynamo.updateResult('id', {foo: 'bar'}, ['1'], {Attributes});
+      expect(result1).to.eql(['id', {foo: 'bar'}, {1: false, 2: false, 3: false}]);
+
+      const result2 = await dynamo.updateResult('id', {foo: 'bar'}, ['2', '1'], {Attributes});
+      expect(result2).to.eql(result1);
+
+      const result3 = await dynamo.updateResult('id', {foo: 'bar'}, ['2', '3', '1'], {Attributes});
+      expect(result3).to.eql(result1);
     });
 
     it('returns all segments when first setting payload', async () => {
@@ -136,7 +145,7 @@ describe('dynamo', () => {
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({foo: 'bar'});
-      expect(result[2]).to.eql(['1', '2', '3']);
+      expect(result[2]).to.eql({1: true, 2: true, 3: true});
     });
 
     it('returns all segments when first setting segments', async () => {
@@ -145,7 +154,7 @@ describe('dynamo', () => {
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({foo: 'bar'});
-      expect(result[2]).to.eql(['1', '2']);
+      expect(result[2]).to.eql({1: true, 2: true});
     });
 
     it('returns new segments when subsequently setting segments', async () => {
@@ -157,13 +166,13 @@ describe('dynamo', () => {
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({foo: 'changed'});
-      expect(result[2]).to.eql(['3']);
+      expect(result[2]).to.eql({1: false, 2: false, 3: true});
     });
 
   });
 
   // only run actual "update" tests with a real table
-  (process.env.TEST_DDB_TABLE ? describe : xdescribe)('#update', () => {
+  (process.env.TEST_DDB_TABLE ? describe : xdescribe)('with real dynamodb', () => {
     const DATA = {hello: 'world', number: 10};
 
     beforeEach(async () => {
@@ -172,32 +181,52 @@ describe('dynamo', () => {
       await dynamo.delete('testid1');
     });
 
-    it('round trips payload data', async () => {
-      expect(await dynamo.update('testid1', DATA)).to.be.null;
-      expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', DATA, ['1']]);
+    describe('#update', () => {
+
+      it('round trips payload data', async () => {
+        expect(await dynamo.update('testid1', DATA)).to.eql(['testid1', DATA, null]);
+        expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', DATA, {1: true}]);
+      });
+
+      it('sets an expiration', async () => {
+        process.env.DDB_TTL = 100;
+        expect(await dynamo.update('testid1', DATA)).to.eql(['testid1', DATA, null]);
+
+        // directly get item to check for expiration
+        const result = await dynamo.get('testid1');
+        expect(result.Item.expiration.N).to.match(/[0-9]+/)
+      });
+
+      it('returns new segments', async () => {
+        expect(await dynamo.update('testid1')).to.eql(['testid1', null, null]);
+        expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', null, {1: false}]);
+
+        const result1 = await dynamo.update('testid1', DATA, null);
+        expect(result1).to.eql(['testid1', DATA, {1: true}]);
+
+        const result2 = await dynamo.update('testid1', null, [1, 2]);
+        expect(result2).to.eql(['testid1', DATA, {1: false, 2: true}]);
+
+        const result3 = await dynamo.update('testid1', null, ['1', 2]);
+        expect(result3).to.eql(['testid1', DATA, {1: false, 2: false}]);
+      });
+
     });
 
-    it('sets an expiration', async () => {
-      process.env.DDB_TTL = 100;
-      expect(await dynamo.update('testid1', DATA)).to.be.null;
-      expect(await dynamo.update('testid1', null, ['1'])).to.eql(['testid1', DATA, ['1']]);
+    describe('#updateAll', () => {
 
-      // directly get item to check for expiration
-      const result = await dynamo.get('testid1');
-      expect(result.Item.expiration.N).to.match(/[0-9]+/)
-    });
+      it('runs multiple updates', async () => {
+        const updates = [
+          ['testid1', null, ['one']],
+          ['testid1', DATA, null],
+          ['testid1', DATA, ['one', 'two']],
+        ];
 
-    it('returns new segments', async () => {
-      expect(await dynamo.update('testid1')).to.be.null;
-      expect(await dynamo.update('testid1', null, ['1'])).to.be.null;
+        const result = await dynamo.updateAll(updates);
+        expect(result.success.length).to.equal(3);
+        expect(result.failures.length).to.equal(0);
+      });
 
-      const result1 = await dynamo.update('testid1', DATA, null);
-      expect(result1).to.eql(['testid1', DATA, ['1']]);
-
-      const result2 = await dynamo.update('testid1', null, [1, 2]);
-      expect(result2).to.eql(['testid1', DATA, ['2']]);
-
-      expect(await dynamo.update('testid1', null, ['1', 2])).to.be.null;
     });
 
   });
