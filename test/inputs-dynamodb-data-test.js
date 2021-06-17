@@ -77,6 +77,7 @@ describe('dynamodb-data', () => {
 
   describe('#insert', () => {
     it('inserts into kinesis', async () => {});
+
     it('throws an error on any ddb failures', async () => {});
   });
 
