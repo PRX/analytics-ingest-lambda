@@ -39,19 +39,27 @@ describe('inputs', () => {
     });
   });
 
-  it('inserts dynamodb inputs', () => {
-    sinon.stub(dynamo, 'write').callsFake(async recs => recs.length);
-    sinon.stub(dynamo, 'get').callsFake(async () => [
+  it('inserts dynamodb inputs', async () => {
+    sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+    sinon.stub(kinesis, 'put').callsFake(async recs => recs.length);
+    sinon.stub(logger, 'info');
+
+    let inputs = new DynamoInputs([
+      { type: 'combined', listenerEpisode: 'le1', digest: 'd1' },
+      { type: 'bytes', listenerEpisode: 'le2', digest: 'd2' },
       {
-        id: 'le2.d2',
+        type: 'antebytes',
+        listenerEpisode: 'le2',
+        digest: 'd2',
         type: 'antebytes',
         any: 'thing',
         download: {},
         impressions: [{ segment: 0, pings: ['ping', 'backs'] }],
       },
       {
-        id: 'le3.d3',
         type: 'antebytes',
+        listenerEpisode: 'le3',
+        digest: 'd3',
         what: 'ever',
         download: {},
         impressions: [
@@ -60,23 +68,27 @@ describe('inputs', () => {
           { segment: 2, pings: ['ping', 'backs'] },
         ],
       },
-    ]);
-    sinon.stub(kinesis, 'put').callsFake(async recs => recs.length);
-    sinon.stub(logger, 'info');
-
-    let inputs = new DynamoInputs([
-      { type: 'combined', listenerEpisode: 'le1', digest: 'd1' },
-      { type: 'bytes', listenerEpisode: 'le2', digest: 'd2' },
       { type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 2 },
       { type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 1 },
       { type: 'antebytes', listenerEpisode: 'le4', digest: 'd4' },
       { type: 'antebytespreview', listenerEpisode: 'le5', digest: 'd5' },
     ]);
-    return inputs.insertAll().then(inserts => {
-      expect(inserts.length).to.equal(2);
-      expect(inserts.map(i => i.count)).to.eql([2, 3]);
-      expect(inserts.map(i => i.dest).sort()).to.eql(['dynamodb', 'kinesis:foobar_stream']);
-    });
+
+    const inserts = await inputs.insertAll();
+    expect(inserts.length).to.equal(1);
+    expect(inserts.map(i => i.count)).to.eql([2]);
+    expect(inserts.map(i => i.dest)).to.eql(['kinesis:foobar_stream']);
+
+    expect(dynamo.updateItemPromise).to.have.callCount(4);
+    expect(dynamo.updateItemPromise.args.map(a => a[0].Key.id.S).sort()).to.eql([
+      'le2.d2',
+      'le3.d3',
+      'le4.d4',
+      'le5.d5',
+    ]);
+
+    expect(kinesis.put).to.have.callCount(1);
+    expect(kinesis.put.args[0][0].map(a => a.listenerEpisode)).to.eql(['le2', 'le3']);
   });
 
   it('inserts pingback inputs', () => {
