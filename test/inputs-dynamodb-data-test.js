@@ -81,10 +81,77 @@ describe('dynamodb-data', () => {
   });
 
   describe('#format', () => {
-    it('handles empty inputs', () => {});
-    it('formats postbyte records', () => {});
-    it('filters downloads', () => {});
-    it('filters impressions', () => {});
+    const ddb = new DynamodbData();
+
+    it('handles empty inputs', () => {
+      expect(ddb.format(['le.d', null, { 1: true }])).to.eql([]);
+      expect(ddb.format(['le.d', {}, null])).to.eql([]);
+      expect(ddb.format(['le.d', {}, {}])).to.eql([]);
+    });
+
+    it('formats postbyte records', () => {
+      const segments = { 1000: true, 100000: true, 200000: false };
+      const records = ddb.format(['le.d', { some: 'data' }, segments]);
+
+      expect(records.length).to.equal(2);
+      expect(records[0]).to.eql({
+        type: 'postbytes',
+        listenerEpisode: 'le',
+        digest: 'd',
+        timestamp: 1000,
+        some: 'data',
+      });
+      expect(records[1]).to.eql({
+        type: 'postbytes',
+        listenerEpisode: 'le',
+        digest: 'd',
+        timestamp: 100000,
+        some: 'data',
+      });
+    });
+
+    it('filters downloads', () => {
+      const download = { the: 'download' };
+      const segments = {
+        1000: true,
+        100000: false,
+        100000.1: true,
+        200000: true,
+        200000.2: true,
+      };
+      const records = ddb.format(['le.d', { download }, segments]);
+
+      expect(records.length).to.equal(3);
+      expect(records[0].download).to.eql(download);
+      expect(records[1].download).to.be.undefined;
+      expect(records[2].download).to.eql(download);
+    });
+
+    it('filters impressions', () => {
+      const impressions = [
+        { segment: 1, num: 'imp1' },
+        { segment: 3, num: 'imp3' },
+        { segment: 2, num: 'imp2' },
+      ];
+      const segments = {
+        1000: true,
+        100000.2: true,
+        100001.1: false,
+        100002.1: true,
+        200000.1: true,
+        200001.2: false,
+        200002.3: true,
+      };
+      const records = ddb.format(['le.d', { impressions }, segments]);
+
+      expect(records.length).to.equal(3);
+      expect(records[0].timestamp).to.equal(1000);
+      expect(records[0].impressions).to.eql([]);
+      expect(records[1].timestamp).to.equal(100000);
+      expect(records[1].impressions).to.eql([impressions[2]]);
+      expect(records[2].timestamp).to.equal(200002);
+      expect(records[2].impressions).to.eql([impressions[0], impressions[1]]);
+    });
   });
 
   describe('#dedupSegments', () => {
