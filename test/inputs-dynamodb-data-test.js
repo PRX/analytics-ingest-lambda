@@ -92,7 +92,10 @@ describe('dynamodb-data', () => {
 
       const ddb = new DynamodbData([redirect, bytes1, bytes2, bytes3]);
       const result = await ddb.insert();
-      expect(result).to.eql([{ count: 2, dest: 'kinesis:foobar_stream' }]);
+      expect(result).to.eql([
+        { count: 1, dest: 'dynamodb' },
+        { count: 2, dest: 'kinesis:foobar_stream' },
+      ]);
 
       expect(dynamo.updateItemPromise).to.have.callCount(1);
       expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d1' } });
@@ -129,13 +132,16 @@ describe('dynamodb-data', () => {
 
       const ddb = new DynamodbData([bytes2, bytes3]);
       const result = await ddb.insert();
-      expect(result).to.eql([]);
+      expect(result).to.eql([{ count: 1, dest: 'dynamodb' }]);
       expect(dynamo.updateItemPromise).to.have.callCount(1);
       expect(kinesis.put).to.have.callCount(0);
 
       const ddb2 = new DynamodbData([redirect, bytes1]);
       const result2 = await ddb2.insert();
-      expect(result2).to.eql([{ count: 2, dest: 'kinesis:foobar_stream' }]);
+      expect(result2).to.eql([
+        { count: 1, dest: 'dynamodb' },
+        { count: 2, dest: 'kinesis:foobar_stream' },
+      ]);
       expect(dynamo.updateItemPromise).to.have.callCount(2);
       expect(kinesis.put).to.have.callCount(1);
     });

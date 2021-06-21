@@ -75,9 +75,9 @@ describe('inputs', () => {
     ]);
 
     const inserts = await inputs.insertAll();
-    expect(inserts.length).to.equal(1);
-    expect(inserts.map(i => i.count)).to.eql([2]);
-    expect(inserts.map(i => i.dest)).to.eql(['kinesis:foobar_stream']);
+    expect(inserts.length).to.equal(2);
+    expect(inserts.map(i => i.count)).to.eql([4, 2]);
+    expect(inserts.map(i => i.dest)).to.eql(['dynamodb', 'kinesis:foobar_stream']);
 
     expect(dynamo.updateItemPromise).to.have.callCount(4);
     expect(dynamo.updateItemPromise.args.map(a => a[0].Key.id.S).sort()).to.eql([
