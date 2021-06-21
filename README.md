@@ -90,11 +90,38 @@ and saved until the CDN-bytes are actually downloaded.
 This lambda also picks up type `bytes` and `segmentbytes` records, meaning that
 the [dovetail-counts-lambda](https://github.com/PRX/dovetail-counts-lambda) has
 decided enough of the segment/file-as-a-whole has been downloaded to be counted.
-The original `antebytes` records are then retrieved from DynamoDB, and re-emitted
-on kinesis with a modified type of `postbytes`.
 
-These `postbytes` records are then processed by the previous 3 lambdas.  Or in
-the case of `postbytespreview`, just inserted into BigQuery.  (We don't want to
+As both of those records are keyed by the `<listener_episode>.<digest>` of the
+request, we avoid a race condition by waiting for _both_ to be present before
+logging the real download/impressions. Some example DynamoDB data:
+
+```
++-----------+-----------------------+-------------------------+
+| id        | payload               | segments                |
++-----------+-----------------------+-------------------------+
+| 1234.abcd | <binary gzipped json> | 1624299980 1624299942.2 |
+| 1234.efgh |                       | 1624300094.1            |
+| 5678.efgh | <binary gzipped json> |                         |
++-----------+-----------------------+-------------------------+
+```
+
+The `segments` [String Set](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes)
+contains the epoch `timestamp` that came in on each `byte` or `segmentbyte`
+record (the time the bytes were actually downloaded from the CDN). And
+optionally a `.` and the segment number. This field acts as a gatekeeper, so we
+never double-count the same `bytes/segmentbytes` on the same UTC day.
+
+(**NOTE:** a single `antebytes` record _could_ legally be counted twice on 2
+different UTC days, if the listener downloaded the episode from the CDN twice
+just before and after midnight).
+
+Once we decide to count a segment impression or overall download, the original
+`antebytes` is unzipped from the `payload`, we change the type of the record
+to `postbytes` and the timestamp to match when the CDN bytes were downloaded,
+then re-emit the record to kinesis.
+
+These `postbytes` records are then processed by the previous 3 lambdas. Or in
+the case of `postbytespreview`, just inserted into BigQuery. (We don't want to
 run pingbacks or increment redis for `"bytes": "preview"` programs).
 
 # Installation
