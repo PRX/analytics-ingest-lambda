@@ -205,47 +205,74 @@ describe('handler', () => {
   });
 
   it('handles dynamodb records', async () => {
-    sinon.stub(dynamo, 'write').callsFake(async recs => recs.length);
-    sinon.stub(dynamo, 'get').callsFake(async () => [
-      {
-        id: 'listener-episode-3.the-digest',
-        type: 'antebytes',
-        any: 'thing',
-        download: {},
-        impressions: [
-          { segment: 0, pings: ['ping', 'backs'] },
-          { segment: 1, pings: ['ping', 'backs'] },
-          { segment: 2, pings: ['ping', 'backs'] },
-        ],
-      },
-    ]);
+    const payload = await dynamo.deflate({
+      type: 'antebytes',
+      any: 'thing',
+      download: {},
+      impressions: [
+        { segment: 0, pings: ['ping', 'backs'] },
+        { segment: 1, pings: ['ping', 'backs'] },
+        { segment: 2, pings: ['ping', 'backs'] },
+      ],
+    });
+
+    // return the redirect-data when particular updateItem is called
+    sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
+      if (params.Key.id.S === 'listener-episode-3.the-digest') {
+        return { Attributes: { payload: { B: payload } } };
+      } else {
+        return {};
+      }
+    });
     sinon.stub(kinesis, 'put').callsFake(async datas => datas.length);
     process.env.DYNAMODB = 'true';
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 4/i);
+    expect(result).to.match(/inserted 5/i);
     expect(infos.length).to.equal(2);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/inserted 3 rows into dynamodb/i);
-    expect(infos[0].meta).to.contain({ dest: 'dynamodb', rows: 3 });
+    expect(infos[0].msg).to.match(/inserted 4 rows into dynamodb/i);
+    expect(infos[0].meta).to.contain({ dest: 'dynamodb', rows: 4 });
     expect(infos[1].msg).to.match(/inserted 1 rows into kinesis/i);
     expect(infos[1].meta).to.contain({ dest: 'kinesis:foobar_stream', rows: 1 });
 
-    expect(dynamo.write.args[0][0].length).to.equal(3);
-    expect(dynamo.write.args[0][0][0].type).to.equal('antebytes');
-    expect(dynamo.write.args[0][0][0].any).to.equal('thing');
-    expect(dynamo.write.args[0][0][0].id).to.equal('listener-episode-4.the-digest');
-    expect(dynamo.write.args[0][0][0].listenerEpisode).to.be.undefined;
-    expect(dynamo.write.args[0][0][0].digest).to.be.undefined;
-    expect(dynamo.write.args[0][0][1].type).to.equal('antebytespreview');
-    expect(dynamo.write.args[0][0][1].some).to.equal('thing');
-    expect(dynamo.write.args[0][0][1].id).to.equal('listener-episode-5.the-digest');
-    expect(dynamo.write.args[0][0][1].listenerEpisode).to.be.undefined;
-    expect(dynamo.write.args[0][0][1].digest).to.be.undefined;
-    expect(dynamo.write.args[0][0][2].type).to.equal('antebytes');
-    expect(dynamo.write.args[0][0][2].time).to.equal('2020-02-02T13:43:22.255Z');
-    expect(dynamo.write.args[0][0][2].msg).to.equal('impression');
+    const sortedArgs = dynamo.updateItemPromise.args.sort((a, b) => {
+      return a[0].Key.id.S < a[0].Key.id.S ? -1 : 1;
+    });
+
+    const keys = sortedArgs.map(a => a[0].Key.id.S);
+    expect(keys).to.eql([
+      'listener-episode-3.the-digest',
+      'listener-episode-4.the-digest',
+      'listener-episode-5.the-digest',
+      'listener-episode-dtrouter-1.the-digest',
+    ]);
+
+    const payloads = await Promise.all(
+      sortedArgs.map(async a => {
+        if (a[0].AttributeUpdates.payload) {
+          return dynamo.inflate(a[0].AttributeUpdates.payload.Value.B);
+        }
+      }),
+    );
+    expect(payloads[0]).to.be.undefined;
+    expect(payloads[1].type).to.equal('antebytes');
+    expect(payloads[1].any).to.equal('thing');
+    expect(payloads[2].type).to.equal('antebytespreview');
+    expect(payloads[2].some).to.equal('thing');
+    expect(payloads[3].type).to.equal('antebytes');
+    expect(payloads[3].time).to.equal('2020-02-02T13:43:22.255Z');
+
+    const segments = sortedArgs.map(a => {
+      if (a[0].AttributeUpdates.segments) {
+        return a[0].AttributeUpdates.segments.Value.SS;
+      }
+    });
+    expect(segments[0]).to.eql(['1539287413617', '1539287527.4']);
+    expect(segments[1]).to.be.undefined;
+    expect(segments[2]).to.be.undefined;
+    expect(segments[3]).to.be.undefined;
 
     expect(kinesis.put.args[0][0].length).to.equal(1);
     expect(kinesis.put.args[0][0][0].type).to.equal('postbytes');
@@ -258,24 +285,23 @@ describe('handler', () => {
     const bad = new Error('Blah blah throughput exceeded');
     bad.code = 'ProvisionedThroughputExceededException';
     bad.statusCode = 400;
-    sinon.stub(dynamo, 'client').resolves({
-      batchGetItem: () => {
-        throw bad;
-      },
-    });
+    sinon.stub(dynamo, 'updateItemPromise').rejects(bad);
 
     let err = null;
     try {
       process.env.DYNAMODB = 'true';
       const rec = { type: 'bytes', timestamp: 1234, listenerEpisode: 'le', digest: 'd' };
-      const result = await handler(support.buildEvent([rec]));
+      await handler(support.buildEvent([rec]));
     } catch (e) {
       err = e;
     }
     if (err) {
-      expect(err.message).to.match(/throughput exceeded/);
-      expect(err.code).to.equal('ProvisionedThroughputExceededException');
-      expect(err.statusCode).to.equal(400);
+      expect(err.message).to.match(/DDB retrying/);
+      expect(warns.length).to.equal(1);
+      expect(warns[0]).to.match(/DDB retrying/);
+      expect(errs.length).to.equal(2);
+      expect(errs[0]).to.match(/throughput exceeded/);
+      expect(errs[1]).to.match(/DDB retrying/);
     } else {
       expect.fail('should have thrown an error');
     }
@@ -362,7 +388,7 @@ describe('handler', () => {
         "timestamp": 1580145427114,
         "message": "{\"msg\":\"impression\",\"type\":\"antebytes\" ..... }\n"
     } */
-    sinon.stub(dynamo, 'write').callsFake(async recs => recs.length);
+    sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
     process.env.DYNAMODB = 'true';
     const result = await handler({
       Records: [
