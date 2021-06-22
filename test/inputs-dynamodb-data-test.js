@@ -71,6 +71,7 @@ describe('dynamodb-data', () => {
     const epochMs = Date.parse(isoString);
 
     expect(ddb.decodeSegment(`${epochMs}`)).to.eql(['20210617', epochMs, 'DOWNLOAD']);
+    expect(ddb.decodeSegment(`${epochMs}.0`)).to.eql(['20210617', epochMs, 0]);
     expect(ddb.decodeSegment(`${epochMs}.4`)).to.eql(['20210617', epochMs, 4]);
     expect(ddb.decodeSegment(`${epochMs}.whatev`)).to.eql(['20210617', epochMs, 'whatev']);
   });
