@@ -237,16 +237,16 @@ describe('dynamodb-data', () => {
 
     it('filters impressions', () => {
       const impressions = [
-        { segment: 1, num: 'imp1' },
+        { segment: 0, num: 'imp0' },
         { segment: 3, num: 'imp3' },
         { segment: 2, num: 'imp2' },
       ];
       const segments = {
         1000: true,
         100000.2: true,
-        100001.1: false,
-        100002.1: true,
-        200000.1: true,
+        '100001.0': false,
+        '100002.0': true,
+        '200000.0': true,
         200001.2: false,
         200002.3: true,
       };
