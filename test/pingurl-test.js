@@ -85,16 +85,16 @@ describe('pingurl', () => {
     );
   });
 
-  it('times out with an actual delay', () => {
-    let url = 'http://slowwly.robertomurray.co.uk/delay/2000/url/http://dovetail.prxu.org/ping';
+  xit('times out with an actual delay', () => {
+    let url = 'https://deelay.me/2000/http://dovetail.prxu.org/ping';
     return pingurl.ping(url, null, 10).then(
       () => { throw new Error('Should have gotten error') },
       e => { expect(e.message).to.match(/http timeout from/i) }
     );
   });
 
-  it('times out with an actual redirect-delay', () => {
-    let url = 'http://slowwly.robertomurray.co.uk/delay/2000/url/http://dovetail.prxu.org/ping';
+  xit('times out with an actual redirect-delay', () => {
+    let url = 'https://deelay.me/2000/http://dovetail.prxu.org/ping';
     nock('http://www.foo.bar').get('/redirect').reply(302, undefined, {Location: url});
     return pingurl.ping('http://www.foo.bar/redirect', null, 10).then(
       () => { throw new Error('Should have gotten error') },
