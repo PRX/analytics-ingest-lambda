@@ -199,7 +199,7 @@ describe('dynamodb-data', () => {
 
     it('formats postbyte records', () => {
       const segments = { 1000: true, 100000: true, 200000: false };
-      const records = ddb.format(['le.d', { some: 'data' }, segments]);
+      const records = ddb.format(['le.d', { download: 'something' }, segments]);
 
       expect(records.length).to.equal(2);
       expect(records[0]).to.eql({
@@ -207,19 +207,20 @@ describe('dynamodb-data', () => {
         listenerEpisode: 'le',
         digest: 'd',
         timestamp: 1000,
-        some: 'data',
+        download: 'something',
       });
       expect(records[1]).to.eql({
         type: 'postbytes',
         listenerEpisode: 'le',
         digest: 'd',
         timestamp: 100000,
-        some: 'data',
+        download: 'something',
       });
     });
 
     it('filters downloads', () => {
       const download = { the: 'download' };
+      const impressions = [{ segment: 1 }, { segment: 2 }];
       const segments = {
         1000: true,
         100000: false,
@@ -227,7 +228,7 @@ describe('dynamodb-data', () => {
         200000: true,
         200000.2: true,
       };
-      const records = ddb.format(['le.d', { download }, segments]);
+      const records = ddb.format(['le.d', { download, impressions }, segments]);
 
       expect(records.length).to.equal(3);
       expect(records[0].download).to.eql(download);
@@ -236,6 +237,7 @@ describe('dynamodb-data', () => {
     });
 
     it('filters impressions', () => {
+      const download = { the: 'download' };
       const impressions = [
         { segment: 0, num: 'imp0' },
         { segment: 3, num: 'imp3' },
@@ -250,7 +252,7 @@ describe('dynamodb-data', () => {
         200001.2: false,
         200002.3: true,
       };
-      const records = ddb.format(['le.d', { impressions }, segments]);
+      const records = ddb.format(['le.d', { download, impressions }, segments]);
 
       expect(records.length).to.equal(3);
       expect(records[0].timestamp).to.equal(1000);
@@ -259,6 +261,20 @@ describe('dynamodb-data', () => {
       expect(records[1].impressions).to.eql([impressions[2]]);
       expect(records[2].timestamp).to.equal(200002);
       expect(records[2].impressions).to.eql([impressions[0], impressions[1]]);
+    });
+
+    it('removes records with no download and 0 impressions', () => {
+      const download = { the: 'download' };
+      const impressions = [{ segment: 1 }, { segment: 2 }];
+      const segments = {
+        1000: false,
+        1000.9: true,
+        100000.1: false,
+        100000.9: true,
+        200000.9: true,
+      };
+      const records = ddb.format(['le.d', { download, impressions }, segments]);
+      expect(records.length).to.equal(0);
     });
   });
 
