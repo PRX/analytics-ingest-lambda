@@ -1,7 +1,6 @@
 require('./support');
 
 const dynamo = require('../lib/dynamo');
-const kinesis = require('../lib/kinesis');
 const logger = require('../lib/logger');
 const DynamodbData = require('../lib/inputs/dynamodb-data');
 
@@ -87,30 +86,31 @@ describe('dynamodb-data', () => {
     const bytes2 = { type: 'bytes', timestamp: 1002, ...led };
     const bytes3 = { type: 'bytes', timestamp: 100000, ...led };
 
-    it('inserts into kinesis', async () => {
-      sinon.stub(kinesis, 'put').callsFake(async d => d.length);
+    it('logs kinesis impressions', async () => {
+      sinon.stub(logger, 'info');
       sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
 
       const ddb = new DynamodbData([redirect, bytes1, bytes2, bytes3]);
       const result = await ddb.insert();
       expect(result).to.eql([
         { count: 1, dest: 'dynamodb' },
-        { count: 2, dest: 'kinesis:foobar_stream' },
+        { count: 2, dest: 'kinesis' },
       ]);
 
       expect(dynamo.updateItemPromise).to.have.callCount(1);
       expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d1' } });
 
-      expect(kinesis.put).to.have.callCount(1);
-      expect(kinesis.put.args[0][0].length).to.equal(2);
-      expect(kinesis.put.args[0][0][0]).to.eql({
+      expect(logger.info).to.have.callCount(2);
+      expect(logger.info.args[0][0]).to.equal('impression');
+      expect(logger.info.args[0][1]).to.eql({
         type: 'postbytes',
         timestamp: 1002,
         download,
         impressions: [imp3],
         ...led,
       });
-      expect(kinesis.put.args[0][0][1]).to.eql({
+      expect(logger.info.args[1][0]).to.equal('impression');
+      expect(logger.info.args[1][1]).to.eql({
         type: 'postbytes',
         timestamp: 100000,
         download,
@@ -120,7 +120,7 @@ describe('dynamodb-data', () => {
     });
 
     it('handles the redirect coming after the byte downloads', async () => {
-      sinon.stub(kinesis, 'put').callsFake(async d => d.length);
+      sinon.stub(logger, 'info');
 
       // pretend we're storing/returning DDB attributes
       let attrs = {};
@@ -135,22 +135,22 @@ describe('dynamodb-data', () => {
       const result = await ddb.insert();
       expect(result).to.eql([{ count: 1, dest: 'dynamodb' }]);
       expect(dynamo.updateItemPromise).to.have.callCount(1);
-      expect(kinesis.put).to.have.callCount(0);
+      expect(logger.info).to.have.callCount(0);
 
       const ddb2 = new DynamodbData([redirect, bytes1]);
       const result2 = await ddb2.insert();
       expect(result2).to.eql([
         { count: 1, dest: 'dynamodb' },
-        { count: 2, dest: 'kinesis:foobar_stream' },
+        { count: 2, dest: 'kinesis' },
       ]);
       expect(dynamo.updateItemPromise).to.have.callCount(2);
-      expect(kinesis.put).to.have.callCount(1);
+      expect(logger.info).to.have.callCount(2);
     });
 
     it('throws an error on any ddb failures', async () => {
       sinon.stub(logger, 'error');
       sinon.stub(logger, 'warn');
-      sinon.stub(kinesis, 'put').callsFake(async d => d.length);
+      sinon.stub(logger, 'info');
       sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
         if (params.Key.id.S.includes('.d2')) {
           throw new Error('terrible things');
@@ -178,9 +178,8 @@ describe('dynamodb-data', () => {
       expect(logger.warn).to.have.callCount(1);
       expect(logger.warn.args[0][0]).to.match(/DDB retrying/);
 
-      expect(kinesis.put).to.have.callCount(1);
-      expect(kinesis.put.args[0][0].length).to.equal(1);
-      expect(kinesis.put.args[0][0][0].timestamp).to.eql(bytes1.timestamp);
+      expect(logger.info).to.have.callCount(1);
+      expect(logger.info.args[0][1].timestamp).to.eql(bytes1.timestamp);
 
       expect(dynamo.updateItemPromise).to.have.callCount(2);
       expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d2' } });

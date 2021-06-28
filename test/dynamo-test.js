@@ -12,59 +12,6 @@ function throws(promise) {
 }
 
 describe('dynamo', () => {
-  describe('#updateAll', () => {
-    it('limits concurrent updates', async () => {
-      sinon.stub(logger, 'error');
-      sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
-
-      // stub promises as update is called
-      const promises = [],
-        resolvers = [],
-        rejectors = [];
-      sinon.stub(dynamo, 'update').callsFake(() => {
-        const p = new Promise((res, rej) => {
-          resolvers.push(res);
-          rejectors.push(rej);
-        });
-        promises.push(p);
-        return p;
-      });
-
-      // to start, we should see 5 calls
-      const args = ['my-id', { my: 'data' }, ['my', 'segments']];
-      const updateAllPromise = dynamo.updateAll(Array(10).fill(args), 5);
-      await new Promise(r => process.nextTick(r));
-      expect(promises.length).to.equal(5);
-
-      // resolving any picks up new
-      resolvers[0](0);
-      resolvers[3](3);
-      resolvers[4](4);
-      await new Promise(r => process.nextTick(r));
-      expect(promises.length).to.equal(8);
-
-      // as do errors
-      rejectors[1](1);
-      rejectors[5](5);
-      await new Promise(r => process.nextTick(r));
-      expect(promises.length).to.equal(10);
-      expect(logger.error).to.have.callCount(2);
-      expect(logger.error.args[0][0]).to.match(/DDB Error/);
-      expect(logger.error.args[1][0]).to.match(/DDB Error/);
-
-      // finish up
-      resolvers[2](2);
-      resolvers[6](6);
-      resolvers[7](7);
-      resolvers[8](8);
-      resolvers[9](9);
-
-      const result = await updateAllPromise;
-      expect(result.success).to.eql([0, 3, 4, 2, 6, 7, 8, 9]);
-      expect(result.failures).to.eql([args, args]);
-    });
-  });
-
   describe('#updateParams', () => {
     it('requires a DDB_TABLE env', async () => {
       delete process.env.DDB_TABLE;
