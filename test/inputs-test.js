@@ -4,7 +4,6 @@ const support = require('./support');
 const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('../lib/inputs');
 const bigquery = require('../lib/bigquery');
 const dynamo = require('../lib/dynamo');
-const kinesis = require('../lib/kinesis');
 const logger = require('../lib/logger');
 
 describe('inputs', () => {
@@ -41,7 +40,6 @@ describe('inputs', () => {
 
   it('inserts dynamodb inputs', async () => {
     sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
-    sinon.stub(kinesis, 'put').callsFake(async recs => recs.length);
     sinon.stub(logger, 'info');
 
     let inputs = new DynamoInputs([
@@ -77,7 +75,7 @@ describe('inputs', () => {
     const inserts = await inputs.insertAll();
     expect(inserts.length).to.equal(2);
     expect(inserts.map(i => i.count)).to.eql([4, 2]);
-    expect(inserts.map(i => i.dest)).to.eql(['dynamodb', 'kinesis:foobar_stream']);
+    expect(inserts.map(i => i.dest)).to.eql(['dynamodb', 'kinesis']);
 
     expect(dynamo.updateItemPromise).to.have.callCount(4);
     expect(dynamo.updateItemPromise.args.map(a => a[0].Key.id.S).sort()).to.eql([
@@ -87,8 +85,13 @@ describe('inputs', () => {
       'le5.d5',
     ]);
 
-    expect(kinesis.put).to.have.callCount(1);
-    expect(kinesis.put.args[0][0].map(a => a.listenerEpisode)).to.eql(['le2', 'le3']);
+    expect(logger.info).to.have.callCount(4);
+    expect(logger.info.args[0][0]).to.equal('impression');
+    expect(logger.info.args[0][1].listenerEpisode).to.equal('le2');
+    expect(logger.info.args[1][0]).to.equal('impression');
+    expect(logger.info.args[1][1].listenerEpisode).to.equal('le3');
+    expect(logger.info.args[2][0]).to.equal('Inserted 4 rows into dynamodb');
+    expect(logger.info.args[3][0]).to.equal('Inserted 2 rows into kinesis');
   });
 
   it('inserts pingback inputs', () => {

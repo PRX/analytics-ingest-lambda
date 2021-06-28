@@ -4,7 +4,6 @@ const support = require('./support');
 const testRecs = require('./support/test-records');
 const bigquery = require('../lib/bigquery');
 const dynamo = require('../lib/dynamo');
-const kinesis = require('../lib/kinesis');
 const logger = require('../lib/logger');
 const index = require('../index');
 
@@ -224,21 +223,27 @@ describe('handler', () => {
         return {};
       }
     });
-    sinon.stub(kinesis, 'put').callsFake(async datas => datas.length);
     process.env.DYNAMODB = 'true';
 
     const result = await handler(event);
     expect(result).to.match(/inserted 5/i);
-    expect(infos.length).to.equal(2);
+    expect(infos.length).to.equal(3);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.match(/inserted 4 rows into dynamodb/i);
-    expect(infos[0].meta).to.contain({ dest: 'dynamodb', rows: 4 });
-    expect(infos[1].msg).to.match(/inserted 1 rows into kinesis/i);
-    expect(infos[1].meta).to.contain({ dest: 'kinesis:foobar_stream', rows: 1 });
+    expect(infos[0].msg).to.equal('impression');
+    expect(infos[0].meta).to.contain({
+      type: 'postbytes',
+      listenerEpisode: 'listener-episode-3',
+      digest: 'the-digest',
+      any: 'thing',
+    });
+    expect(infos[1].msg).to.match(/inserted 4 rows into dynamodb/i);
+    expect(infos[1].meta).to.contain({ dest: 'dynamodb', rows: 4 });
+    expect(infos[2].msg).to.match(/inserted 1 rows into kinesis/i);
+    expect(infos[2].meta).to.contain({ dest: 'kinesis', rows: 1 });
 
     const sortedArgs = dynamo.updateItemPromise.args.sort((a, b) => {
-      return a[0].Key.id.S < a[0].Key.id.S ? -1 : 1;
+      return a[0].Key.id.S < b[0].Key.id.S ? -1 : 1;
     });
 
     const keys = sortedArgs.map(a => a[0].Key.id.S);
@@ -273,12 +278,6 @@ describe('handler', () => {
     expect(segments[1]).to.be.undefined;
     expect(segments[2]).to.be.undefined;
     expect(segments[3]).to.be.undefined;
-
-    expect(kinesis.put.args[0][0].length).to.equal(1);
-    expect(kinesis.put.args[0][0][0].type).to.equal('postbytes');
-    expect(kinesis.put.args[0][0][0].listenerEpisode).to.equal('listener-episode-3');
-    expect(kinesis.put.args[0][0][0].digest).to.equal('the-digest');
-    expect(kinesis.put.args[0][0][0].any).to.equal('thing');
   });
 
   it('throws dynamodb throttling errors', async () => {
