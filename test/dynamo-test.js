@@ -172,19 +172,5 @@ describe('dynamo', () => {
         expect(result3).to.eql(['testid1', DATA, { 1: false, 2: false }]);
       });
     });
-
-    describe('#updateAll', () => {
-      it('runs multiple updates', async () => {
-        const updates = [
-          ['testid1', null, ['one']],
-          ['testid1', DATA, null],
-          ['testid1', DATA, ['one', 'two']],
-        ];
-
-        const result = await dynamo.updateAll(updates);
-        expect(result.success.length).to.equal(3);
-        expect(result.failures.length).to.equal(0);
-      });
-    });
   });
 });
