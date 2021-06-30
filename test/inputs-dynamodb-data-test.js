@@ -24,6 +24,20 @@ describe('dynamodb-data', () => {
     });
   });
 
+  it('dedups segments', () => {
+    const recs = [
+      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes' },
+      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes' },
+      { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
+      { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
+    ];
+    const ddb = new DynamodbData(recs);
+
+    expect(ddb.segments).to.eql({
+      'le1.d1': ['2000', '4000.2'],
+    });
+  });
+
   it('recognizes antebytes and bytes records', () => {
     const ddb = new DynamodbData();
 
