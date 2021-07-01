@@ -133,6 +133,26 @@ describe('dynamodb-data', () => {
       });
     });
 
+    it('overrides any msg stored on the redirect', async () => {
+      sinon.stub(console, 'info');
+      sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+
+      const ddb = new DynamodbData([{ ...redirect, msg: 'blah' }, bytes3]);
+      const result = await ddb.insert();
+      expect(result).to.eql([
+        { count: 1, dest: 'dynamodb' },
+        { count: 1, dest: 'kinesis' },
+      ]);
+
+      // look directly at console.info, to see the resolved lambda-log json
+      expect(console.info).to.have.callCount(1);
+      const obj = JSON.parse(console.info.args[0][0]);
+      expect(obj['_logLevel']).to.equal('info');
+      expect(obj['msg']).to.equal('impression');
+      expect(obj['listenerEpisode']).to.equal('le1');
+      expect(obj['digest']).to.equal('d1');
+    });
+
     it('handles the redirect coming after the byte downloads', async () => {
       sinon.stub(logger, 'info');
 
