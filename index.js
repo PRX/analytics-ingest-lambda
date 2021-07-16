@@ -39,6 +39,9 @@ exports.handler = async (event) => {
     return;
   }
 
+  // log the raw/decoded input counts
+  logger.info('Event records', { raw: event.Records.length, decoded: records.length });
+
   await new Promise((resolve, reject) => {
     loadenv.load(() => {
       resolve()
