@@ -4,7 +4,8 @@ const fs = require('fs');
 const util = require('util');
 const https = require('https');
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
+const clientOptions = require('../lib/aws-options');
+const s3 = new AWS.S3(clientOptions);
 
 const OUTFILE = `${__dirname}/../db/domainthreats.json`;
 const HTTP_LISTS = [
