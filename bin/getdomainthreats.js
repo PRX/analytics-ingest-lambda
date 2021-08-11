@@ -9,7 +9,7 @@ const s3 = new AWS.S3();
 const OUTFILE = `${__dirname}/../db/domainthreats.json`;
 const HTTP_LISTS = [
   'https://isc.sans.edu/feeds/suspiciousdomains_High.txt',
-  'https://isc.sans.edu/feeds/suspiciousdomains_Medium.txt'
+  'https://isc.sans.edu/feeds/suspiciousdomains_Medium.txt',
 ];
 const BUCKET = 'prx-dovetail';
 const PREFIX = 'config/domainthreats';
@@ -34,10 +34,10 @@ async function run() {
   }
 
   // scan for S3 lists
-  const resp = await s3.listObjects({Bucket: BUCKET, Prefix: PREFIX}).promise();
-  const keys = resp.Contents.map(c => c.Key)
+  const resp = await s3.listObjects({ Bucket: BUCKET, Prefix: PREFIX }).promise();
+  const keys = resp.Contents.map(c => c.Key);
   for (let key of keys) {
-    const resp = await s3.getObject({Bucket: BUCKET, Key: key}).promise();
+    const resp = await s3.getObject({ Bucket: BUCKET, Key: key }).promise();
     const data = resp.Body.toString();
     let count = 0;
     data.split('\n').forEach(line => {
@@ -77,8 +77,11 @@ function parseDomain(str) {
   }
 }
 
-run().then(res => console.log('Done'), err => {
-  console.error('ERROR:');
-  console.error(err);
-  process.exit(1);
-});
+run().then(
+  res => console.log('Done'),
+  err => {
+    console.error('ERROR:');
+    console.error(err);
+    process.exit(1);
+  },
+);
