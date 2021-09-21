@@ -286,7 +286,7 @@ describe('handler', () => {
 
   it('throws dynamodb throttling errors', async () => {
     const bad = new Error('Blah blah throughput exceeded');
-    bad.code = 'ProvisionedThroughputExceededException';
+    bad.name = 'ProvisionedThroughputExceededException';
     bad.statusCode = 400;
     sinon.stub(dynamo, 'updateItemPromise').rejects(bad);
 
@@ -300,11 +300,10 @@ describe('handler', () => {
     }
     if (err) {
       expect(err.message).to.match(/DDB retrying/);
-      expect(warns.length).to.equal(1);
-      expect(warns[0]).to.match(/DDB retrying/);
-      expect(errs.length).to.equal(2);
-      expect(errs[0]).to.match(/throughput exceeded/);
-      expect(errs[1]).to.match(/DDB retrying/);
+      expect(warns.length).to.equal(2);
+      expect(warns[0]).to.match(/throughput exceeded/);
+      expect(warns[1]).to.match(/DDB retrying/);
+      expect(errs.length).to.equal(0);
     } else {
       expect.fail('should have thrown an error');
     }
