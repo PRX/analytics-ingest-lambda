@@ -202,6 +202,7 @@ describe('dynamodb-data', () => {
       }
       if (err) {
         expect(err.message).to.match(/DDB retrying/);
+        expect(err.skipLogging).to.equal(true);
       } else {
         expect.fail('should have thrown an error');
       }
@@ -218,6 +219,39 @@ describe('dynamodb-data', () => {
       expect(dynamo.updateItemPromise).to.have.callCount(2);
       expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d2' } });
       expect(dynamo.updateItemPromise.args[1][0].Key).to.eql({ id: { S: 'le1.d1' } });
+    });
+
+    it('only warns on throughput exceeded errors', async () => {
+      sinon.stub(logger, 'error');
+      sinon.stub(logger, 'warn');
+      sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
+        const err = new Error('terrible things');
+        err.name = 'ProvisionedThroughputExceededException';
+        throw err;
+      });
+
+      let err = null;
+      try {
+        const ddb = new DynamodbData([redirect, bytes1]);
+        await ddb.insert();
+      } catch (e) {
+        err = e;
+      }
+      if (err) {
+        expect(err.message).to.match(/DDB retrying/);
+        expect(err.skipLogging).to.equal(true);
+      } else {
+        expect.fail('should have thrown an error');
+      }
+
+      expect(logger.error).to.have.callCount(0);
+
+      expect(logger.warn).to.have.callCount(2);
+      expect(logger.warn.args[0][0]).to.match(/DDB throughput exceeded/);
+      expect(logger.warn.args[1][0]).to.match(/DDB retrying/);
+
+      expect(dynamo.updateItemPromise).to.have.callCount(1);
+      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d1' } });
     });
   });
 
