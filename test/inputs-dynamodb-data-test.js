@@ -51,14 +51,17 @@ describe('dynamodb-data', () => {
   });
 
   it('ignores duplicate bytes and segmentbytes records', () => {
-    const ddb = new DynamodbData();
     const isDuplicate = true;
     const cause = 'digestCache';
+    const ddb = new DynamodbData([
+      { type: 'antebytes', isDuplicate, cause, listenerEpisode: 'le1', digest: 'd1' },
+      { type: 'antebytespreview', isDuplicate, cause, listenerEpisode: 'le2', digest: 'd2' },
+      { type: 'bytes', isDuplicate, cause, listenerEpisode: 'le3', digest: 'd3' },
+      { type: 'segmentbytes', isDuplicate, cause, listenerEpisode: 'le4', digest: 'd4' },
+    ]);
 
-    expect(ddb.check({ type: 'antebytes', isDuplicate, cause })).to.be.true;
-    expect(ddb.check({ type: 'antebytespreview', isDuplicate, cause })).to.be.true;
-    expect(ddb.check({ type: 'bytes', isDuplicate, cause })).to.be.false;
-    expect(ddb.check({ type: 'segmentbytes', isDuplicate, cause })).to.be.false;
+    expect(Object.keys(ddb.payloads).length).to.equal(2);
+    expect(Object.keys(ddb.segments).length).to.equal(0);
   });
 
   it('encodes payload keys', () => {
