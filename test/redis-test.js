@@ -36,13 +36,9 @@ describe('redis', () => {
 
   it('gets scoped keys', () => {
     let keys = Redis.podcastDownloads(new Date('2017-10-01T00:00:01Z'));
-    keys.forEach(key => expect(key).to.match(/^downloads\.podcasts\./));
-    keys = Redis.podcastImpressions(new Date('2017-10-01T00:00:01Z'));
-    keys.forEach(key => expect(key).to.match(/^impressions\.podcasts\./));
+    keys.forEach(key => expect(key).to.match(/^castle:downloads\.podcasts\./));
     keys = Redis.episodeDownloads(new Date('2017-10-01T00:00:01Z'));
-    keys.forEach(key => expect(key).to.match(/^downloads\.episodes\./));
-    keys = Redis.episodeImpressions(new Date('2017-10-01T00:00:01Z'));
-    keys.forEach(key => expect(key).to.match(/^impressions\.episodes\./));
+    keys.forEach(key => expect(key).to.match(/^castle:downloads\.episodes\./));
   });
 
   it('handles lack of configuration', () => {

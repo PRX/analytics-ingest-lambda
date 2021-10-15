@@ -73,23 +73,23 @@ describe('redis-increments', () => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
       expect(result[0].count).to.equal(4 * 4); // skips impressions
-      return support.redisGetAll('downloads.podcasts.*');
+      return support.redisGetAll('castle:downloads.podcasts.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(3);
-      expect(vals['downloads.podcasts.HOUR.2017-03-29T22:00:00Z']['1234']).to.equal('3');
-      expect(vals['downloads.podcasts.HOUR.2017-03-29T23:00:00Z']['1234']).to.equal('1');
-      expect(vals['downloads.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('4');
+      expect(vals['castle:downloads.podcasts.HOUR.2017-03-29T22:00:00Z']['1234']).to.equal('3');
+      expect(vals['castle:downloads.podcasts.HOUR.2017-03-29T23:00:00Z']['1234']).to.equal('1');
+      expect(vals['castle:downloads.podcasts.DAY.2017-03-29T00:00:00Z']['1234']).to.equal('4');
       return support.redisGetAll('impressions.podcasts.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(0);
-      return support.redisGetAll('downloads.episodes.*');
+      return support.redisGetAll('castle:downloads.episodes.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(3);
-      expect(vals['downloads.episodes.HOUR.2017-03-29T22:00:00Z']['abcd']).to.equal('2');
-      expect(vals['downloads.episodes.HOUR.2017-03-29T22:00:00Z']['efgh']).to.equal('1');
-      expect(vals['downloads.episodes.HOUR.2017-03-29T23:00:00Z']['abcd']).to.equal('1');
-      expect(vals['downloads.episodes.DAY.2017-03-29T00:00:00Z']['abcd']).to.equal('3');
-      expect(vals['downloads.episodes.DAY.2017-03-29T00:00:00Z']['efgh']).to.equal('1');
+      expect(vals['castle:downloads.episodes.HOUR.2017-03-29T22:00:00Z']['abcd']).to.equal('2');
+      expect(vals['castle:downloads.episodes.HOUR.2017-03-29T22:00:00Z']['efgh']).to.equal('1');
+      expect(vals['castle:downloads.episodes.HOUR.2017-03-29T23:00:00Z']['abcd']).to.equal('1');
+      expect(vals['castle:downloads.episodes.DAY.2017-03-29T00:00:00Z']['abcd']).to.equal('3');
+      expect(vals['castle:downloads.episodes.DAY.2017-03-29T00:00:00Z']['efgh']).to.equal('1');
       return support.redisGetAll('impressions.episodes.*');
     }).then(vals => {
       expect(Object.keys(vals).length).to.equal(0);
@@ -102,7 +102,7 @@ describe('redis-increments', () => {
       expect(result.length).to.equal(1);
       expect(result[0].dest).to.equal('redis://127.0.0.1');
       expect(result[0].count).to.equal(2 * 2);
-      return support.redisTTLAll('downloads.*');
+      return support.redisTTLAll('castle:downloads.*');
     }).then(ttlMap => {
       expect(Object.keys(ttlMap).length).to.equal(4);
       Object.keys(ttlMap).forEach(key => {

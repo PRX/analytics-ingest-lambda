@@ -354,8 +354,8 @@ describe('handler', () => {
     expect(infos[2].meta).to.contain({ dest: 'redis://127.0.0.1', rows: 4 });
 
     let keys = [
-      support.redisKeys('downloads.episodes.*'),
-      support.redisKeys('downloads.podcasts.*'),
+      support.redisKeys('castle:downloads.episodes.*'),
+      support.redisKeys('castle:downloads.podcasts.*'),
       support.redisKeys('dovetail:impression:*'),
     ];
     const all = await Promise.all(keys);
