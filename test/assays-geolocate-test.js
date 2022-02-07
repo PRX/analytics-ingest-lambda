@@ -7,11 +7,11 @@ describe('geolocate', () => {
 
   it('looks up geo data', () => {
     return geo.look('66.6.44.4').then(look => {
-      expect(look.city).to.equal(5128581);
+      expect(look.city).to.equal(4744870);
       expect(look.country).to.equal(6252001);
-      expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.738);
-      expect(look.longitude).to.equal(-73.9858);
+      expect(look.postal).to.equal('20147');
+      expect(look.latitude).to.equal(39.018);
+      expect(look.longitude).to.equal(-77.539);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
@@ -51,33 +51,33 @@ describe('geolocate', () => {
 
   it('splits forwarded-for ips', () => {
     return geo.look('66.6.44.4, 99.99.99.99, 127.0.0.1').then(look => {
-      expect(look.city).to.equal(5128581);
+      expect(look.city).to.equal(4744870);
       expect(look.country).to.equal(6252001);
-      expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.738);
-      expect(look.longitude).to.equal(-73.9858);
+      expect(look.postal).to.equal('20147');
+      expect(look.latitude).to.equal(39.018);
+      expect(look.longitude).to.equal(-77.539);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
 
   it('removes unknowns', () => {
     return geo.look('unknown,66.6.44.4').then(look => {
-      expect(look.city).to.equal(5128581);
+      expect(look.city).to.equal(4744870);
       expect(look.country).to.equal(6252001);
-      expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.738);
-      expect(look.longitude).to.equal(-73.9858);
+      expect(look.postal).to.equal('20147');
+      expect(look.latitude).to.equal(39.018);
+      expect(look.longitude).to.equal(-77.539);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
 
   it('removes blanks', () => {
     return geo.look(', , 66.6.44.4 ,99.99.99.99').then(look => {
-      expect(look.city).to.equal(5128581);
+      expect(look.city).to.equal(4744870);
       expect(look.country).to.equal(6252001);
-      expect(look.postal).to.equal('10010');
-      expect(look.latitude).to.equal(40.738);
-      expect(look.longitude).to.equal(-73.9858);
+      expect(look.postal).to.equal('20147');
+      expect(look.latitude).to.equal(39.018);
+      expect(look.longitude).to.equal(-77.539);
       expect(look.masked).to.equal('66.6.44.0');
     });
   });
