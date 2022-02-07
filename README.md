@@ -3,6 +3,7 @@
 Lambda to process metrics data coming from one or more kinesis streams, and
 send that data to multiple destinations.
 
+
 # Description
 
 The lambda subscribes to kinesis streams, containing metric event records. These
