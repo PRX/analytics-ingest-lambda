@@ -5,39 +5,38 @@ const bigquery = require('../lib/bigquery');
 const DovetailDownloads = require('../lib/inputs/dovetail-downloads');
 
 describe('dovetail-downloads', () => {
-
   let download = new DovetailDownloads();
 
   it('recognizes download records', () => {
     expect(download.check({})).to.be.false;
-    expect(download.check({type: 'impression'})).to.be.false;
-    expect(download.check({type: 'download'})).to.be.false;
-    expect(download.check({type: 'combined', download: null})).to.be.false;
-    expect(download.check({type: 'combined', download: {}})).to.be.true;
-    expect(download.check({type: 'postbytes'})).to.be.false;
-    expect(download.check({type: 'postbytes', download: {}})).to.be.true;
-    expect(download.check({type: 'postbytespreview'})).to.be.false;
-    expect(download.check({type: 'postbytespreview', download: {}})).to.be.true;
+    expect(download.check({ type: 'impression' })).to.be.false;
+    expect(download.check({ type: 'download' })).to.be.false;
+    expect(download.check({ type: 'combined', download: null })).to.be.false;
+    expect(download.check({ type: 'combined', download: {} })).to.be.true;
+    expect(download.check({ type: 'postbytes' })).to.be.false;
+    expect(download.check({ type: 'postbytes', download: {} })).to.be.true;
+    expect(download.check({ type: 'postbytespreview' })).to.be.false;
+    expect(download.check({ type: 'postbytespreview', download: {} })).to.be.true;
   });
 
   it('knows the table names of records', () => {
-    expect(download.tableName({type: 'combined'})).to.equal('dt_downloads');
-    expect(download.tableName({type: 'postbytes'})).to.equal('dt_downloads');
-    expect(download.tableName({type: 'postbytespreview'})).to.equal('dt_downloads_preview');
+    expect(download.tableName({ type: 'combined' })).to.equal('dt_downloads');
+    expect(download.tableName({ type: 'postbytes' })).to.equal('dt_downloads');
+    expect(download.tableName({ type: 'postbytespreview' })).to.equal('dt_downloads_preview');
   });
 
   it('knows which records are bytes', () => {
-    expect(download.isBytes({type: 'combined'})).to.be.false;
-    expect(download.isBytes({type: 'postbytes'})).to.be.true;
-    expect(download.isBytes({type: 'postbytespreview'})).to.be.true;
+    expect(download.isBytes({ type: 'combined' })).to.be.false;
+    expect(download.isBytes({ type: 'postbytes' })).to.be.true;
+    expect(download.isBytes({ type: 'postbytespreview' })).to.be.true;
   });
 
   it('formats table inserts', async () => {
     const record = await download.format({
       type: 'combined',
       timestamp: 1490827132999,
-      download: {isDuplicate: true, cause: 'whatever'},
-      listenerEpisode: 'something'
+      download: { isDuplicate: true, cause: 'whatever' },
+      listenerEpisode: 'something',
     });
     expect(record).to.have.keys('insertId', 'json');
     expect(record.insertId).to.match(/^\w+\/1490827132$/);
@@ -66,7 +65,7 @@ describe('dovetail-downloads', () => {
       'country_geoname_id',
       'postal_code',
       'latitude',
-      'longitude'
+      'longitude',
     );
     expect(record.json.timestamp).to.equal(1490827132);
     expect(record.json.listener_episode).to.equal('something');
@@ -87,13 +86,18 @@ describe('dovetail-downloads', () => {
       return Promise.resolve(rows.length);
     });
     let download2 = new DovetailDownloads([
-      {type: 'download', requestUuid: 'the-uuid0', timestamp: 1490827132999},
-      {type: 'combined', download: {}, listenerEpisode: 'list-ep-1', timestamp: 1490827132999},
-      {type: 'impression', requestUuid: 'the-uuid2', timestamp: 1490827132999},
-      {type: 'combined', download: {}, listenerEpisode: 'list-ep-3', timestamp: 1490827132999},
-      {type: 'combined', download: {}, listenerEpisode: 'list-ep-4', timestamp: 1490827132999},
-      {type: 'postbytespreview', download: {}, listenerEpisode: 'list-ep-5', timestamp: 1490827132999},
-      {type: 'postbytes', download: {}, listenerEpisode: 'list-ep-6', timestamp: 1490827132999}
+      { type: 'download', requestUuid: 'the-uuid0', timestamp: 1490827132999 },
+      { type: 'combined', download: {}, listenerEpisode: 'list-ep-1', timestamp: 1490827132999 },
+      { type: 'impression', requestUuid: 'the-uuid2', timestamp: 1490827132999 },
+      { type: 'combined', download: {}, listenerEpisode: 'list-ep-3', timestamp: 1490827132999 },
+      { type: 'combined', download: {}, listenerEpisode: 'list-ep-4', timestamp: 1490827132999 },
+      {
+        type: 'postbytespreview',
+        download: {},
+        listenerEpisode: 'list-ep-5',
+        timestamp: 1490827132999,
+      },
+      { type: 'postbytes', download: {}, listenerEpisode: 'list-ep-6', timestamp: 1490827132999 },
     ]);
     return download2.insert().then(result => {
       expect(result.length).to.equal(2);
@@ -117,5 +121,4 @@ describe('dovetail-downloads', () => {
       expect(inserts['dt_downloads_preview'][0].json.is_bytes).to.equal(true);
     });
   });
-
 });
