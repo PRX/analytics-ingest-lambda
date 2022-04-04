@@ -25,12 +25,6 @@ describe('dovetail-downloads', () => {
     expect(download.tableName({ type: 'postbytespreview' })).to.equal('dt_downloads_preview');
   });
 
-  it('knows which records are bytes', () => {
-    expect(download.isBytes({ type: 'combined' })).to.be.false;
-    expect(download.isBytes({ type: 'postbytes' })).to.be.true;
-    expect(download.isBytes({ type: 'postbytespreview' })).to.be.true;
-  });
-
   it('formats table inserts', async () => {
     const record = await download.format({
       type: 'combined',
@@ -50,11 +44,9 @@ describe('dovetail-downloads', () => {
       'is_duplicate',
       'cause',
       'is_confirmed',
-      'is_bytes',
       'url',
       'listener_id',
       'listener_episode',
-      'listener_session',
       'remote_referrer',
       'remote_agent',
       'remote_ip',
@@ -63,9 +55,6 @@ describe('dovetail-downloads', () => {
       'agent_os_id',
       'city_geoname_id',
       'country_geoname_id',
-      'postal_code',
-      'latitude',
-      'longitude',
     );
     expect(record.json.timestamp).to.equal(1490827132);
     expect(record.json.listener_episode).to.equal('something');
@@ -106,19 +95,14 @@ describe('dovetail-downloads', () => {
       expect(result[0].count).to.equal(4);
       expect(inserts['dt_downloads'].length).to.equal(4);
       expect(inserts['dt_downloads'][0].json.listener_episode).to.equal('list-ep-1');
-      expect(inserts['dt_downloads'][0].json.is_bytes).to.equal(false);
       expect(inserts['dt_downloads'][1].json.listener_episode).to.equal('list-ep-3');
-      expect(inserts['dt_downloads'][1].json.is_bytes).to.equal(false);
       expect(inserts['dt_downloads'][2].json.listener_episode).to.equal('list-ep-4');
-      expect(inserts['dt_downloads'][2].json.is_bytes).to.equal(false);
       expect(inserts['dt_downloads'][3].json.listener_episode).to.equal('list-ep-6');
-      expect(inserts['dt_downloads'][3].json.is_bytes).to.equal(true);
 
       expect(result[1].dest).to.equal('dt_downloads_preview');
       expect(result[1].count).to.equal(1);
       expect(inserts['dt_downloads_preview'].length).to.equal(1);
       expect(inserts['dt_downloads_preview'][0].json.listener_episode).to.equal('list-ep-5');
-      expect(inserts['dt_downloads_preview'][0].json.is_bytes).to.equal(true);
     });
   });
 });

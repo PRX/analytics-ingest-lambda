@@ -53,9 +53,6 @@ describe('pixel-trackers', () => {
       remote_ip: '127.0.0.0',
       city_geoname_id: null,
       country_geoname_id: null,
-      postal_code: null,
-      latitude: null,
-      longitude: null,
     });
   });
 

@@ -25,12 +25,6 @@ describe('dovetail-impressions', () => {
     expect(impression.tableName({ type: 'postbytespreview' })).to.equal('dt_impressions_preview');
   });
 
-  it('knows which records are bytes', () => {
-    expect(impression.isBytes({ type: 'combined' })).to.be.false;
-    expect(impression.isBytes({ type: 'postbytes' })).to.be.true;
-    expect(impression.isBytes({ type: 'postbytespreview' })).to.be.true;
-  });
-
   it('formats table inserts', async () => {
     const rec = { type: 'combined', timestamp: 1490827132999, listenerEpisode: 'something' };
 
@@ -43,9 +37,7 @@ describe('dovetail-impressions', () => {
       'feeder_podcast',
       'feeder_episode',
       'digest',
-      'listener_session',
       'is_confirmed',
-      'is_bytes',
       'segment',
       'ad_id',
       'campaign_id',
@@ -58,12 +50,10 @@ describe('dovetail-impressions', () => {
       'zone_name',
     );
     expect(format1.json.timestamp).to.equal(1490827132);
-    expect(format1.json.listener_session.length).to.be.above(10);
     expect(format1.json.is_duplicate).to.equal(true);
 
     const format2 = await impression.format(rec, { adId: 2, isDuplicate: false });
     expect(format2.json.timestamp).to.equal(1490827132);
-    expect(format2.json.listener_session).to.equal(format1.json.listener_session);
     expect(format2.json.is_duplicate).to.equal(false);
     expect(format2.insertId).not.to.equal(format1.insertId);
   });
@@ -148,18 +138,10 @@ describe('dovetail-impressions', () => {
 
       expect(result[0].dest).to.equal('dt_impressions');
       expect(result[0].count).to.equal(6);
-      expect(inserts['dt_impressions'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][0].json.ad_id).to.equal(1);
-      expect(inserts['dt_impressions'][0].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][1].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][1].json.ad_id).to.equal(2);
-      expect(inserts['dt_impressions'][1].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][2].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][2].json.ad_id).to.equal(3);
-      expect(inserts['dt_impressions'][2].json.is_bytes).to.equal(false);
-      expect(inserts['dt_impressions'][3].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions'][3].json.ad_id).to.equal(5);
-      expect(inserts['dt_impressions'][3].json.is_bytes).to.equal(true);
       expect(inserts['dt_impressions'][4].json.target_path).to.equal(':Some-target');
       expect(inserts['dt_impressions'][4].json.zone_name).to.equal('some_pre1');
       expect(inserts['dt_impressions'][4].json.placements_key).to.equal('2');
@@ -173,9 +155,7 @@ describe('dovetail-impressions', () => {
 
       expect(result[1].dest).to.equal('dt_impressions_preview');
       expect(result[1].count).to.equal(1);
-      expect(inserts['dt_impressions_preview'][0].json.listener_session.length).to.be.above(10);
       expect(inserts['dt_impressions_preview'][0].json.ad_id).to.equal(4);
-      expect(inserts['dt_impressions_preview'][0].json.is_bytes).to.equal(true);
     });
   });
 });
