@@ -135,7 +135,7 @@ describe('handler', () => {
       inserted['dt_impressions'][2].insertId,
     );
 
-    let impressionJson = inserted['dt_impressions'][0].json;
+    let impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 12).json;
     expect(impressionJson.timestamp).to.equal(1487703699);
     expect(impressionJson.request_uuid).to.equal('req-uuid');
     expect(impressionJson.feeder_podcast).to.equal(1234);
@@ -150,21 +150,21 @@ describe('handler', () => {
     expect(impressionJson.creative_id).to.equal(56);
     expect(impressionJson.flight_id).to.equal(78);
 
-    impressionJson = inserted['dt_impressions'][1].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 98).json;
     expect(impressionJson.ad_id).to.equal(98);
     expect(impressionJson.segment).to.equal(0);
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(true);
     expect(impressionJson.cause).to.equal('something');
 
-    impressionJson = inserted['dt_impressions'][2].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 76).json;
     expect(impressionJson.ad_id).to.equal(76);
     expect(impressionJson.segment).to.equal(3);
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(false);
     expect(impressionJson.cause).to.equal(null);
 
-    impressionJson = inserted['dt_impressions'][3].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 104).json;
     expect(impressionJson.vast_advertiser).to.equal('vastadvertiser1');
     expect(impressionJson.vast_ad_id).to.equal('vastad1');
     expect(impressionJson.vast_creative_id).to.equal('vastcreative1');
