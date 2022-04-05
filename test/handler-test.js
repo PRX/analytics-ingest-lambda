@@ -97,7 +97,7 @@ describe('handler', () => {
     );
 
     expect(inserted['dt_downloads'].length).to.equal(1);
-    expect(inserted['dt_downloads'][0].insertId).to.match(/^\w+\/1487703699$/);
+    expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
     let downloadJson = inserted['dt_downloads'][0].json;
     expect(downloadJson.timestamp).to.equal(1487703699);
     expect(downloadJson.request_uuid).to.equal('req-uuid');
@@ -105,9 +105,7 @@ describe('handler', () => {
     expect(downloadJson.feeder_episode).to.equal('1234-5678');
     expect(downloadJson.listener_id).to.equal('some-listener-id');
     expect(downloadJson.listener_episode).to.equal('listener-episode-1');
-    expect(downloadJson.listener_session.length).to.be.above(10);
     expect(downloadJson.is_confirmed).to.equal(false);
-    expect(downloadJson.is_bytes).to.equal(false);
     expect(downloadJson.digest).to.equal('the-digest');
     expect(downloadJson.ad_count).to.equal(2);
     expect(downloadJson.is_duplicate).to.equal(false);
@@ -122,9 +120,6 @@ describe('handler', () => {
     expect(downloadJson.agent_os_id).to.equal(43);
     expect(downloadJson.city_geoname_id).to.equal(5576882);
     expect(downloadJson.country_geoname_id).to.equal(6252001);
-    expect(downloadJson.postal_code).to.equal('80517');
-    expect(Math.abs(downloadJson.latitude - 40.3772)).to.be.below(1);
-    expect(Math.abs(downloadJson.longitude + 105.5217)).to.be.below(1);
 
     expect(inserted['dt_impressions'].length).to.equal(4);
     expect(inserted['dt_impressions'][0].insertId.length).to.be.above(10);
@@ -140,16 +135,14 @@ describe('handler', () => {
       inserted['dt_impressions'][2].insertId,
     );
 
-    let impressionJson = inserted['dt_impressions'][0].json;
+    let impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 12).json;
     expect(impressionJson.timestamp).to.equal(1487703699);
     expect(impressionJson.request_uuid).to.equal('req-uuid');
     expect(impressionJson.feeder_podcast).to.equal(1234);
     expect(impressionJson.feeder_episode).to.equal('1234-5678');
-    expect(impressionJson.listener_session).to.equal(downloadJson.listener_session);
     expect(impressionJson.digest).to.equal('the-digest');
     expect(impressionJson.segment).to.equal(0);
     expect(impressionJson.is_confirmed).to.equal(false);
-    expect(impressionJson.is_bytes).to.equal(false);
     expect(impressionJson.is_duplicate).to.equal(false);
     expect(impressionJson.cause).to.be.null;
     expect(impressionJson.ad_id).to.equal(12);
@@ -157,21 +150,21 @@ describe('handler', () => {
     expect(impressionJson.creative_id).to.equal(56);
     expect(impressionJson.flight_id).to.equal(78);
 
-    impressionJson = inserted['dt_impressions'][1].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 98).json;
     expect(impressionJson.ad_id).to.equal(98);
     expect(impressionJson.segment).to.equal(0);
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(true);
     expect(impressionJson.cause).to.equal('something');
 
-    impressionJson = inserted['dt_impressions'][2].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 76).json;
     expect(impressionJson.ad_id).to.equal(76);
     expect(impressionJson.segment).to.equal(3);
     expect(impressionJson.is_confirmed).to.equal(true);
     expect(impressionJson.is_duplicate).to.equal(false);
     expect(impressionJson.cause).to.equal(null);
 
-    impressionJson = inserted['dt_impressions'][3].json;
+    impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 104).json;
     expect(impressionJson.vast_advertiser).to.equal('vastadvertiser1');
     expect(impressionJson.vast_ad_id).to.equal('vastad1');
     expect(impressionJson.vast_creative_id).to.equal('vastcreative1');
@@ -180,11 +173,8 @@ describe('handler', () => {
     expect(impressionJson.vast_price_model).to.equal('CPM');
 
     let previewJson = inserted['dt_downloads_preview'][0].json;
-    expect(previewJson.listener_session.length).to.be.above(10);
-    expect(previewJson.listener_session).not.to.equal(downloadJson.listener_session);
     expect(previewJson.feeder_podcast).to.equal(1234);
     expect(previewJson.feeder_episode).to.equal('1234-5678');
-    expect(previewJson.is_bytes).to.equal(true);
     expect(previewJson.is_duplicate).to.equal(false);
     expect(previewJson.cause).to.equal(null);
 
@@ -194,9 +184,6 @@ describe('handler', () => {
       city_geoname_id: null,
       country_geoname_id: null,
       key: 'key1',
-      latitude: null,
-      longitude: null,
-      postal_code: null,
       remote_agent: 'some-user-agent',
       remote_ip: '127.0.0.0',
       remote_referrer: 'https://www.prx.org/technology/',
