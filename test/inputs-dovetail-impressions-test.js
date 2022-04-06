@@ -48,6 +48,11 @@ describe('dovetail-impressions', () => {
       'placements_key',
       'target_path',
       'zone_name',
+      'listener_id',
+      'agent_name_id',
+      'agent_type_id',
+      'agent_os_id',
+      'geoname_id',
     );
     expect(format1.json.timestamp).to.equal(1490827132);
     expect(format1.json.is_duplicate).to.equal(true);
