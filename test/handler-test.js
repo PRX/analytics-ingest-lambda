@@ -118,7 +118,6 @@ describe('handler', () => {
     expect(downloadJson.agent_name_id).to.equal(25);
     expect(downloadJson.agent_type_id).to.equal(36);
     expect(downloadJson.agent_os_id).to.equal(43);
-    expect(downloadJson.geoname_id).to.equal(5576882);
     expect(downloadJson.city_geoname_id).to.equal(5576882);
     expect(downloadJson.country_geoname_id).to.equal(6252001);
 
@@ -154,7 +153,8 @@ describe('handler', () => {
     expect(impressionJson.agent_name_id).to.equal(25);
     expect(impressionJson.agent_type_id).to.equal(36);
     expect(impressionJson.agent_os_id).to.equal(43);
-    expect(impressionJson.geoname_id).to.equal(5576882);
+    expect(impressionJson.city_geoname_id).to.equal(5576882);
+    expect(impressionJson.country_geoname_id).to.equal(6252001);
 
     impressionJson = inserted['dt_impressions'].find(i => i.json.ad_id === 98).json;
     expect(impressionJson.ad_id).to.equal(98);
@@ -187,7 +187,6 @@ describe('handler', () => {
     expect(inserted['pixels'].length).to.equal(1);
     expect(inserted['pixels'][0].json).to.eql({
       canonical: 'https://www.prx.org/url1',
-      geoname_id: null,
       city_geoname_id: null,
       country_geoname_id: null,
       key: 'key1',

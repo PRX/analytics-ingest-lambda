@@ -53,7 +53,6 @@ describe('dovetail-downloads', () => {
       'agent_name_id',
       'agent_type_id',
       'agent_os_id',
-      'geoname_id',
       'city_geoname_id',
       'country_geoname_id',
     );
