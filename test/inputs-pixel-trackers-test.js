@@ -51,7 +51,6 @@ describe('pixel-trackers', () => {
       remote_agent: 'the-user-agent',
       remote_referrer: 'the-referer',
       remote_ip: '127.0.0.0',
-      geoname_id: null,
       city_geoname_id: null,
       country_geoname_id: null,
     });
