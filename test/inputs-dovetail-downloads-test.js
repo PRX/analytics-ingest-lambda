@@ -38,6 +38,7 @@ describe('dovetail-downloads', () => {
       'timestamp',
       'request_uuid',
       'feeder_podcast',
+      'feeder_feed',
       'feeder_episode',
       'digest',
       'ad_count',

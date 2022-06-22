@@ -35,6 +35,7 @@ describe('dovetail-impressions', () => {
       'timestamp',
       'request_uuid',
       'feeder_podcast',
+      'feeder_feed',
       'feeder_episode',
       'digest',
       'is_confirmed',
