@@ -178,7 +178,7 @@
         "isDuplicate": false,
         "targetPath": ":",
         "cause": null,
-        "pings": ["http://www.adzerk.bar/ping4"],
+        "pings": ["http://www.adzerk.bar/ping5"],
         "vast": {
           "advertiser": "vastadvertiser1",
           "ad": { "id": "vastad1" },
