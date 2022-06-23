@@ -9,6 +9,10 @@ describe('flight-increments', () => {
     process.env.DOVETAIL_ROUTER_HOSTS = 'host1.dt.test,host2.dt.test';
   });
 
+  afterEach(() => {
+    process.env.DOVETAIL_ROUTER_HOSTS = '';
+  });
+
   it('recognizes impression records', () => {
     const incrs = new FlightIncrements();
 
