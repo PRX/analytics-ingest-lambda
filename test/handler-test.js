@@ -308,6 +308,7 @@ describe('handler', () => {
     const ping2 = nock('http://www.foo.bar').get('/ping2').reply(404);
     const ping3 = nock('http://www.foo.bar').get('/ping3').reply(200);
     const ping4 = nock('http://www.adzerk.bar').get('/ping4').reply(200);
+    const ping5 = nock('http://www.adzerk.bar').get('/ping5').reply(404);
 
     const result = await handler(event);
     expect(result).to.match(/inserted 2/i);
@@ -324,11 +325,14 @@ describe('handler', () => {
     expect(infos[3].meta).to.contain({ dest: 'www.adzerk.bar', rows: 1 });
     expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
     expect(warns[0]).to.match(/ping2/);
+    expect(warns[1]).to.match(/PINGFAIL error: http 404/i);
+    expect(warns[1]).to.match(/ping5/);
 
     expect(ping1.isDone()).to.be.true;
     expect(ping2.isDone()).to.be.true;
     expect(ping3.isDone()).to.be.false;
     expect(ping4.isDone()).to.be.true;
+    expect(ping5.isDone()).to.be.true;
   });
 
   it('handles redis records', async () => {
