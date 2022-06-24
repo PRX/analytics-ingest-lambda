@@ -4,15 +4,15 @@ const { getRecordsFromEvent } = require('./lib/get-records');
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
 const timestamp = require('./lib/timestamp');
-const { BigqueryInputs, DynamoInputs, PingbackInputs, RedisInputs } = require('./lib/inputs');
+const { BigqueryInputs, DynamoInputs, PingbackInputs } = require('./lib/inputs');
 
-exports.handler = async (event) => {
+exports.handler = async event => {
   let records = [];
 
   // debug timeouts
   let timer = null;
   if (process.env.DEBUG) {
-    timer = setTimeout(() => logger.error('TIMEOUT', {event}), 29000);
+    timer = setTimeout(() => logger.error('TIMEOUT', { event }), 29000);
   }
 
   if (!event || !event.Records) {
@@ -44,15 +44,13 @@ exports.handler = async (event) => {
 
   await new Promise((resolve, reject) => {
     loadenv.load(() => {
-      resolve()
-    })
-  })
+      resolve();
+    });
+  });
 
   // figure out what type of records we process
   let inputs;
-  if (process.env.REDIS_HOST) {
-    inputs = new RedisInputs(records);
-  } else if (process.env.PINGBACKS) {
+  if (process.env.PINGBACKS) {
     inputs = new PingbackInputs(records);
   } else if (process.env.DYNAMODB) {
     inputs = new DynamoInputs(records);
@@ -66,13 +64,13 @@ exports.handler = async (event) => {
   });
 
   // run inserts in parallel
-  try{
+  try {
     const results = await inputs.insertAll();
     clearTimeout(timer);
     let total = results.reduce((acc, r) => acc + r.count, 0);
     return `Inserted ${total} rows`;
-  } catch(err) {
-      clearTimeout(timer);
-      throw logger.errors(err);
+  } catch (err) {
+    clearTimeout(timer);
+    throw logger.errors(err);
   }
 };
