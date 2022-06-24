@@ -75,12 +75,12 @@ describe('handler', () => {
     });
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 7/i);
-    expect(infos.length).to.equal(5);
+    expect(result).to.match(/inserted 6/i);
+    expect(infos.length).to.equal(4);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 9, decoded: 9 });
     expect(infos[1].msg).to.match(/1 rows into dt_downloads/);
     expect(infos[1].meta).to.contain({ dest: 'dt_downloads', rows: 1 });
     expect(infos[2].msg).to.match(/1 rows into dt_downloads_preview/);
@@ -89,12 +89,7 @@ describe('handler', () => {
     expect(infos[3].meta).to.contain({ dest: 'dt_impressions', rows: 4 });
 
     // based on test-records
-    expect(inserted).to.have.keys(
-      'dt_downloads',
-      'dt_downloads_preview',
-      'dt_impressions',
-      'pixels',
-    );
+    expect(inserted).to.have.keys('dt_downloads', 'dt_downloads_preview', 'dt_impressions');
 
     expect(inserted['dt_downloads'].length).to.equal(1);
     expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
@@ -183,19 +178,6 @@ describe('handler', () => {
     expect(previewJson.feeder_episode).to.equal('1234-5678');
     expect(previewJson.is_duplicate).to.equal(false);
     expect(previewJson.cause).to.equal(null);
-
-    expect(inserted['pixels'].length).to.equal(1);
-    expect(inserted['pixels'][0].json).to.eql({
-      canonical: 'https://www.prx.org/url1',
-      city_geoname_id: null,
-      country_geoname_id: null,
-      key: 'key1',
-      remote_agent: 'some-user-agent',
-      remote_ip: '127.0.0.0',
-      remote_referrer: 'https://www.prx.org/technology/',
-      timestamp: 1490827132,
-      user_id: 'd24a63774631fde164fa2bc27e58db5e',
-    });
   });
 
   it('handles dynamodb records', async () => {
@@ -226,7 +208,7 @@ describe('handler', () => {
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 9, decoded: 9 });
     expect(infos[1].msg).to.equal('impression');
     expect(infos[1].meta).to.contain({
       type: 'postbytes',
@@ -316,7 +298,7 @@ describe('handler', () => {
     expect(warns.length).to.equal(2);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 9, decoded: 9 });
     expect(infos[1].msg).to.equal('PINGED');
     expect(infos[1].meta).to.contain({ url: 'http://www.foo.bar/ping1' });
     expect(infos[2].msg).to.match(/1 rows into www.foo.bar/);

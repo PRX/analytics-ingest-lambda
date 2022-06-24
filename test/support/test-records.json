@@ -119,16 +119,6 @@
     }
   },
   {
-    "type": "pixel",
-    "destination": "dataset2.pixels",
-    "timestamp": 1490827132999,
-    "key": "key1",
-    "canonical": "https://www.prx.org/url1",
-    "remoteAgent": "some-user-agent",
-    "remoteIp": "127.0.0.1",
-    "remoteReferrer": "https://www.prx.org/technology/"
-  },
-  {
     "time": "2020-02-02T13:43:22.255Z",
     "level": "info",
     "msg": "impression",
