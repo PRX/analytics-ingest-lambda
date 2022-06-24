@@ -335,32 +335,6 @@ describe('handler', () => {
     expect(ping5.isDone()).to.be.true;
   });
 
-  it('handles redis records', async () => {
-    process.env.REDIS_HOST = 'redis://127.0.0.1:6379';
-    process.env.REDIS_IMPRESSIONS_HOST = 'cluster://127.0.0.1:6379';
-    const result = await handler(event);
-    expect(result).to.match(/inserted 6/i);
-    expect(infos.length).to.equal(3);
-    expect(warns.length).to.equal(0);
-    expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
-    expect(infos[1].msg).to.match(/2 rows into cluster:/);
-    expect(infos[1].meta).to.contain({ dest: 'cluster://127.0.0.1', rows: 2 });
-    expect(infos[2].msg).to.match(/4 rows into redis:/);
-    expect(infos[2].meta).to.contain({ dest: 'redis://127.0.0.1', rows: 4 });
-
-    let keys = [
-      support.redisKeys('castle:downloads.episodes.*'),
-      support.redisKeys('castle:downloads.podcasts.*'),
-      support.redisKeys('dovetail:impression:*'),
-    ];
-    const all = await Promise.all(keys);
-    expect(all[0].length).to.equal(2);
-    expect(all[1].length).to.equal(2);
-    expect(all[2].length).to.equal(1);
-  });
-
   it('handles unknown input records parsed from the log subscription filter style kinesis input', async () => {
     /* unknown records in the format of
     {

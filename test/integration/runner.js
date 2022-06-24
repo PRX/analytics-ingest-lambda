@@ -10,28 +10,26 @@ const pingurl = require('../../lib/pingurl');
 // bigquery does not like timestamps more than 7 days in the past
 const testRecordSets = require('../support/test-runner-records');
 
-const testInputStyleRecords = testRecordSets.inputStyleRecords.map(rec => {
-  return {...rec, timestamp: new Date().getTime()};
-}).filter(r => r.type !== 'foo')
+const testInputStyleRecords = testRecordSets.inputStyleRecords
+  .map(rec => {
+    return { ...rec, timestamp: new Date().getTime() };
+  })
+  .filter(r => r.type !== 'foo');
 
-const testEvent = buildMixedStyleEvent(testInputStyleRecords,
-  testRecordSets.kinesisEventStyleRecords);
+const testEvent = buildMixedStyleEvent(
+  testInputStyleRecords,
+  testRecordSets.kinesisEventStyleRecords,
+);
 
 // decode pingback settings
-if (process.env.REDIS_HOST && process.env.REDIS_HOST !== '0') {
-  delete process.env.PINGBACKS;
-  console.log('Running REDIS');
-} else if (process.env.PINGBACKS && process.env.PINGBACKS !== '0') {
-  delete process.env.REDIS_HOST;
+if (process.env.PINGBACKS && process.env.PINGBACKS !== '0') {
   console.log('Running PINGBACKS');
 } else if (process.env.DYNAMODB && process.env.DYNAMODB !== '0') {
   delete process.env.PINGBACKS;
-  delete process.env.REDIS_HOST;
   console.log('Running DYNAMODB');
 } else {
   delete process.env.DYNAMODB;
   delete process.env.PINGBACKS;
-  delete process.env.REDIS_HOST;
   console.log('Running BIGQUERY');
 }
 
@@ -49,4 +47,4 @@ async function main() {
     process.exit(1);
   }
 }
-main()
+main();
