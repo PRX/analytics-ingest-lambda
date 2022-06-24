@@ -15,14 +15,11 @@ describe('dovetail-impressions', () => {
     expect(impression.check({ type: 'combined', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [{}] })).to.be.true;
-    expect(impression.check({ type: 'postbytespreview', impressions: [] })).to.be.false;
-    expect(impression.check({ type: 'postbytespreview', impressions: [{}] })).to.be.true;
   });
 
   it('knows the table names of records', () => {
     expect(impression.tableName({ type: 'combined' })).to.equal('dt_impressions');
     expect(impression.tableName({ type: 'postbytes' })).to.equal('dt_impressions');
-    expect(impression.tableName({ type: 'postbytespreview' })).to.equal('dt_impressions_preview');
   });
 
   it('formats table inserts', async () => {
@@ -104,12 +101,6 @@ describe('dovetail-impressions', () => {
         impressions: [{ isDuplicate: true, adId: 3 }],
       },
       {
-        type: 'postbytespreview',
-        listenerEpisode: 'listen4',
-        timestamp: 1490837132,
-        impressions: [{ adId: 4 }],
-      },
-      {
         type: 'postbytes',
         listenerEpisode: 'listen5',
         timestamp: 1490827132999,
@@ -141,7 +132,7 @@ describe('dovetail-impressions', () => {
       },
     ]);
     return impression2.insert().then(result => {
-      expect(result.length).to.equal(2);
+      expect(result.length).to.equal(1);
 
       expect(result[0].dest).to.equal('dt_impressions');
       expect(result[0].count).to.equal(6);
@@ -159,10 +150,6 @@ describe('dovetail-impressions', () => {
       expect(inserts['dt_impressions'][5].json.vast_price_value).to.equal(100.0);
       expect(inserts['dt_impressions'][5].json.vast_price_currency).to.equal('USD');
       expect(inserts['dt_impressions'][5].json.vast_price_model).to.equal('CPM');
-
-      expect(result[1].dest).to.equal('dt_impressions_preview');
-      expect(result[1].count).to.equal(1);
-      expect(inserts['dt_impressions_preview'][0].json.ad_id).to.equal(4);
     });
   });
 });

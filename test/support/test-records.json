@@ -102,23 +102,6 @@
     "any": "thing"
   },
   {
-    "type": "antebytespreview",
-    "digest": "the-digest",
-    "listenerEpisode": "listener-episode-5",
-    "some": "thing"
-  },
-  {
-    "type": "postbytespreview",
-    "digest": "the-digest",
-    "listenerEpisode": "listener-episode-6",
-    "feederPodcast": 1234,
-    "feederEpisode": "1234-5678",
-    "download": {
-      "cause": null,
-      "isDupliciate": false
-    }
-  },
-  {
     "time": "2020-02-02T13:43:22.255Z",
     "level": "info",
     "msg": "impression",

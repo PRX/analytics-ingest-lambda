@@ -68,20 +68,18 @@ describe('inputs', () => {
       { type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 2 },
       { type: 'segmentbytes', listenerEpisode: 'le3', digest: 'd3', segment: 1 },
       { type: 'antebytes', listenerEpisode: 'le4', digest: 'd4' },
-      { type: 'antebytespreview', listenerEpisode: 'le5', digest: 'd5' },
     ]);
 
     const inserts = await inputs.insertAll();
     expect(inserts.length).to.equal(2);
-    expect(inserts.map(i => i.count)).to.eql([4, 2]);
+    expect(inserts.map(i => i.count)).to.eql([3, 2]);
     expect(inserts.map(i => i.dest)).to.eql(['dynamodb', 'kinesis']);
 
-    expect(dynamo.updateItemPromise).to.have.callCount(4);
+    expect(dynamo.updateItemPromise).to.have.callCount(3);
     expect(dynamo.updateItemPromise.args.map(a => a[0].Key.id.S).sort()).to.eql([
       'le2.d2',
       'le3.d3',
       'le4.d4',
-      'le5.d5',
     ]);
 
     expect(logger.info).to.have.callCount(4);
@@ -89,7 +87,7 @@ describe('inputs', () => {
     expect(logger.info.args[0][1].listenerEpisode).to.equal('le2');
     expect(logger.info.args[1][0]).to.equal('impression');
     expect(logger.info.args[1][1].listenerEpisode).to.equal('le3');
-    expect(logger.info.args[2][0]).to.equal('Inserted 4 rows into dynamodb');
+    expect(logger.info.args[2][0]).to.equal('Inserted 3 rows into dynamodb');
     expect(logger.info.args[3][0]).to.equal('Inserted 2 rows into kinesis');
   });
 
