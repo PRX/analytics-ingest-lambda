@@ -11,20 +11,17 @@ describe('dovetail-downloads', () => {
     expect(download.check({})).to.be.false;
     expect(download.check({ type: 'impression' })).to.be.false;
     expect(download.check({ type: 'download' })).to.be.false;
-    expect(download.check({ type: 'combined', download: null })).to.be.false;
-    expect(download.check({ type: 'combined', download: {} })).to.be.true;
     expect(download.check({ type: 'postbytes' })).to.be.false;
     expect(download.check({ type: 'postbytes', download: {} })).to.be.true;
   });
 
   it('knows the table names of records', () => {
-    expect(download.tableName({ type: 'combined' })).to.equal('dt_downloads');
     expect(download.tableName({ type: 'postbytes' })).to.equal('dt_downloads');
   });
 
   it('formats table inserts', async () => {
     const record = await download.format({
-      type: 'combined',
+      type: 'postbytes',
       timestamp: 1490827132999,
       download: { isDuplicate: true, cause: 'whatever' },
       listenerEpisode: 'something',
@@ -74,10 +71,10 @@ describe('dovetail-downloads', () => {
     });
     let download2 = new DovetailDownloads([
       { type: 'download', requestUuid: 'the-uuid0', timestamp: 1490827132999 },
-      { type: 'combined', download: {}, listenerEpisode: 'list-ep-1', timestamp: 1490827132999 },
+      { type: 'postbytes', download: {}, listenerEpisode: 'list-ep-1', timestamp: 1490827132999 },
       { type: 'impression', requestUuid: 'the-uuid2', timestamp: 1490827132999 },
-      { type: 'combined', download: {}, listenerEpisode: 'list-ep-3', timestamp: 1490827132999 },
-      { type: 'combined', download: {}, listenerEpisode: 'list-ep-4', timestamp: 1490827132999 },
+      { type: 'postbytes', download: {}, listenerEpisode: 'list-ep-3', timestamp: 1490827132999 },
+      { type: 'postbytes', download: {}, listenerEpisode: 'list-ep-4', timestamp: 1490827132999 },
       { type: 'postbytes', download: {}, listenerEpisode: 'list-ep-6', timestamp: 1490827132999 },
     ]);
     return download2.insert().then(result => {

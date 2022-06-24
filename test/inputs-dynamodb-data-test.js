@@ -41,7 +41,6 @@ describe('dynamodb-data', () => {
     const ddb = new DynamodbData();
 
     expect(ddb.check({})).to.be.false;
-    expect(ddb.check({ type: 'combined' })).to.be.false;
     expect(ddb.check({ type: 'postbytes' })).to.be.false;
 
     expect(ddb.check({ type: 'antebytes' })).to.be.true;

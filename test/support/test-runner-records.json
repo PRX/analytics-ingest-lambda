@@ -1,7 +1,7 @@
 {
   "inputStyleRecords": [
     {
-      "type": "combined",
+      "type": "postbytes",
       "download": {
         "isDuplicate": false,
         "cause": null,
@@ -181,7 +181,7 @@
       "requestUuid": "Fe-tWxB8grDbVZsAAACJ",
       "request_id": "Fe-tWxB8grDbVZsAAACJ",
       "timestamp": 1580672602,
-      "type": "combined",
+      "type": "postbytes",
       "url": "/213/cc2db84c-a8f6-4146-a2d9-dec62ae54564/05_99_Percent_Forgotten.mp3/"
     },
     {

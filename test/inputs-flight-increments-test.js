@@ -22,7 +22,6 @@ describe('flight-increments', () => {
 
     expect(incrs.check({ type: 'postbytes', impressions: [{}] })).to.be.true;
     expect(incrs.check({ type: 'postbytes', impressions: [{ isDuplicate: true }, {}] })).to.be.true;
-    expect(incrs.check({ type: 'combined', impressions: [{ isDuplicate: true }, {}] })).to.be.true;
   });
 
   it('inserts nothing', async () => {
@@ -39,19 +38,19 @@ describe('flight-increments', () => {
     nock('https://host2.dt.test').post(day2).reply(202);
 
     const incrs = new FlightIncrements([
-      { type: 'combined', timestamp: 0, impressions: [{ flightId: 1 }] },
+      { type: 'postbytes', timestamp: 0, impressions: [{ flightId: 1 }] },
       {
-        type: 'combined',
+        type: 'postbytes',
         timestamp: 0,
         impressions: [{ flightId: 2, isDuplicate: true }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         timestamp: 0,
         impressions: [{ flightId: 3 }, { flightId: 1 }, { flightId: 1 }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         timestamp: 24 * 60 * 60,
         impressions: [{ flightId: 4 }],
       },
@@ -72,8 +71,8 @@ describe('flight-increments', () => {
     nock('https://host2.dt.test').post(day1).reply(404);
 
     const recs = [
-      { type: 'combined', impressions: [{ flightId: 1 }] },
-      { type: 'combined', impressions: [{ flightId: 2 }] },
+      { type: 'postbytes', impressions: [{ flightId: 1 }] },
+      { type: 'postbytes', impressions: [{ flightId: 2 }] },
     ];
     const incrs = new FlightIncrements(recs, 1000, 0);
 
@@ -90,7 +89,7 @@ describe('flight-increments', () => {
   });
 
   it('does not ping duplicate records', async () => {
-    const recs = [{ type: 'combined', remoteAgent: 'googlebot', impressions: [{ flightId: 1 }] }];
+    const recs = [{ type: 'postbytes', remoteAgent: 'googlebot', impressions: [{ flightId: 1 }] }];
     const incrs = new FlightIncrements(recs);
     expect(incrs._records.length).to.equal(1);
 

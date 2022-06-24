@@ -1,6 +1,6 @@
 [
   {
-    "type": "combined",
+    "type": "postbytes",
     "download": {
       "isDuplicate": false,
       "cause": null,

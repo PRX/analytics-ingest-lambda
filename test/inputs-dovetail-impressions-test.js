@@ -12,18 +12,16 @@ describe('dovetail-impressions', () => {
     expect(impression.check({ type: undefined })).to.be.false;
     expect(impression.check({ type: 'download' })).to.be.false;
     expect(impression.check({ type: 'impression' })).to.be.false;
-    expect(impression.check({ type: 'combined', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [{}] })).to.be.true;
   });
 
   it('knows the table names of records', () => {
-    expect(impression.tableName({ type: 'combined' })).to.equal('dt_impressions');
     expect(impression.tableName({ type: 'postbytes' })).to.equal('dt_impressions');
   });
 
   it('formats table inserts', async () => {
-    const rec = { type: 'combined', timestamp: 1490827132999, listenerEpisode: 'something' };
+    const rec = { type: 'postbytes', timestamp: 1490827132999, listenerEpisode: 'something' };
 
     const format1 = await impression.format(rec, { adId: 1, isDuplicate: true });
     expect(format1).to.have.keys('insertId', 'json');
@@ -87,15 +85,15 @@ describe('dovetail-impressions', () => {
     let impression2 = new DovetailImpressions([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
       { type: 'download', requestUuid: 'the-uuid2', timestamp: 1490827132999 },
-      { type: 'combined', listenerEpisode: 'listen1', timestamp: 1490837132, impressions: [] },
+      { type: 'postbytes', listenerEpisode: 'listen1', timestamp: 1490837132, impressions: [] },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen2',
         timestamp: 1490827132999,
         impressions: [{ adId: 1 }, { adId: 2 }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen3',
         timestamp: 1490837132,
         impressions: [{ isDuplicate: true, adId: 3 }],
@@ -107,13 +105,13 @@ describe('dovetail-impressions', () => {
         impressions: [{ adId: 5 }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen6',
         timestamp: 1490837132,
         impressions: [{ targetPath: ':Some-target', zoneName: 'some_pre1', placementsKey: '2' }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen7',
         timestamp: 1490827132999,
         impressions: [
