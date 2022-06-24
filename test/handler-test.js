@@ -283,17 +283,19 @@ describe('handler', () => {
 
     const result = await handler(event);
     expect(result).to.match(/inserted 2/i);
-    expect(infos.length).to.equal(4);
+    expect(infos.length).to.equal(5);
     expect(warns.length).to.equal(2);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
     expect(infos[0].meta).to.eql({ raw: 7, decoded: 7 });
     expect(infos[1].msg).to.equal('PINGED');
     expect(infos[1].meta).to.contain({ url: 'http://www.foo.bar/ping1' });
-    expect(infos[2].msg).to.match(/1 rows into www.foo.bar/);
-    expect(infos[2].meta).to.contain({ dest: 'www.foo.bar', rows: 1 });
-    expect(infos[3].msg).to.match(/1 rows into www.adzerk.bar/);
-    expect(infos[3].meta).to.contain({ dest: 'www.adzerk.bar', rows: 1 });
+    expect(infos[2].msg).to.equal('PINGED');
+    expect(infos[2].meta).to.contain({ url: 'http://www.adzerk.bar/ping4' });
+    expect(infos[3].msg).to.match(/1 rows into www.foo.bar/);
+    expect(infos[3].meta).to.contain({ dest: 'www.foo.bar', rows: 1 });
+    expect(infos[4].msg).to.match(/1 rows into www.adzerk.bar/);
+    expect(infos[4].meta).to.contain({ dest: 'www.adzerk.bar', rows: 1 });
     expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
     expect(warns[0]).to.match(/ping2/);
     expect(warns[1]).to.match(/PINGFAIL error: http 404/i);

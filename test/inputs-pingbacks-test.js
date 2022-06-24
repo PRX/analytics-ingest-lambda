@@ -152,29 +152,4 @@ describe('pingbacks', () => {
     expect(result.length).to.equal(0);
     expect(logger.warn).not.to.have.been.called;
   });
-
-  it('does not log adzerk pingbacks', async () => {
-    const infos = [];
-    sinon.stub(logger, 'info').callsFake(msg => infos.push(msg));
-
-    nock('http://engine.adzerk.net').get('/ping1').reply(200);
-    nock('https://www.adzerk.bar').get('/ping2').reply(200);
-
-    pingbacks = new Pingbacks([
-      {
-        type: 'postbytes',
-        impressions: [
-          { isDuplicate: false, pings: ['http://engine.adzerk.net/ping1'] },
-          { isDuplicate: false, pings: ['https://www.adzerk.bar/ping2'] },
-        ],
-      },
-    ]);
-
-    const result = await pingbacks.insert();
-    expect(result.length).to.equal(2);
-    expect(result.map(r => r.dest).sort()).to.eql(['engine.adzerk.net', 'www.adzerk.bar']);
-    expect(result.find(r => r.dest === 'engine.adzerk.net').count).to.equal(1);
-    expect(result.find(r => r.dest === 'www.adzerk.bar').count).to.equal(1);
-    expect(infos.length).to.equal(0);
-  });
 });
