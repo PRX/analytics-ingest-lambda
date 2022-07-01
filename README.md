@@ -69,7 +69,7 @@ template. Valid parameters are:
 
 ## DynamoDB
 
-When a program in Dovetail is configured to be IAB complaint (with `"bytes": true`),
+When a listener requests an episode from [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org),
 it will emit kinesis records of type `antebytes`. Meaning
 the bytes haven't been downloaded yet. These records are inserted into DynamoDB,
 and saved until the CDN-bytes are actually downloaded.
