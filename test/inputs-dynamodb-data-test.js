@@ -41,11 +41,9 @@ describe('dynamodb-data', () => {
     const ddb = new DynamodbData();
 
     expect(ddb.check({})).to.be.false;
-    expect(ddb.check({ type: 'combined' })).to.be.false;
     expect(ddb.check({ type: 'postbytes' })).to.be.false;
 
     expect(ddb.check({ type: 'antebytes' })).to.be.true;
-    expect(ddb.check({ type: 'antebytespreview' })).to.be.true;
     expect(ddb.check({ type: 'bytes' })).to.be.true;
     expect(ddb.check({ type: 'segmentbytes' })).to.be.true;
   });
@@ -55,12 +53,11 @@ describe('dynamodb-data', () => {
     const cause = 'digestCache';
     const ddb = new DynamodbData([
       { type: 'antebytes', isDuplicate, cause, listenerEpisode: 'le1', digest: 'd1' },
-      { type: 'antebytespreview', isDuplicate, cause, listenerEpisode: 'le2', digest: 'd2' },
       { type: 'bytes', isDuplicate, cause, listenerEpisode: 'le3', digest: 'd3' },
       { type: 'segmentbytes', isDuplicate, cause, listenerEpisode: 'le4', digest: 'd4' },
     ]);
 
-    expect(Object.keys(ddb.payloads).length).to.equal(2);
+    expect(Object.keys(ddb.payloads).length).to.equal(1);
     expect(Object.keys(ddb.segments).length).to.equal(0);
   });
 

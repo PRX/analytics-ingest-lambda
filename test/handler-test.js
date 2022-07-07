@@ -75,26 +75,19 @@ describe('handler', () => {
     });
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 7/i);
-    expect(infos.length).to.equal(5);
+    expect(result).to.match(/inserted 5/i);
+    expect(infos.length).to.equal(3);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 7, decoded: 7 });
     expect(infos[1].msg).to.match(/1 rows into dt_downloads/);
     expect(infos[1].meta).to.contain({ dest: 'dt_downloads', rows: 1 });
-    expect(infos[2].msg).to.match(/1 rows into dt_downloads_preview/);
-    expect(infos[2].meta).to.contain({ dest: 'dt_downloads_preview', rows: 1 });
-    expect(infos[3].msg).to.match(/4 rows into dt_impressions/);
-    expect(infos[3].meta).to.contain({ dest: 'dt_impressions', rows: 4 });
+    expect(infos[2].msg).to.match(/4 rows into dt_impressions/);
+    expect(infos[2].meta).to.contain({ dest: 'dt_impressions', rows: 4 });
 
     // based on test-records
-    expect(inserted).to.have.keys(
-      'dt_downloads',
-      'dt_downloads_preview',
-      'dt_impressions',
-      'pixels',
-    );
+    expect(inserted).to.have.keys('dt_downloads', 'dt_impressions');
 
     expect(inserted['dt_downloads'].length).to.equal(1);
     expect(inserted['dt_downloads'][0].insertId).to.equal('listener-episode-1/1487703699');
@@ -177,25 +170,6 @@ describe('handler', () => {
     expect(impressionJson.vast_price_value).to.equal(10.0);
     expect(impressionJson.vast_price_currency).to.equal('USD');
     expect(impressionJson.vast_price_model).to.equal('CPM');
-
-    let previewJson = inserted['dt_downloads_preview'][0].json;
-    expect(previewJson.feeder_podcast).to.equal(1234);
-    expect(previewJson.feeder_episode).to.equal('1234-5678');
-    expect(previewJson.is_duplicate).to.equal(false);
-    expect(previewJson.cause).to.equal(null);
-
-    expect(inserted['pixels'].length).to.equal(1);
-    expect(inserted['pixels'][0].json).to.eql({
-      canonical: 'https://www.prx.org/url1',
-      city_geoname_id: null,
-      country_geoname_id: null,
-      key: 'key1',
-      remote_agent: 'some-user-agent',
-      remote_ip: '127.0.0.0',
-      remote_referrer: 'https://www.prx.org/technology/',
-      timestamp: 1490827132,
-      user_id: 'd24a63774631fde164fa2bc27e58db5e',
-    });
   });
 
   it('handles dynamodb records', async () => {
@@ -221,12 +195,12 @@ describe('handler', () => {
     process.env.DYNAMODB = 'true';
 
     const result = await handler(event);
-    expect(result).to.match(/inserted 5/i);
+    expect(result).to.match(/inserted 4/i);
     expect(infos.length).to.equal(4);
     expect(warns.length).to.equal(0);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 7, decoded: 7 });
     expect(infos[1].msg).to.equal('impression');
     expect(infos[1].meta).to.contain({
       type: 'postbytes',
@@ -234,8 +208,8 @@ describe('handler', () => {
       digest: 'the-digest',
       any: 'thing',
     });
-    expect(infos[2].msg).to.match(/inserted 4 rows into dynamodb/i);
-    expect(infos[2].meta).to.contain({ dest: 'dynamodb', rows: 4 });
+    expect(infos[2].msg).to.match(/inserted 3 rows into dynamodb/i);
+    expect(infos[2].meta).to.contain({ dest: 'dynamodb', rows: 3 });
     expect(infos[3].msg).to.match(/inserted 1 rows into kinesis/i);
     expect(infos[3].meta).to.contain({ dest: 'kinesis', rows: 1 });
 
@@ -247,7 +221,6 @@ describe('handler', () => {
     expect(keys).to.eql([
       'listener-episode-3.the-digest',
       'listener-episode-4.the-digest',
-      'listener-episode-5.the-digest',
       'listener-episode-dtrouter-1.the-digest',
     ]);
 
@@ -261,10 +234,8 @@ describe('handler', () => {
     expect(payloads[0]).to.be.undefined;
     expect(payloads[1].type).to.equal('antebytes');
     expect(payloads[1].any).to.equal('thing');
-    expect(payloads[2].type).to.equal('antebytespreview');
-    expect(payloads[2].some).to.equal('thing');
-    expect(payloads[3].type).to.equal('antebytes');
-    expect(payloads[3].time).to.equal('2020-02-02T13:43:22.255Z');
+    expect(payloads[2].type).to.equal('antebytes');
+    expect(payloads[2].time).to.equal('2020-02-02T13:43:22.255Z');
 
     const segments = sortedArgs.map(a => {
       if (a[0].AttributeUpdates.segments) {
@@ -312,17 +283,19 @@ describe('handler', () => {
 
     const result = await handler(event);
     expect(result).to.match(/inserted 2/i);
-    expect(infos.length).to.equal(4);
+    expect(infos.length).to.equal(5);
     expect(warns.length).to.equal(2);
     expect(errs.length).to.equal(0);
     expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
+    expect(infos[0].meta).to.eql({ raw: 7, decoded: 7 });
     expect(infos[1].msg).to.equal('PINGED');
     expect(infos[1].meta).to.contain({ url: 'http://www.foo.bar/ping1' });
-    expect(infos[2].msg).to.match(/1 rows into www.foo.bar/);
-    expect(infos[2].meta).to.contain({ dest: 'www.foo.bar', rows: 1 });
-    expect(infos[3].msg).to.match(/1 rows into www.adzerk.bar/);
-    expect(infos[3].meta).to.contain({ dest: 'www.adzerk.bar', rows: 1 });
+    expect(infos[2].msg).to.equal('PINGED');
+    expect(infos[2].meta).to.contain({ url: 'http://www.adzerk.bar/ping4' });
+    expect(infos[3].msg).to.match(/1 rows into www.foo.bar/);
+    expect(infos[3].meta).to.contain({ dest: 'www.foo.bar', rows: 1 });
+    expect(infos[4].msg).to.match(/1 rows into www.adzerk.bar/);
+    expect(infos[4].meta).to.contain({ dest: 'www.adzerk.bar', rows: 1 });
     expect(warns[0]).to.match(/PINGFAIL error: http 404/i);
     expect(warns[0]).to.match(/ping2/);
     expect(warns[1]).to.match(/PINGFAIL error: http 404/i);
@@ -333,32 +306,6 @@ describe('handler', () => {
     expect(ping3.isDone()).to.be.false;
     expect(ping4.isDone()).to.be.true;
     expect(ping5.isDone()).to.be.true;
-  });
-
-  it('handles redis records', async () => {
-    process.env.REDIS_HOST = 'redis://127.0.0.1:6379';
-    process.env.REDIS_IMPRESSIONS_HOST = 'cluster://127.0.0.1:6379';
-    const result = await handler(event);
-    expect(result).to.match(/inserted 6/i);
-    expect(infos.length).to.equal(3);
-    expect(warns.length).to.equal(0);
-    expect(errs.length).to.equal(0);
-    expect(infos[0].msg).to.equal('Event records');
-    expect(infos[0].meta).to.eql({ raw: 10, decoded: 10 });
-    expect(infos[1].msg).to.match(/2 rows into cluster:/);
-    expect(infos[1].meta).to.contain({ dest: 'cluster://127.0.0.1', rows: 2 });
-    expect(infos[2].msg).to.match(/4 rows into redis:/);
-    expect(infos[2].meta).to.contain({ dest: 'redis://127.0.0.1', rows: 4 });
-
-    let keys = [
-      support.redisKeys('castle:downloads.episodes.*'),
-      support.redisKeys('castle:downloads.podcasts.*'),
-      support.redisKeys('dovetail:impression:*'),
-    ];
-    const all = await Promise.all(keys);
-    expect(all[0].length).to.equal(2);
-    expect(all[1].length).to.equal(2);
-    expect(all[2].length).to.equal(1);
   });
 
   it('handles unknown input records parsed from the log subscription filter style kinesis input', async () => {

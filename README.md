@@ -3,89 +3,75 @@
 Lambda to process metrics data coming from one or more kinesis streams, and
 send that data to multiple destinations.
 
-
 # Description
 
 The lambda subscribes to kinesis streams, containing metric event records. These
 various metric records are either recognized by an input source in `lib/inputs`,
 or ignored and logged as a warning at the end of the lambda execution.
 
-Because of differences in (a) retry logic, or (b) VPC network access, this repo
-is actually deployed as **4 different lambdas**, subscribed to one or more kinesis streams.
+Because of differences in retry logic, this repo
+is actually deployed as **3 different lambdas**, subscribed to one or more kinesis streams.
 
 ## BigQuery
 
-Records with type `combined`/`postbytes` will be parsed
+Records with type `postbytes` will be parsed
 into BigQuery table formats, and inserted into their corresponding BigQuery
-tables in parallel.  This is called [streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery),
+tables in parallel. This is called [streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery),
 and in case the insert fails, it will be attempted 2 more times before the Lambda
-fails with an error.  And since each insert includes a unique `insertId`, we
+fails with an error. And since each insert includes a unique `insertId`, we
 don't have any data consistency issues with re-running the inserts.
 
 BigQuery now supports partitioning based on a [specific timestamp field](https://cloud.google.com/bigquery/docs/partitioned-tables#partitioned_tables),
 so any inserts streamed to a table will be automatically moved to the correct
 daily partition.
 
-Records with the special type `postbytespreview`  will also be inserted into a
-"preview" BigQuery table, for running both legacy and IAB 2.0 compliant inserts
-in parallel for a program.
-
-Records with type `pixel` will also be inserted into BigQuery, under the dataset/table
-indicated in the `record.destination`. Since these destination tables are less
-controlled, errors on insert (missing table, bad schema, etc) will be logged and
-ignored.
-
 ## Pingbacks
 
-Records with type `combined`/`postbytes` and a special `impression[].pings` array will be pinged via
-an HTTP GET.  This "ping" does follow redirects, but expects to land on a 200
-response afterwards.  Although 500 errors will be retried internally in the
+Records with type `postbytes` and an `impressions[]` array will POST those
+impressions count to the [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org)
+Flight Increments API, at `/api/v1/flight_increments/:date`. This gives some
+semblance of live flight-impression counts so we can stop serving flights as
+close to their goals as possible.
+
+Additionally, records with a special `impression[].pings` array will be pinged via
+an HTTP GET. This "ping" does follow redirects, but expects to land on a 200
+response afterwards. Although 500 errors will be retried internally in the
 code, any ping failures will be allowed to fail after error/timeout.
 
 Unlike BigQuery, these operations are not idempotent, so we don't want to
-over-ping a url.  All errors will be handled internally so Kinesis doesn't
+over-ping a url. All errors will be handled internally so Kinesis doesn't
 attempt to re-exec the batch of records.
-
-Note that Adzerk `impressionUrl`s now live in this pings array.
 
 ### URI Templates
 
 Pingback urls should be valid [RFC 6570](https://tools.ietf.org/html/rfc6570) URI
-template.  Valid parameters are:
+template. Valid parameters are:
 
-| Parameter Name    | Description |
-| ----------------- | ----------- |
-| `ad`              | Adzerk ad id |
-| `agent`           | Requester user-agent string |
-| `agentmd5`        | An md5'd user-agent string |
-| `episode`         | Feeder episode guid |
-| `campaign`        | Adzerk campaign id |
-| `creative`        | Adzerk creative id |
-| `flight`          | Adzerk flight id |
-| `ip`              | Request ip address |
-| `ipmask`          | Masked ip, with the last octet changed to 0s |
-| `listener`        | Unique string for this "listener" |
-| `listenerepisode` | Unique string for "listener + url" |
-| `podcast`         | Feeder podcast id |
-| `randomstr`       | Random string |
-| `randomint`       | Random integer |
-| `referer`         | Requester http referer |
-| `timestamp`       | Epoch milliseconds of request |
+| Parameter Name    | Description                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `ad`              | Ad id (intersection of creative and flight)                                                     |
+| `agent`           | Requester user-agent string                                                                     |
+| `agentmd5`        | An md5'd user-agent string                                                                      |
+| `episode`         | Feeder episode guid                                                                             |
+| `campaign`        | Campaign id                                                                                     |
+| `creative`        | Creative id                                                                                     |
+| `flight`          | Flight id                                                                                       |
+| `ip`              | Request ip address                                                                              |
+| `ipmask`          | Masked ip, with the last octet changed to 0s                                                    |
+| `listener`        | Unique string for this "listener"                                                               |
+| `listenerepisode` | Unique string for "listener + url"                                                              |
+| `podcast`         | Feeder podcast id                                                                               |
+| `randomstr`       | Random string                                                                                   |
+| `randomint`       | Random integer                                                                                  |
+| `referer`         | Requester http referer                                                                          |
+| `timestamp`       | Epoch milliseconds of request                                                                   |
 | `url`             | Full url of request, including host and query parameters, but _without_ the protocol `https://` |
-
-## Redis
-
-To give some semblance of live metrics, this lambda can also directly `INCR`
-the Redis cache used by [castle.prx.org](https://github.com/PRX/castle.prx.org)
-and [augury.prx.org](https://github.com/PRX/augury.prx.org).
-This operates on type `combined`/`postbytes` records, and like Pingbacks, will
-be allowed to fail without retry.
 
 ## DynamoDB
 
-When a program in Dovetail is configured to be IAB complaint (with `"bytes": true`),
-it will emit kinesis records of type `antebytes` or `antebytespreview`.  Meaning
-the bytes haven't been downloaded yet.  These records are inserted into DynamoDB,
+When a listener requests an episode from [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org),
+it will emit kinesis records of type `antebytes`. Meaning
+the bytes haven't been downloaded yet. These records are inserted into DynamoDB,
 and saved until the CDN-bytes are actually downloaded.
 
 This lambda also picks up type `bytes` and `segmentbytes` records, meaning that
@@ -121,22 +107,20 @@ Once we decide to count a segment impression or overall download, the original
 to `postbytes` and the timestamp to match when the CDN bytes were downloaded,
 then re-emit the record to kinesis.
 
-These `postbytes` records are then processed by the previous 3 lambdas. Or in
-the case of `postbytespreview`, just inserted into BigQuery. (We don't want to
-run pingbacks or increment redis for `"bytes": "preview"` programs).
+These `postbytes` records are then processed by the previous 2 lambdas.
 
 # Installation
 
-To get started, first run `yarn`.  Then run `yarn dbs` to download the
+To get started, first run `yarn`. Then run `yarn dbs` to download the
 [GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), remote
 datacenter IP lists, and domain threat lists.
 
 ## Unit Tests
 
-And hey, to just run the unit tests locally, you don't need anything!  Just
+And hey, to just run the unit tests locally, you don't need anything! Just
 `yarn test` to your heart's content.
 
-There are some dynamodb tests that use an actual table, and will be skipped.  To
+There are some dynamodb tests that use an actual table, and will be skipped. To
 also run these, set `TEST_DDB_TABLE` and `TEST_DDB_ROLE` to something in AWS you
 have access to.
 
@@ -146,7 +130,7 @@ The integration test simply runs the lambda function against a test-event (the
 same way you might in the lambda web console), and outputs the result.
 
 Copy `env-example` to `.env`, and fill in your information. Now when you run
-`yarn start`, you should see the test event run 4 times, and do some work for
+`yarn start`, you should see the test event run 3 times, and do some work for
 all of the lambda functions.
 
 ## BigQuery
@@ -155,12 +139,12 @@ To enable BigQuery inserts, you'll need to first [create a Google Cloud Platform
 create a BigQuery dataset, and create the tables referenced by your `lib/inputs`.
 Sorry -- no help on creating the correct table scheme yet!
 
-Then [create a Service Account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount) for this app.  Make sure it has BigQuery Data Editor permissions.
+Then [create a Service Account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount) for this app. Make sure it has BigQuery Data Editor permissions.
 
 ## DynamoDB
 
 To enable DynamoDB gets/writes, you'll need to setup a [DynamoDB table](https://docs.aws.amazon.com/dynamodb/index.html#lang/en_us)
-that your account has access to.  You can use your local AWS cli credentials, or
+that your account has access to. You can use your local AWS cli credentials, or
 setup AWS client/secret environment variables.
 
 You can also optionally access a DynamoDB table in a different account by specifying
@@ -168,12 +152,11 @@ a `DDB_ROLE` that the lambda should assume while doing gets/writes.
 
 # Deployment
 
-The 4 lambdas functions are deployed via a Cloudformation stack in the [Infrastructure repo](https://github.com/PRX/Infrastructure/blob/master/stacks/analytics-ingest-lambda.yml):
+The 3 lambdas functions are deployed via a Cloudformation stack in the [Infrastructure repo](https://github.com/PRX/Infrastructure/blob/master/stacks/apps/dovetail-analytics.yml):
 
- - `AnalyticsBigqueryLambda` - insert downloads/impressions/pixels into BigQuery
- - `AnalyticsPingbacksLambda` - ping Adzerk impressions and 3rd-party pingbacks
- - `AnalyticsRedisLambda` - realtime Redis increments
- - `AnalyticsDynamodbLambda` - temporary store for IAB compliant downloads
+- `AnalyticsBigqueryFunction` - insert downloads/impressions into BigQuery
+- `AnalyticsPingbacksFunction` - increment flight impressions and 3rd-party pingbacks
+- `AnalyticsDynamoDbFunction` - temporary store for IAB compliant downloads
 
 # Docker
 

@@ -12,21 +12,16 @@ describe('dovetail-impressions', () => {
     expect(impression.check({ type: undefined })).to.be.false;
     expect(impression.check({ type: 'download' })).to.be.false;
     expect(impression.check({ type: 'impression' })).to.be.false;
-    expect(impression.check({ type: 'combined', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [] })).to.be.false;
     expect(impression.check({ type: 'postbytes', impressions: [{}] })).to.be.true;
-    expect(impression.check({ type: 'postbytespreview', impressions: [] })).to.be.false;
-    expect(impression.check({ type: 'postbytespreview', impressions: [{}] })).to.be.true;
   });
 
   it('knows the table names of records', () => {
-    expect(impression.tableName({ type: 'combined' })).to.equal('dt_impressions');
     expect(impression.tableName({ type: 'postbytes' })).to.equal('dt_impressions');
-    expect(impression.tableName({ type: 'postbytespreview' })).to.equal('dt_impressions_preview');
   });
 
   it('formats table inserts', async () => {
-    const rec = { type: 'combined', timestamp: 1490827132999, listenerEpisode: 'something' };
+    const rec = { type: 'postbytes', timestamp: 1490827132999, listenerEpisode: 'something' };
 
     const format1 = await impression.format(rec, { adId: 1, isDuplicate: true });
     expect(format1).to.have.keys('insertId', 'json');
@@ -90,24 +85,18 @@ describe('dovetail-impressions', () => {
     let impression2 = new DovetailImpressions([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
       { type: 'download', requestUuid: 'the-uuid2', timestamp: 1490827132999 },
-      { type: 'combined', listenerEpisode: 'listen1', timestamp: 1490837132, impressions: [] },
+      { type: 'postbytes', listenerEpisode: 'listen1', timestamp: 1490837132, impressions: [] },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen2',
         timestamp: 1490827132999,
         impressions: [{ adId: 1 }, { adId: 2 }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen3',
         timestamp: 1490837132,
         impressions: [{ isDuplicate: true, adId: 3 }],
-      },
-      {
-        type: 'postbytespreview',
-        listenerEpisode: 'listen4',
-        timestamp: 1490837132,
-        impressions: [{ adId: 4 }],
       },
       {
         type: 'postbytes',
@@ -116,13 +105,13 @@ describe('dovetail-impressions', () => {
         impressions: [{ adId: 5 }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen6',
         timestamp: 1490837132,
         impressions: [{ targetPath: ':Some-target', zoneName: 'some_pre1', placementsKey: '2' }],
       },
       {
-        type: 'combined',
+        type: 'postbytes',
         listenerEpisode: 'listen7',
         timestamp: 1490827132999,
         impressions: [
@@ -141,7 +130,7 @@ describe('dovetail-impressions', () => {
       },
     ]);
     return impression2.insert().then(result => {
-      expect(result.length).to.equal(2);
+      expect(result.length).to.equal(1);
 
       expect(result[0].dest).to.equal('dt_impressions');
       expect(result[0].count).to.equal(6);
@@ -159,10 +148,6 @@ describe('dovetail-impressions', () => {
       expect(inserts['dt_impressions'][5].json.vast_price_value).to.equal(100.0);
       expect(inserts['dt_impressions'][5].json.vast_price_currency).to.equal('USD');
       expect(inserts['dt_impressions'][5].json.vast_price_model).to.equal('CPM');
-
-      expect(result[1].dest).to.equal('dt_impressions_preview');
-      expect(result[1].count).to.equal(1);
-      expect(inserts['dt_impressions_preview'][0].json.ad_id).to.equal(4);
     });
   });
 });
