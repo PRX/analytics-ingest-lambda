@@ -45,5 +45,5 @@ jspm_packages
 build
 *.zip
 
-# Maxmind db
+# datacenter/domainthreat dbs
 db
