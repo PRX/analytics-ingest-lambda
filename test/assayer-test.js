@@ -10,25 +10,7 @@ describe('assayer', () => {
       expect(info).to.eql({
         isDuplicate: false,
         cause: null,
-        geo: null,
         agent: { name: null, type: null, os: null, bot: false },
-      });
-    });
-
-    it('optionally geo locates', async () => {
-      const info = await assayer.test({ remoteAgent: 'Pocket Casts', remoteIp: '127.0.0.1' }, true);
-      expect(info).to.eql({
-        isDuplicate: false,
-        cause: null,
-        geo: {
-          city: null,
-          country: null,
-          latitude: null,
-          longitude: null,
-          masked: '127.0.0.0',
-          postal: null,
-        },
-        agent: { name: 16, type: 36, os: null, bot: false },
       });
     });
 
@@ -75,29 +57,7 @@ describe('assayer', () => {
       expect(info).to.eql({
         isDuplicate: false,
         cause: null,
-        geo: null,
         agent: { name: null, type: null, os: null, bot: false },
-      });
-    });
-
-    it('optionally geo locates', async () => {
-      const info = await assayer.testImpression(
-        { remoteAgent: 'Pocket Casts', remoteIp: '127.0.0.1' },
-        {},
-        true,
-      );
-      expect(info).to.eql({
-        isDuplicate: false,
-        cause: null,
-        geo: {
-          city: null,
-          country: null,
-          latitude: null,
-          longitude: null,
-          masked: '127.0.0.0',
-          postal: null,
-        },
-        agent: { name: 16, type: 36, os: null, bot: false },
       });
     });
 
