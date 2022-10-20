@@ -18,6 +18,8 @@
         "pings": ["http://www.foo.bar/ping1", "http://www.foo.bar/ping2"]
       }
     ],
+    "city": 5576882,
+    "country": 6252001,
     "digest": "the-digest",
     "feederPodcast": 1234,
     "feederEpisode": "1234-5678",
@@ -55,7 +57,9 @@
         "pings": ["http://www.adzerk.bar/ping4"]
       }
     ],
+    "city": 4406831,
     "confirmed": true,
+    "country": 6252001,
     "digest": "the-digest",
     "feederPodcast": 1234,
     "feederEpisode": "1234-5678",
@@ -164,7 +168,9 @@
         }
       }
     ],
+    "city": 4406831,
     "confirmed": true,
+    "country": 6252001,
     "digest": "the-digest-vast",
     "feederPodcast": 1234,
     "feederEpisode": "1234-vast",

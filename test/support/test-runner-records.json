@@ -29,6 +29,8 @@
           "pings": ["https://foo.bar/this/should/not/fire"]
         }
       ],
+      "city": 5576882,
+      "country": 6252001,
       "digest": "the-digest",
       "feederPodcast": 1234,
       "feederEpisode": "1234-5678",

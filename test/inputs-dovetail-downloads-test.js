@@ -25,6 +25,9 @@ describe('dovetail-downloads', () => {
       timestamp: 1490827132999,
       download: { isDuplicate: true, cause: 'whatever' },
       listenerEpisode: 'something',
+      remoteIp: '1.2.3.4, 5.6.7.8',
+      city: 888,
+      country: 999,
     });
     expect(record).to.have.keys('insertId', 'json');
     expect(record.insertId).to.match(/^\w+\/1490827132$/);
@@ -55,6 +58,9 @@ describe('dovetail-downloads', () => {
     expect(record.json.listener_episode).to.equal('something');
     expect(record.json.is_duplicate).to.equal(true);
     expect(record.json.cause).to.equal('whatever');
+    expect(record.json.remote_ip).to.equal('1.2.3.0');
+    expect(record.json.city_geoname_id).to.equal(888);
+    expect(record.json.country_geoname_id).to.equal(999);
   });
 
   it('inserts nothing', () => {
