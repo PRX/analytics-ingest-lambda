@@ -6,7 +6,6 @@ env:
     PRX_SPIRE_S3_PKG_PARAMETERS: LAMBDA_ZIP=/prx/stag/Spire/Dovetail-Analytics/pkg/s3-object-key
     PRX_S3_ARCHIVE_BUILD_PATH: /app/build.zip
   parameter-store:
-    MAXMIND_LICENSE_KEY: /prx/test/analytics-ingest-lambda/MAXMIND_LICENSE_KEY
     S3_ACCESS_KEY_ID: /prx/test/analytics-ingest-lambda/AWS_ACCESS_KEY_ID
     S3_SECRET_ACCESS_KEY: /prx/test/analytics-ingest-lambda/AWS_SECRET_ACCESS_KEY
     CODECOV_TOKEN: /prx/test/analytics-ingest-lambda/CODECOV_TOKEN

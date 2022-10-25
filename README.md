@@ -112,8 +112,7 @@ These `postbytes` records are then processed by the previous 2 lambdas.
 # Installation
 
 To get started, first run `yarn`. Then run `yarn dbs` to download the
-[GeoLite2 City database](http://dev.maxmind.com/geoip/geoip2/geolite2/), remote
-datacenter IP lists, and domain threat lists.
+remote datacenter IP lists, and domain threat lists.
 
 ## Unit Tests
 
@@ -159,14 +158,6 @@ The 3 lambdas functions are deployed via a Cloudformation stack in the [Infrastr
 - `AnalyticsDynamoDbFunction` - temporary store for IAB compliant downloads
 
 # Docker
-
-To get started, first make sure you have the MaxMind env vars set up as
-these are needed for the docker build. Look for them in the staging
-site using AWS 'SSM':
-
-```
-aws ssm get-parameter --with-decryption --name /prx/test/analytics-ingest-lambda/MAXMIND_LICENSE_KEY
-```
 
 This repo is now dockerized! You'll need some read-only S3 credentials in your
 `.env` file for the `bin/getdatacenters.js` script to succeed during build:
