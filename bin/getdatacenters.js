@@ -10,9 +10,7 @@ const PREFIX = 'config/datacenters';
 
 // load datacenter csvs from S3, and save to db/datacenters.json
 async function run() {
-  try {
-    await fs.mkdir(OUTDIR);
-  } catch (err) {}
+  await fs.mkdir(OUTDIR, { recursive: true });
 
   const filter = await PrxIpFilter.fromS3CSV(BUCKET, PREFIX);
   if (filter.names.length < 1) {
