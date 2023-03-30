@@ -3,6 +3,8 @@
 const support = require('./support');
 const assayer = require('../lib/assayer');
 
+const KNOWN_DATACENTER_IP = '3.1.87.65';
+
 describe('assayer', () => {
   describe('test', () => {
     it('returns basic info', async () => {
@@ -10,14 +12,13 @@ describe('assayer', () => {
       expect(info).to.eql({
         isDuplicate: false,
         cause: null,
-        agent: { name: null, type: null, os: null, bot: false },
       });
     });
 
     it('checks the download duplicate', async () => {
       const info = await assayer.test({
         download: { isDuplicate: true, cause: 'foo' },
-        remoteAgent: 'googlebot',
+        remoteIp: KNOWN_DATACENTER_IP,
       });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('foo');
@@ -26,16 +27,10 @@ describe('assayer', () => {
     it('has a default cause', async () => {
       const info = await assayer.test({
         download: { isDuplicate: true },
-        remoteAgent: 'googlebot',
+        remoteIp: KNOWN_DATACENTER_IP,
       });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('unknown');
-    });
-
-    it('checks for bots', async () => {
-      const info = await assayer.test({ remoteAgent: 'googlebot' });
-      expect(info.isDuplicate).to.equal(true);
-      expect(info.cause).to.equal('bot');
     });
 
     it('checks for domain threats', async () => {
@@ -45,7 +40,7 @@ describe('assayer', () => {
     });
 
     it('checks for datacenters', async () => {
-      const info = await assayer.test({ remoteIp: '3.1.87.65' });
+      const info = await assayer.test({ remoteIp: KNOWN_DATACENTER_IP });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('datacenter: Amazon AWS');
     });
@@ -57,13 +52,12 @@ describe('assayer', () => {
       expect(info).to.eql({
         isDuplicate: false,
         cause: null,
-        agent: { name: null, type: null, os: null, bot: false },
       });
     });
 
     it('checks the download duplicate', async () => {
       const info = await assayer.testImpression(
-        { remoteAgent: 'googlebot' },
+        { remoteIp: KNOWN_DATACENTER_IP },
         { isDuplicate: true, cause: 'foo' },
       );
       expect(info.isDuplicate).to.equal(true);
@@ -72,24 +66,18 @@ describe('assayer', () => {
 
     it('has a default cause', async () => {
       const info = await assayer.testImpression(
-        { remoteAgent: 'googlebot' },
+        { remoteIp: KNOWN_DATACENTER_IP },
         { isDuplicate: true },
       );
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('unknown');
     });
 
-    it('checks for bots', async () => {
+    it('checks for datacenters', async () => {
       const info = await assayer.testImpression(
-        { remoteAgent: 'googlebot' },
+        { remoteIp: KNOWN_DATACENTER_IP },
         { isDuplicate: false },
       );
-      expect(info.isDuplicate).to.equal(true);
-      expect(info.cause).to.equal('bot');
-    });
-
-    it('checks for datacenters', async () => {
-      const info = await assayer.testImpression({ remoteIp: '3.1.87.65' }, { isDuplicate: false });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('datacenter: Amazon AWS');
     });
