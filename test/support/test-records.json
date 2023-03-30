@@ -18,6 +18,9 @@
         "pings": ["http://www.foo.bar/ping1", "http://www.foo.bar/ping2"]
       }
     ],
+    "agentName": 25,
+    "agentOs": 43,
+    "agentType": 36,
     "city": 5576882,
     "country": 6252001,
     "digest": "the-digest",
@@ -109,6 +112,9 @@
     "time": "2020-02-02T13:43:22.255Z",
     "level": "info",
     "msg": "impression",
+    "agentName": 29,
+    "agentOs": 45,
+    "agentType": 39,
     "confirmed": false,
     "digest": "the-digest",
     "download": {
