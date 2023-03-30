@@ -89,7 +89,13 @@ describe('flight-increments', () => {
   });
 
   it('does not ping duplicate records', async () => {
-    const recs = [{ type: 'postbytes', remoteAgent: 'googlebot', impressions: [{ flightId: 1 }] }];
+    const recs = [
+      {
+        type: 'postbytes',
+        remoteReferrer: 'http://cav.is/domain/threat',
+        impressions: [{ flightId: 1 }],
+      },
+    ];
     const incrs = new FlightIncrements(recs);
     expect(incrs._records.length).to.equal(1);
 
