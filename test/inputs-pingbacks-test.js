@@ -142,7 +142,7 @@ describe('pingbacks', () => {
     pingbacks = new Pingbacks([
       {
         type: 'postbytes',
-        remoteAgent: 'googlebot',
+        remoteReferrer: 'http://cav.is/domain/threat',
         impressions: [{ adId: 11, isDuplicate: false, pings: ['http://foo.bar/ping1'] }],
       },
     ]);

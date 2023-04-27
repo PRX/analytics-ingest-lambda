@@ -29,6 +29,9 @@
           "pings": ["https://foo.bar/this/should/not/fire"]
         }
       ],
+      "agentName": 29,
+      "agentOs": 45,
+      "agentType": 39,
       "city": 5576882,
       "country": 6252001,
       "digest": "the-digest",
@@ -140,6 +143,9 @@
       "time": "2020-02-02T13:43:22.255Z",
       "level": "info",
       "msg": "impression",
+      "agentName": 29,
+      "agentOs": 45,
+      "agentType": 39,
       "confirmed": false,
       "digest": "wnsvQwQVPFelXmZY_vqaMOsqyhD3YnFnMwWnTkuX4-I",
       "feederEpisode": "cc2db84c-a8f6-4146-a2d9-dec62ae54564",
