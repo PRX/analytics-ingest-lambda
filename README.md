@@ -185,7 +185,7 @@ can be pasted in as-is.
 
 The list [from Amazon](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html) contains
 overlapping CIDRs, so you'll need to combine those to be compatible with `prx-ip-filter`.
-(We don't need the IPv4 ranges from them, as ipcat already has them).
+(And we don't need the IPv4 ranges from them, as ipcat already has them).
 
 ```
 wget https://ip-ranges.amazonaws.com/ip-ranges.json
