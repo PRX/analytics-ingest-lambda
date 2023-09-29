@@ -25,10 +25,10 @@ describe('iputil', () => {
   });
 
   it('only ipv4s', () => {
-    expect(iputil.ipV4Only('blah')).to.equal('');
-    expect(iputil.ipV4Only('1234.5678.1234.5678')).to.equal('');
+    expect(iputil.ipV4Only('blah')).to.equal(undefined);
+    expect(iputil.ipV4Only('1234.5678.1234.5678')).to.equal(undefined);
     expect(iputil.ipV4Only('192.168.0.1')).to.equal('192.168.0.1');
-    expect(iputil.ipV4Only('2804:18:1012:6b65:1:3:3561:14b8')).to.equal('');
+    expect(iputil.ipV4Only('2804:18:1012:6b65:1:3:3561:14b8')).to.equal(undefined);
   });
 
   it('masks the leftmost x-forwarded-for ip', () => {
