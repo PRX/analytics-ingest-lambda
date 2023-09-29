@@ -89,6 +89,17 @@ describe('urlutil', () => {
     expect(url3).to.equal('http://foo.bar/');
   });
 
+  it('only ipv4 addresses', () => {
+    let url1 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION());
+    let url2 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'));
+    let url3 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  '));
+    let url4 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  what , 2804:18:1012:6b65::'));
+    expect(url1).to.equal('http://foo.bar/?ipv4=127.0.0.1');
+    expect(url2).to.equal('http://foo.bar/?ipv4=127.0.0.1');
+    expect(url3).to.equal('http://foo.bar/');
+    expect(url4).to.equal('http://foo.bar/');
+  });
+
   it('returns timestamps in milliseconds', () => {
     let url1 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION());
     let url2 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION('timestamp', 1507234920010));
