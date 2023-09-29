@@ -24,6 +24,13 @@ describe('iputil', () => {
     expect(iputil.mask('2804:18:1012:6b65:1:3:3561:14b8')).to.equal('2804:18:1012:6b65::');
   });
 
+  it('only ipv4s', () => {
+    expect(iputil.ipV4Only('blah')).to.equal(undefined);
+    expect(iputil.ipV4Only('1234.5678.1234.5678')).to.equal(undefined);
+    expect(iputil.ipV4Only('192.168.0.1')).to.equal('192.168.0.1');
+    expect(iputil.ipV4Only('2804:18:1012:6b65:1:3:3561:14b8')).to.equal(undefined);
+  });
+
   it('masks the leftmost x-forwarded-for ip', () => {
     expect(iputil.maskLeft('66.6.44.4, 99.99.99.99')).to.equal('66.6.44.0, 99.99.99.99');
     expect(iputil.maskLeft('unknown, 99.99.99.99, 127.0.0.1')).to.equal(
