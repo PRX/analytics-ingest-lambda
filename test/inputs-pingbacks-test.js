@@ -122,19 +122,19 @@ describe('pingbacks', () => {
     expect(result[0].count).to.equal(1);
     expect(infos).to.eql(['PINGED']);
 
-    expect(warns.length).to.equal(6);
+    expect(warns.length).to.equal(7);
     expect(warns.sort()[0]).to.match(/PINGFAIL/);
     expect(warns.sort()[0]).to.match(/http 404/i);
     expect(warns.sort()[1]).to.match(/PINGFAIL/);
     expect(warns.sort()[1]).to.match(/http 502/i);
-    expect(warns.sort()[2]).to.match(/PINGRETRY/);
+    expect(warns.sort()[2]).to.match(/PINGFAIL/);
+    expect(warns.sort()[2]).to.match(/invalid literal/i);
     expect(warns.sort()[3]).to.match(/PINGRETRY/);
     expect(warns.sort()[4]).to.match(/PINGRETRY/);
     expect(warns.sort()[5]).to.match(/PINGRETRY/);
+    expect(warns.sort()[6]).to.match(/PINGRETRY/);
 
-    expect(errors.length).to.equal(1);
-    expect(errors[0]).to.match(/PINGFAIL/);
-    expect(errors[0]).to.match(/invalid literal/i);
+    expect(errors.length).to.equal(0);
   });
 
   it('does not ping duplicate records', async () => {
