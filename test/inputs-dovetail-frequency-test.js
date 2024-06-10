@@ -1,6 +1,7 @@
 'use strict';
 
 require('./support');
+const AWS = require('aws-sdk');
 const dynamo = require('../lib/dynamo');
 const DovetailFrequency = require('../lib/inputs/dovetail-frequency');
 
@@ -27,8 +28,19 @@ describe('dovetail-frequency', () => {
   });
 
   it('inserts impression records', () => {
-    sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
-    sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+    if (process.env.DDB_LOCAL) {
+      const localClient = new AWS.DynamoDB({
+        apiVersion: "2012-08-10",
+        accessKeyId: "None",
+        secretAccessKey: "None",
+        region: "local",
+        endpoint: `http://${process.env.DDB_LOCAL}:8000`
+      });
+      sinon.stub(dynamo, 'client').callsFake(async () => localClient);
+    } else {
+      sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
+      sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+    }
     let inserts = {};
     let frequency2 = new DovetailFrequency([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
