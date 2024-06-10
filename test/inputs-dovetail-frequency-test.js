@@ -28,8 +28,6 @@ describe('dovetail-frequency', () => {
   });
 
   it('inserts impression records', () => {
-
-    let deletes = 0;
     if (process.env.DDB_LOCAL) {
       const localClient = new AWS.DynamoDB({
         apiVersion: "2012-08-10",
@@ -39,70 +37,84 @@ describe('dovetail-frequency', () => {
         endpoint: `http://${process.env.DDB_LOCAL}:8000`
       });
       sinon.stub(dynamo, 'client').callsFake(async () => localClient);
-      deletes = 1;
     } else {
       sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
-
+      sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
+        let exp = '';
+        let imp = [];
+        if (params.ExpressionAttributeValues[":ttl"]) {
+          exp = params.ExpressionAttributeValues[":ttl"].N;
+          imp = params.ExpressionAttributeValues[":ts"].NS;
+        }
+        return {
+          Attributes: {
+            listener: { S: params.Key.listener.S },
+            campaign: { S: params.Key.campaign.S },
+            expiration: { N: exp },
+            impressions: { NS: imp }
+          }
+        }
+      });
     }
 
     let inserts = {};
-    let frequency2 = new DovetailFrequency([
+    const current = Math.floor((new Date().getTime() / 1000));
+    let frequency = new DovetailFrequency([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
       { type: 'download', requestUuid: 'the-uuid2', timestamp: 1490827132999 },
       { 
         type: 'postbytes',
         listenerId: 'listener1',
-        timestamp: 1717978337,
+        timestamp: `${current - 100}`,
         impressions: []
       },
       {
         type: 'postbytes',
         listenerId: 'listener2',
-        timestamp: 1717978361,
+        timestamp: `${current - 90}`,
         impressions: [{ campaignId: 100 }, { campaignId: 200 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener3',
-        timestamp: 1717978391,
+        timestamp: `${current - 80}`,
         impressions: [{ isDuplicate: true, campaignId: 300 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener2',
-        timestamp: 1715395374,
+        timestamp: `${current - 2600000}`,
         impressions: [{ campaignId: 400 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener4',
-        timestamp: 1717978419,
+        timestamp: `${current - 60}`,
         impressions: [{ campaignId: 500 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener4',
-        timestamp: 1717978432,
+        timestamp: `${current - 50}`,
         impressions: [{ campaignId: 500 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener4',
-        timestamp: 1717978432,
+        timestamp: `${current - 50}`,
         impressions: [{ campaignId: 500 }],
       },
       {
         type: 'postbytes',
         listenerId: 'listener2',
-        timestamp: 1717978400,
+        timestamp: `${current - 40}`,
         impressions: [{ campaignId: 400 }],
       },
     ]);
-    return frequency2.insert().then(result => {
+    return frequency.insert().then(result => {
       expect(result).to.eql([
         { count: 7, dest: 'updates' },
-        { count: deletes, dest: 'deletes' },
+        { count: 1, dest: 'deletes' },
       ]);
     });
   });
