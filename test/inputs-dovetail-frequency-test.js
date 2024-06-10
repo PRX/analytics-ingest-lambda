@@ -28,6 +28,8 @@ describe('dovetail-frequency', () => {
   });
 
   it('inserts impression records', () => {
+
+    let deletes = 0;
     if (process.env.DDB_LOCAL) {
       const localClient = new AWS.DynamoDB({
         apiVersion: "2012-08-10",
@@ -37,10 +39,13 @@ describe('dovetail-frequency', () => {
         endpoint: `http://${process.env.DDB_LOCAL}:8000`
       });
       sinon.stub(dynamo, 'client').callsFake(async () => localClient);
+      deletes = 1;
     } else {
       sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
       sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+
     }
+
     let inserts = {};
     let frequency2 = new DovetailFrequency([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
@@ -95,7 +100,10 @@ describe('dovetail-frequency', () => {
       },
     ]);
     return frequency2.insert().then(result => {
-      expect(result).to.equal(7);
+      expect(result).to.eql([
+        { count: 7, dest: 'updates' },
+        { count: deletes, dest: 'deletes' },
+      ]);
     });
   });
 });
