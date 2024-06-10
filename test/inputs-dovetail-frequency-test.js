@@ -1,6 +1,7 @@
 'use strict';
 
 require('./support');
+const dynamo = require('../lib/dynamo');
 const DovetailFrequency = require('../lib/inputs/dovetail-frequency');
 
 describe('dovetail-frequency', () => {
@@ -26,6 +27,8 @@ describe('dovetail-frequency', () => {
   });
 
   it('inserts impression records', () => {
+    sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
+    sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
     let inserts = {};
     let frequency2 = new DovetailFrequency([
       { type: 'impression', requestUuid: 'the-uuid1', timestamp: 1490827132999 },
