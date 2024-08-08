@@ -53,6 +53,18 @@ describe('dovetail-downloads', () => {
       'agent_os_id',
       'city_geoname_id',
       'country_geoname_id',
+      'zones_filled_pre',
+      'zones_filled_mid',
+      'zones_filled_post',
+      'zones_filled_house_pre',
+      'zones_filled_house_mid',
+      'zones_filled_house_post',
+      'zones_unfilled_pre',
+      'zones_unfilled_mid',
+      'zones_unfilled_post',
+      'zones_unfilled_house_pre',
+      'zones_unfilled_house_mid',
+      'zones_unfilled_house_post',
     );
     expect(record.json.timestamp).to.equal(1490827132);
     expect(record.json.listener_episode).to.equal('something');
@@ -61,6 +73,33 @@ describe('dovetail-downloads', () => {
     expect(record.json.remote_ip).to.equal('1.2.3.0');
     expect(record.json.city_geoname_id).to.equal(888);
     expect(record.json.country_geoname_id).to.equal(999);
+  });
+
+  it('inserts fill rates', async () => {
+    const record = await download.format({
+      download: {},
+      filled: {
+        paid: [0, 1, 2],
+        house: [3, 4, 5],
+      },
+      unfilled: {
+        paid: [6, 7, 8],
+        house: [9, 10, 11],
+      },
+    });
+
+    expect(record.json.zones_filled_pre).to.equal(0);
+    expect(record.json.zones_filled_mid).to.equal(1);
+    expect(record.json.zones_filled_post).to.equal(2);
+    expect(record.json.zones_filled_house_pre).to.equal(3);
+    expect(record.json.zones_filled_house_mid).to.equal(4);
+    expect(record.json.zones_filled_house_post).to.equal(5);
+    expect(record.json.zones_unfilled_pre).to.equal(6);
+    expect(record.json.zones_unfilled_mid).to.equal(7);
+    expect(record.json.zones_unfilled_post).to.equal(8);
+    expect(record.json.zones_unfilled_house_pre).to.equal(9);
+    expect(record.json.zones_unfilled_house_mid).to.equal(10);
+    expect(record.json.zones_unfilled_house_post).to.equal(11);
   });
 
   it('inserts nothing', () => {
