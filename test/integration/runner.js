@@ -22,14 +22,23 @@ const testEvent = buildMixedStyleEvent(
 );
 
 // decode pingback settings
+// todo: Add in frequency
 if (process.env.PINGBACKS && process.env.PINGBACKS !== '0') {
+  delete process.env.DYNAMODB;
+  delete process.env.FREQUENCY;
   console.log('Running PINGBACKS');
 } else if (process.env.DYNAMODB && process.env.DYNAMODB !== '0') {
   delete process.env.PINGBACKS;
+  delete process.env.FREQUENCY;
   console.log('Running DYNAMODB');
+} else if (process.env.FREQUENCY && process.env.FREQUENCY !== '0') {
+  delete process.env.PINGBACKS;
+  delete process.env.DYNAMODB;
+  console.log('Running FREQUENCY');
 } else {
   delete process.env.DYNAMODB;
   delete process.env.PINGBACKS;
+  delete process.env.FREQUENCY;
   console.log('Running BIGQUERY');
 }
 
