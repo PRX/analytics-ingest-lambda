@@ -4,7 +4,7 @@ const { getRecordsFromEvent } = require('./lib/get-records');
 const logger = require('./lib/logger');
 const loadenv = require('./lib/loadenv');
 const timestamp = require('./lib/timestamp');
-const { BigqueryInputs, DynamoInputs, PingbackInputs } = require('./lib/inputs');
+const { BigqueryInputs, DynamoInputs, PingbackInputs, FrequencyInputs } = require('./lib/inputs');
 
 exports.handler = async event => {
   let records = [];
@@ -54,6 +54,8 @@ exports.handler = async event => {
     inputs = new PingbackInputs(records);
   } else if (process.env.DYNAMODB) {
     inputs = new DynamoInputs(records);
+  } else if (process.env.FREQUENCY) {
+    inputs = new FrequencyInputs(records);
   } else {
     inputs = new BigqueryInputs(records);
   }

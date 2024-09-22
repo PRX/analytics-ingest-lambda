@@ -109,6 +109,13 @@ then re-emit the record to kinesis.
 
 These `postbytes` records are then processed by the previous 2 lambdas.
 
+## Frequency Impressions
+
+Records with type `postbytes` will have their impressions looked at and if
+there is a frequency cap, then the impression will be recorded to DynamoDB
+to allow Dovetail Router to check how many impressions exist already for this
+campaign and listener.
+
 # Installation
 
 To get started, first run `yarn`. Then run `yarn dbs` to download the
