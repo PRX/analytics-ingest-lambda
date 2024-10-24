@@ -16,6 +16,7 @@
           "flightId": 78,
           "isDuplicate": false,
           "cause": null,
+          "frequency": "1:1",
           "pings": ["http://dovetail.prxu.org"]
         },
         {
@@ -26,6 +27,7 @@
           "flightId": 78,
           "isDuplicate": true,
           "cause": "something",
+          "frequency": "",
           "pings": ["https://foo.bar/this/should/not/fire"]
         }
       ],
@@ -56,6 +58,7 @@
           "flightId": 78,
           "isDuplicate": false,
           "cause": null,
+          "frequency": "",
           "pings": [
             "https://dovetail.prxu.org/ping",
             "https://dovetail.prxu.org/pin{g",
@@ -116,6 +119,7 @@
           "flightId": 78,
           "isDuplicate": false,
           "cause": null,
+          "frequency": "",
           "pings": ["https://dovetail.prxu.org/ping{?uuid}"]
         },
         {
@@ -125,7 +129,8 @@
           "creativeId": 789,
           "flightId": 1011,
           "isDuplicate": false,
-          "cause": null
+          "cause": null,
+          "frequency": ""
         }
       ],
       "digest": "the-digest",
@@ -164,6 +169,7 @@
           "flightId": 78,
           "isDuplicate": false,
           "cause": null,
+          "frequency": "",
           "pings": ["http://dovetail.prxu.org"],
           "targetPath": ":",
           "zoneName": "test_feeder_pre_1"
@@ -176,6 +182,7 @@
           "flightId": 78,
           "isDuplicate": true,
           "cause": "something",
+          "frequency": "",
           "pings": ["https://foo.bar/this/should/not/fire"],
           "targetPath": ":Country-US",
           "zoneName": "test_feeder_pre_2"
@@ -203,6 +210,7 @@
           "flightId": 78,
           "isDuplicate": false,
           "cause": null,
+          "frequency": "",
           "pings": [
             "https://dovetail.prxu.org/ping",
             "https://dovetail.prxu.org/pin{g",

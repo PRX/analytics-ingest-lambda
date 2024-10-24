@@ -15,6 +15,7 @@
         "flightId": 78,
         "isDuplicate": false,
         "cause": null,
+        "frequency": "1:1",
         "pings": ["http://www.foo.bar/ping1", "http://www.foo.bar/ping2"]
       }
     ],
@@ -46,6 +47,7 @@
         "flightId": 78,
         "isDuplicate": true,
         "cause": "something",
+        "frequency": "",
         "pings": ["http://www.foo.bar/ping3"]
       },
       {
@@ -57,6 +59,7 @@
         "isDuplicate": false,
         "targetPath": ":",
         "cause": null,
+        "frequency": "",
         "pings": ["http://www.adzerk.bar/ping4"]
       }
     ],
@@ -129,6 +132,7 @@
         "adId": null,
         "campaignId": null,
         "cause": null,
+        "frequency": "",
         "creativeId": null,
         "flightId": null,
         "isDuplicate": null,
@@ -161,6 +165,7 @@
         "isDuplicate": false,
         "targetPath": ":",
         "cause": null,
+        "frequency": "",
         "pings": ["http://www.adzerk.bar/ping5"],
         "vast": {
           "advertiser": "vastadvertiser1",

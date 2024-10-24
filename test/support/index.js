@@ -13,6 +13,7 @@ beforeEach(() => {
   process.env.KINESIS_STREAM = 'foobar_stream';
   process.env.KINESIS_RETRY_STREAM = 'foobar_retry_stream';
   process.env.PINGBACKS = '';
+  process.env.DDB_FREQUENCY_TABLE = 'listener_frequency_dev_local';
 });
 
 // global includes
