@@ -125,7 +125,7 @@ describe('dovetail-frequency', () => {
         type: 'postbytes',
         listenerId: 'listener2',
         timestamp: `${current - 40}`,
-        impressions: [{ campaignId: 400, frequency: "1:1" }],
+        impressions: [{ campaignId: 400, frequency: "1:1" }, { campaignId: 404 }],
       },
     ]);
     return frequency.insert().then(result => {
