@@ -34,13 +34,15 @@ describe('assayer', () => {
     });
 
     it('checks for domain threats', async () => {
-      const info = await assayer.test({ remoteReferrer: 'http://cav.is/any/thing' });
+      const download = { cause: 'domainthreat' };
+      const info = await assayer.test({ remoteReferrer: 'http://cav.is/any/thing', download });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('domainthreat');
     });
 
     it('checks for datacenters', async () => {
-      const info = await assayer.test({ remoteIp: KNOWN_DATACENTER_IP });
+      const download = { cause: 'datacenter: Amazon AWS' };
+      const info = await assayer.test({ remoteIp: KNOWN_DATACENTER_IP, download });
       expect(info.isDuplicate).to.equal(true);
       expect(info.cause).to.equal('datacenter: Amazon AWS');
     });
