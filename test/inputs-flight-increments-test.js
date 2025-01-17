@@ -89,11 +89,14 @@ describe('flight-increments', () => {
   });
 
   it('does not ping duplicate records', async () => {
+    nock('https://host1.dt.test').post('/api/v1/flight_increments/1970-01-01').reply(202);
+    nock('https://host2.dt.test').post('/api/v1/flight_increments/1970-01-01').reply(202);
+
     const recs = [
       {
         type: 'postbytes',
         remoteReferrer: 'http://cav.is/domain/threat',
-        impressions: [{ flightId: 1 }],
+        impressions: [{ flightId: 1, isDuplicate: true, cause: 'domainthreat' }, { flightId: 2 }],
       },
     ];
     const incrs = new FlightIncrements(recs);
@@ -101,6 +104,6 @@ describe('flight-increments', () => {
 
     const result = await incrs.insert();
     expect(result.length).to.equal(2);
-    expect(result.map(r => r.count)).to.eql([0, 0]);
+    expect(result.map(r => r.count)).to.eql([1, 1]);
   });
 });
