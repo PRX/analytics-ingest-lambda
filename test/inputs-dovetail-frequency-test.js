@@ -117,7 +117,7 @@ describe('dovetail-frequency', () => {
         type: 'postbytes',
         listenerId: 'listener3',
         timestamp: `${current - 80}`,
-        impressions: [{ isDuplicate: true, campaignId: 300 }],
+        impressions: [{ isDuplicate: true, campaignId: 300, frequency: '1:1' }],
       },
       {
         type: 'postbytes',
