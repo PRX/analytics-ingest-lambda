@@ -7,9 +7,6 @@
   "description": "Process kinesis metric streams and ship to bigquery",
   "main": "index.js",
   "scripts": {
-    "datacenters": "node bin/getdatacenters.js",
-    "domainthreats": "node bin/getdomainthreats.js",
-    "dbs": "npm run datacenters && npm run domainthreats",
     "start": "npm run start-bigquery && npm run start-dynamodb && npm run start-pingbacks && npm run start-frequency",
     "start-bigquery": "DYNAMODB=0 PINGBACKS=0 FREQUENCY=0 node test/integration/runner.js",
     "start-dynamodb": "DYNAMODB=1 PINGBACKS=0 FREQUENCY=0 node test/integration/runner.js",
