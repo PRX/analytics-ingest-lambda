@@ -138,18 +138,23 @@ describe('pingbacks', () => {
   });
 
   it('does not ping duplicate records', async () => {
+    nock('http://foo.bar').get('/ping2').reply(200);
+    sinon.stub(logger, 'info');
     sinon.stub(logger, 'warn');
     pingbacks = new Pingbacks([
       {
         type: 'postbytes',
         remoteReferrer: 'http://cav.is/domain/threat',
-        impressions: [{ adId: 11, isDuplicate: false, pings: ['http://foo.bar/ping1'] }],
+        impressions: [
+          { adId: 11, isDuplicate: true, cause: 'domainthreat', pings: ['http://foo.bar/ping1'] },
+          { adId: 22, pings: ['http://foo.bar/ping2'] },
+        ],
       },
     ]);
     expect(pingbacks._records.length).to.equal(1);
 
     const result = await pingbacks.insert();
-    expect(result.length).to.equal(0);
+    expect(result.length).to.equal(1);
     expect(logger.warn).not.to.have.been.called;
   });
 });
