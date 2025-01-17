@@ -118,8 +118,7 @@ campaign and listener.
 
 # Installation
 
-To get started, first run `yarn`. Then run `yarn dbs` to download the
-remote datacenter IP lists, and domain threat lists.
+To get started, just run `yarn`.
 
 ## Unit Tests
 
@@ -166,8 +165,7 @@ The 3 lambdas functions are deployed via a Cloudformation stack in the [Infrastr
 
 # Docker
 
-This repo is now dockerized! You'll need some read-only S3 credentials in your
-`.env` file for the `bin/getdatacenters.js` script to succeed during build:
+This repo is now dockerized!
 
 ```
 docker-compose build
@@ -181,24 +179,6 @@ And you can easily-ish get the lambda zip built by the Dockerfile:
 docker ps -a | grep analyticsingestlambda
 docker cp {{container-id-here}}:/app/build.zip myzipfile.zip
 unzip -l myzipfile.zip
-```
-
-# Datacenter Updates
-
-Periodically, datacenter IP ranges should be updated in the S3 bucket they're stored in.
-
-The CSV from [ipcat](https://github.com/client9/ipcat) (or [this fork](https://github.com/growlfm/ipcat))
-can be pasted in as-is.
-
-The list [from Amazon](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html) contains
-overlapping CIDRs, so you'll need to combine those to be compatible with `prx-ip-filter`.
-(And we don't need the IPv4 ranges from them, as ipcat already has them).
-
-```
-wget https://ip-ranges.amazonaws.com/ip-ranges.json
-jq '.ipv6_prefixes[].ipv6_prefix' ip-ranges.json -r > ip-ranges.csv
-# pip install netaddr
-cat ip-ranges.csv | python -c "exec(\"import sys\nfrom netaddr import *\ndata = sys.stdin.readlines()\nif len(data) == 1:\n  data = data[0].split()\nnets = IPSet(data)\nfor cidr in nets.iter_cidrs():  print(f'{cidr},Amazon AWS')\")" > datacenters.awsv6.csv
 ```
 
 # License
