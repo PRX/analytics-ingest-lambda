@@ -107,8 +107,10 @@ describe('dynamodb-data', () => {
     const imp3 = { segment: 3, num: 3 };
     const impressions = [imp1, imp3];
     const redirect = { type: 'antebytes', timestamp: 1000, download, impressions, ...led };
+    const durations = [12.85924, 948.9482285, 1.5846666666];
+    const types = 'aoi';
     const bytes1 = { type: 'segmentbytes', timestamp: 1001, segment: 3, ...led };
-    const bytes2 = { type: 'bytes', timestamp: 1002, ...led };
+    const bytes2 = { type: 'bytes', timestamp: 1002, durations, types, ...led };
     const bytes3 = { type: 'bytes', timestamp: 100000, ...led };
 
     it('logs kinesis impressions', async () => {
