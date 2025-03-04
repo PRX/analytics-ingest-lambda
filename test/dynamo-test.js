@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config();
 
 require('./support');
 
@@ -59,9 +60,13 @@ describe('dynamo', () => {
   describe('#updateResult', () => {
     it('returns null payload', async () => {
       const Attributes = { segments: { SS: ['1', '2'] } };
-      expect(await dynamo.updateResult('id', null, null, {})).to.eql(['id', null, null]);
-      expect(await dynamo.updateResult('id', null, ['1'], {})).to.eql(['id', null, { 1: false }]);
-      expect(await dynamo.updateResult('id', null, ['1'], { Attributes })).to.eql([
+      expect(await dynamo.updateResult('id', null, null, null, {})).to.eql(['id', null, null]);
+      expect(await dynamo.updateResult('id', null, ['1'], null, {})).to.eql([
+        'id',
+        null,
+        { 1: false },
+      ]);
+      expect(await dynamo.updateResult('id', null, ['1'], null, { Attributes })).to.eql([
         'id',
         null,
         { 1: false, 2: false },
@@ -70,12 +75,12 @@ describe('dynamo', () => {
 
     it('returns null when no segments', async () => {
       const Attributes = { payload: { B: await dynamo.deflate({ foo: 'bar' }) } };
-      expect(await dynamo.updateResult('id', { foo: 'bar' }, null, {})).to.eql([
+      expect(await dynamo.updateResult('id', { foo: 'bar' }, null, null, {})).to.eql([
         'id',
         { foo: 'bar' },
         null,
       ]);
-      expect(await dynamo.updateResult('id', { foo: 'bar' }, [], { Attributes })).to.eql([
+      expect(await dynamo.updateResult('id', { foo: 'bar' }, [], null, { Attributes })).to.eql([
         'id',
         { foo: 'bar' },
         null,
@@ -88,13 +93,15 @@ describe('dynamo', () => {
         segments: { SS: ['1', '2', '3'] },
       };
 
-      const result1 = await dynamo.updateResult('id', { foo: 'bar' }, ['1'], { Attributes });
+      const result1 = await dynamo.updateResult('id', { foo: 'bar' }, ['1'], null, { Attributes });
       expect(result1).to.eql(['id', { foo: 'bar' }, { 1: false, 2: false, 3: false }]);
 
-      const result2 = await dynamo.updateResult('id', { foo: 'bar' }, ['2', '1'], { Attributes });
+      const result2 = await dynamo.updateResult('id', { foo: 'bar' }, ['2', '1'], null, {
+        Attributes,
+      });
       expect(result2).to.eql(result1);
 
-      const result3 = await dynamo.updateResult('id', { foo: 'bar' }, ['2', '3', '1'], {
+      const result3 = await dynamo.updateResult('id', { foo: 'bar' }, ['2', '3', '1'], null, {
         Attributes,
       });
       expect(result3).to.eql(result1);
@@ -102,7 +109,9 @@ describe('dynamo', () => {
 
     it('returns all segments when first setting payload', async () => {
       const Attributes = { segments: { SS: ['1', '2'] } };
-      const result = await dynamo.updateResult('my-id', { foo: 'bar' }, ['2', '3'], { Attributes });
+      const result = await dynamo.updateResult('my-id', { foo: 'bar' }, ['2', '3'], null, {
+        Attributes,
+      });
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({ foo: 'bar' });
@@ -111,7 +120,7 @@ describe('dynamo', () => {
 
     it('returns all segments when first setting segments', async () => {
       const Attributes = { payload: { B: await dynamo.deflate({ foo: 'bar' }) } };
-      const result = await dynamo.updateResult('my-id', null, ['1', '2'], { Attributes });
+      const result = await dynamo.updateResult('my-id', null, ['1', '2'], null, { Attributes });
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({ foo: 'bar' });
@@ -123,13 +132,31 @@ describe('dynamo', () => {
         payload: { B: await dynamo.deflate({ foo: 'bar' }) },
         segments: { SS: ['1', '2'] },
       };
-      const result = await dynamo.updateResult('my-id', { foo: 'changed' }, ['1', '2', '3'], {
+      const result = await dynamo.updateResult('my-id', { foo: 'changed' }, ['1', '2', '3'], null, {
         Attributes,
       });
       expect(result.length).to.equal(3);
       expect(result[0]).to.equal('my-id');
       expect(result[1]).to.eql({ foo: 'changed' });
       expect(result[2]).to.eql({ 1: false, 2: false, 3: true });
+    });
+
+    it('merges just-set extras into the payload', async () => {
+      const payload = { foo: 'bar' };
+      const extras = { extra: 'stuff' };
+      const result = await dynamo.updateResult('my-id', payload, [], extras, {});
+      expect(result[1]).to.eql({ ...payload, ...extras });
+    });
+
+    it('merges previous extras into the payload', async () => {
+      const payload = { foo: 'bar' };
+      const extras = { extra: 'stuff' };
+      const Attributes = {
+        payload: { B: await dynamo.deflate(payload) },
+        extras: { S: JSON.stringify(extras) },
+      };
+      const result = await dynamo.updateResult('my-id', null, null, null, { Attributes });
+      expect(result[1]).to.eql({ ...payload, ...extras });
     });
   });
 
@@ -170,6 +197,12 @@ describe('dynamo', () => {
 
         const result3 = await dynamo.update('testid1', null, ['1', 2]);
         expect(result3).to.eql(['testid1', DATA, { 1: false, 2: false }]);
+      });
+
+      it('merges extras into the payload', async () => {
+        await dynamo.update('testid1', null, ['1'], { extra: 'stuff' });
+        const result = await dynamo.update('testid1', DATA);
+        expect(result[1]).to.eql({ ...DATA, extra: 'stuff' });
       });
     });
   });
