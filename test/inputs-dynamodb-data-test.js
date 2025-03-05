@@ -111,7 +111,7 @@ describe('dynamodb-data', () => {
     const types = 'aoi';
     const bytes1 = { type: 'segmentbytes', timestamp: 1001, segment: 3, ...led };
     const bytes2 = { type: 'bytes', timestamp: 1002, durations, types, ...led };
-    const bytes3 = { type: 'bytes', timestamp: 100000, ...led };
+    const bytes3 = { type: 'bytes', timestamp: 100000, durations, types, ...led };
 
     it('logs kinesis impressions', async () => {
       sinon.stub(logger, 'info');
@@ -133,6 +133,8 @@ describe('dynamodb-data', () => {
         type: 'postbytes',
         timestamp: 1002,
         download,
+        durations,
+        types,
         impressions: [imp3],
         ...led,
       });
@@ -141,6 +143,8 @@ describe('dynamodb-data', () => {
         type: 'postbytes',
         timestamp: 100000,
         download,
+        durations,
+        types,
         impressions: [],
         ...led,
       });
