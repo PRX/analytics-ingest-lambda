@@ -21,6 +21,9 @@ describe('urlutil', () => {
       campaignId: 8,
       creativeId: 7,
       flightId: 6,
+      durations: [24.03, 32.31, 840.72, 19.96, 495.51, 39.761, 6.2],
+      types: 'aaoaohi',
+      segment: 3,
     };
     if (key) {
       data[key] = val;
@@ -168,6 +171,15 @@ describe('urlutil', () => {
   it('reassembles original request url', () => {
     let url = urlutil.expand('http://foo.bar/?ru={url}', TEST_IMPRESSION());
     expect(url).to.equal('http://foo.bar/?ru=dovetail.prxu.org%2F99%2Fthe%2Fpath.mp3%3Ffoo%3Dbar');
+  });
+
+  it('returns ad position data', () => {
+    let tpl = 'http://foo.bar{?totalduration,adpodposition,adpodoffsetstart,adposition}';
+    let url = urlutil.expand(tpl, TEST_IMPRESSION());
+    expect(url).to.include('totalduration=1458.491');
+    expect(url).to.include('adpodposition=2');
+    expect(url).to.include('adpodoffsetstart=897.06');
+    expect(url).to.include('adposition=a');
   });
 
   it('counts by hostname', () => {
