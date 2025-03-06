@@ -2,11 +2,10 @@
 
 const support = require('./support');
 const urlutil = require('../lib/urlutil');
-const URI     = require('urijs');
-const uuid    = require('uuid');
+const URI = require('urijs');
+const uuid = require('uuid');
 
 describe('urlutil', () => {
-
   const TEST_IMPRESSION = (key, val) => {
     let data = {
       url: '/99/the/path.mp3?foo=bar',
@@ -21,16 +20,27 @@ describe('urlutil', () => {
       adId: 9,
       campaignId: 8,
       creativeId: 7,
-      flightId: 6
+      flightId: 6,
     };
-    if (key) { data[key] = val; }
+    if (key) {
+      data[key] = val;
+    }
     return data;
   };
 
   it('expands non-transformed params', () => {
-    let nonTransforms = ['ad', 'agent', 'campaign', 'creative', 'episode',
-      'flight', 'listener', 'listenerepisode', 'podcast',
-      'referer'];
+    let nonTransforms = [
+      'ad',
+      'agent',
+      'campaign',
+      'creative',
+      'episode',
+      'flight',
+      'listener',
+      'listenerepisode',
+      'podcast',
+      'referer',
+    ];
     let url = urlutil.expand(`http://foo.bar/{?${nonTransforms.join(',')}}`, TEST_IMPRESSION());
     let params = URI(url).query(true);
     expect(url).to.match(/^http:\/\/foo\.bar\/\?/);
@@ -73,7 +83,10 @@ describe('urlutil', () => {
 
   it('cleans ip addresses', () => {
     let url1 = urlutil.expand('http://foo.bar/{?ip}', TEST_IMPRESSION());
-    let url2 = urlutil.expand('http://foo.bar/{?ip}', TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'));
+    let url2 = urlutil.expand(
+      'http://foo.bar/{?ip}',
+      TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'),
+    );
     let url3 = urlutil.expand('http://foo.bar/{?ip}', TEST_IMPRESSION('remoteIp', '  '));
     expect(url1).to.equal('http://foo.bar/?ip=127.0.0.1');
     expect(url2).to.equal('http://foo.bar/?ip=127.0.0.1');
@@ -82,7 +95,10 @@ describe('urlutil', () => {
 
   it('masks ip addresses', () => {
     let url1 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION());
-    let url2 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'));
+    let url2 = urlutil.expand(
+      'http://foo.bar/{?ipmask}',
+      TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'),
+    );
     let url3 = urlutil.expand('http://foo.bar/{?ipmask}', TEST_IMPRESSION('remoteIp', '  '));
     expect(url1).to.equal('http://foo.bar/?ipmask=127.0.0.0');
     expect(url2).to.equal('http://foo.bar/?ipmask=127.0.0.0');
@@ -91,9 +107,15 @@ describe('urlutil', () => {
 
   it('only ipv4 addresses', () => {
     let url1 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION());
-    let url2 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'));
+    let url2 = urlutil.expand(
+      'http://foo.bar/{?ipv4}',
+      TEST_IMPRESSION('remoteIp', '  what , 127.0.0.1'),
+    );
     let url3 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  '));
-    let url4 = urlutil.expand('http://foo.bar/{?ipv4}', TEST_IMPRESSION('remoteIp', '  what , 2804:18:1012:6b65::'));
+    let url4 = urlutil.expand(
+      'http://foo.bar/{?ipv4}',
+      TEST_IMPRESSION('remoteIp', '  what , 2804:18:1012:6b65::'),
+    );
     expect(url1).to.equal('http://foo.bar/?ipv4=127.0.0.1');
     expect(url2).to.equal('http://foo.bar/?ipv4=127.0.0.1');
     expect(url3).to.equal('http://foo.bar/');
@@ -102,15 +124,20 @@ describe('urlutil', () => {
 
   it('returns timestamps in milliseconds', () => {
     let url1 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION());
-    let url2 = urlutil.expand('http://foo.bar/{?timestamp}', TEST_IMPRESSION('timestamp', 1507234920010));
+    let url2 = urlutil.expand(
+      'http://foo.bar/{?timestamp}',
+      TEST_IMPRESSION('timestamp', 1507234920010),
+    );
     expect(url1).to.equal('http://foo.bar/?timestamp=1507234920000');
     expect(url2).to.equal('http://foo.bar/?timestamp=1507234920010');
   });
 
   it('does not collide on 32 bit random ints very often', () => {
-    let many = Array(1000).fill().map(() => {
-      return urlutil.expand('{randomint}', TEST_IMPRESSION('requestUuid', uuid.v4()));
-    });
+    let many = Array(1000)
+      .fill()
+      .map(() => {
+        return urlutil.expand('{randomint}', TEST_IMPRESSION('requestUuid', uuid.v4()));
+      });
     expect(new Set(many).size).to.equal(1000);
     many.forEach(url => {
       let num = parseInt(url);
@@ -125,7 +152,10 @@ describe('urlutil', () => {
     let url1 = urlutil.expand('http://foo.bar/{?randomstr}', TEST_IMPRESSION());
     let url2 = urlutil.expand('http://foo.bar/{?randomstr}', TEST_IMPRESSION());
     let url3 = urlutil.expand('http://foo.bar/{?randomstr}', TEST_IMPRESSION('timestamp', 9999999));
-    let url4 = urlutil.expand('http://foo.bar/{?randomstr}', TEST_IMPRESSION('listenerEpisode', 'changed'));
+    let url4 = urlutil.expand(
+      'http://foo.bar/{?randomstr}',
+      TEST_IMPRESSION('listenerEpisode', 'changed'),
+    );
     let url5 = urlutil.expand('http://foo.bar/{?randomstr}', TEST_IMPRESSION('adId', 8));
     expect(url1).to.equal(url2);
     expect(url1).not.to.equal(url3);
@@ -142,9 +172,8 @@ describe('urlutil', () => {
 
   it('counts by hostname', () => {
     expect(urlutil.count({}, null)).to.eql({});
-    expect(urlutil.count({start: 99}, undefined)).to.eql({start: 99});
-    expect(urlutil.count({}, 'http://foo.gov/bar')).to.eql({'foo.gov': 1});
-    expect(urlutil.count({'foo.gov': 10}, 'https://foo.gov/bar')).to.eql({'foo.gov': 11});
+    expect(urlutil.count({ start: 99 }, undefined)).to.eql({ start: 99 });
+    expect(urlutil.count({}, 'http://foo.gov/bar')).to.eql({ 'foo.gov': 1 });
+    expect(urlutil.count({ 'foo.gov': 10 }, 'https://foo.gov/bar')).to.eql({ 'foo.gov': 11 });
   });
-
 });
