@@ -8,8 +8,8 @@ describe('dynamodb-data', () => {
   it('organizes records into payloads and segments', () => {
     const recs = [
       { listenerEpisode: 'le1', digest: 'd1', timestamp: 1000, type: 'antebytes', any: 'data' },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes' },
-      { listenerEpisode: 'le2', digest: 'd1', timestamp: 3000, type: 'bytes' },
+      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes', durations: [1, 2] },
+      { listenerEpisode: 'le2', digest: 'd1', timestamp: 3000, type: 'bytes', durations: [3] },
       { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
     ];
     const ddb = new DynamodbData(recs);
@@ -20,6 +20,10 @@ describe('dynamodb-data', () => {
     expect(ddb.segments).to.eql({
       'le1.d1': ['2000', '4000.2'],
       'le2.d1': ['3000'],
+    });
+    expect(ddb.extras).to.eql({
+      'le1.d1': { durations: [1, 2], types: '' },
+      'le2.d1': { durations: [3], types: '' },
     });
   });
 
