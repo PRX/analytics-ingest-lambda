@@ -87,7 +87,9 @@
       "digest": "the-digest",
       "bytes": 104820,
       "seconds": 2.5858585858,
-      "percent": 0.582747737
+      "percent": 0.582747737,
+      "durations": [11.1, 22.2, 33.3, 44.4, 55.5],
+      "types": "oaaoa"
     },
     {
       "type": "segmentbytes",
