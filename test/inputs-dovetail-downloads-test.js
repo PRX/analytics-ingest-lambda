@@ -53,6 +53,7 @@ describe('dovetail-downloads', () => {
       'agent_os_id',
       'city_geoname_id',
       'country_geoname_id',
+      'postal_code',
       'zones_filled_pre',
       'zones_filled_mid',
       'zones_filled_post',
