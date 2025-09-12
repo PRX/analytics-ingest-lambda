@@ -7,6 +7,9 @@
   "description": "Process dovetail kinesis metric streams",
   "main": "index.js",
   "scripts": {
+    "lint": "biome check",
+    "lint-ci": "biome ci",
+    "lint-fix": "biome check --write"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,8 @@
     "url": "https://github.com/PRX/analytics-ingest-lambda/issues"
   },
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "2.2.4"
+  },
   "dependencies": {}
 }
