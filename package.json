@@ -1,24 +1,12 @@
 {
   "name": "analytics-ingest-lambda",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "engines": {
     "node": ">= 8.10.0"
   },
-  "description": "Process kinesis metric streams and ship to bigquery",
+  "description": "Process dovetail kinesis metric streams",
   "main": "index.js",
   "scripts": {
-    "start": "npm run start-bigquery && npm run start-dynamodb && npm run start-pingbacks && npm run start-frequency",
-    "start-bigquery": "DYNAMODB=0 PINGBACKS=0 FREQUENCY=0 node test/integration/runner.js",
-    "start-dynamodb": "DYNAMODB=1 PINGBACKS=0 FREQUENCY=0 node test/integration/runner.js",
-    "start-pingbacks": "DYNAMODB=0 PINGBACKS=1 FREQUENCY=0 node test/integration/runner.js",
-    "start-frequency": "DYNAMODB=0 PINGBACKS=0 FREQUENCY=1 node test/integration/runner.js",
-    "test": "mocha test/",
-    "ci": "istanbul cover _mocha -- test/ && codecov",
-    "build": "yarn run build-sync && yarn run build-prune && yarn run build-zip",
-    "build-sync": "rsync -crl --delete --exclude-from .lambdaignore . build",
-    "build-prune": "cd build && yarn --production && rm -rf node_modules/aws-sdk",
-    "build-zip": "rm -f build.zip && cd build && zip -rq ../build.zip .",
-    "watch": "mocha test/ -w"
   },
   "repository": {
     "type": "git",
@@ -30,31 +18,11 @@
     "bigquery"
   ],
   "author": "ryan cavis <ryan@prx.org>",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/PRX/analytics-ingest-lambda/issues"
   },
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
-  "devDependencies": {
-    "aws-sdk": "^2.802.0",
-    "chai": "^4.2.0",
-    "codecov": "^3.1.0",
-    "dotenv": "^6.2.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^5.2.0",
-    "nock": "^13.2.7",
-    "prettier": "^2.3.1",
-    "sinon": "^7.2.3",
-    "sinon-chai": "^3.3.0",
-    "targz": "^1.0.1"
-  },
-  "dependencies": {
-    "@google-cloud/bigquery": "2.0.6",
-    "follow-redirects": "^1.13.0",
-    "ipaddr.js": "^2.0.0",
-    "lambda-log": "^2.4.0",
-    "prx-ip-filter": "^0.0.1",
-    "urijs": "^1.19.2",
-    "uuid": "^8.3.1"
-  }
+  "devDependencies": {},
+  "dependencies": {}
 }

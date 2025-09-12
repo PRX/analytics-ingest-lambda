@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/nodejs:16
+FROM public.ecr.aws/lambda/nodejs:22-arm64
 
 MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.lambda="true"
