@@ -1,140 +1,140 @@
-require('./support');
+require("./support");
 
-const dynamo = require('../lib/dynamo');
-const logger = require('../lib/logger');
-const DynamodbData = require('../lib/inputs/dynamodb-data');
+const dynamo = require("../lib/dynamo");
+const logger = require("../lib/logger");
+const DynamodbData = require("../lib/inputs/dynamodb-data");
 
-describe('dynamodb-data', () => {
-  it('organizes records into payloads and segments', () => {
+describe("dynamodb-data", () => {
+  it("organizes records into payloads and segments", () => {
     const recs = [
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 1000, type: 'antebytes', any: 'data' },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes', durations: [1, 2] },
-      { listenerEpisode: 'le2', digest: 'd1', timestamp: 3000, type: 'bytes', durations: [3] },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 1000, type: "antebytes", any: "data" },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 2000, type: "bytes", durations: [1, 2] },
+      { listenerEpisode: "le2", digest: "d1", timestamp: 3000, type: "bytes", durations: [3] },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 4000, type: "segmentbytes", segment: 2 },
     ];
     const ddb = new DynamodbData(recs);
 
     expect(ddb.payloads).to.eql({
-      'le1.d1': { timestamp: 1000, type: 'antebytes', any: 'data' },
+      "le1.d1": { timestamp: 1000, type: "antebytes", any: "data" },
     });
     expect(ddb.segments).to.eql({
-      'le1.d1': ['2000', '4000.2'],
-      'le2.d1': ['3000'],
+      "le1.d1": ["2000", "4000.2"],
+      "le2.d1": ["3000"],
     });
     expect(ddb.extras).to.eql({
-      'le1.d1': { durations: [1, 2], types: '' },
-      'le2.d1': { durations: [3], types: '' },
+      "le1.d1": { durations: [1, 2], types: "" },
+      "le2.d1": { durations: [3], types: "" },
     });
   });
 
-  it('dedups segments', () => {
+  it("dedups segments", () => {
     const recs = [
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes' },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 2000, type: 'bytes' },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
-      { listenerEpisode: 'le1', digest: 'd1', timestamp: 4000, type: 'segmentbytes', segment: 2 },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 2000, type: "bytes" },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 2000, type: "bytes" },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 4000, type: "segmentbytes", segment: 2 },
+      { listenerEpisode: "le1", digest: "d1", timestamp: 4000, type: "segmentbytes", segment: 2 },
     ];
     const ddb = new DynamodbData(recs);
 
     expect(ddb.segments).to.eql({
-      'le1.d1': ['2000', '4000.2'],
+      "le1.d1": ["2000", "4000.2"],
     });
   });
 
-  it('recognizes antebytes and bytes records', () => {
+  it("recognizes antebytes and bytes records", () => {
     const ddb = new DynamodbData();
 
     expect(ddb.check({})).to.be.false;
-    expect(ddb.check({ type: 'postbytes' })).to.be.false;
+    expect(ddb.check({ type: "postbytes" })).to.be.false;
 
-    expect(ddb.check({ type: 'antebytes' })).to.be.true;
-    expect(ddb.check({ type: 'bytes' })).to.be.true;
-    expect(ddb.check({ type: 'segmentbytes' })).to.be.true;
+    expect(ddb.check({ type: "antebytes" })).to.be.true;
+    expect(ddb.check({ type: "bytes" })).to.be.true;
+    expect(ddb.check({ type: "segmentbytes" })).to.be.true;
   });
 
-  it('ignores duplicate bytes and segmentbytes records', () => {
+  it("ignores duplicate bytes and segmentbytes records", () => {
     const isDuplicate = true;
-    const cause = 'digestCache';
+    const cause = "digestCache";
     const ddb = new DynamodbData([
-      { type: 'antebytes', isDuplicate, cause, listenerEpisode: 'le1', digest: 'd1' },
-      { type: 'bytes', isDuplicate, cause, listenerEpisode: 'le3', digest: 'd3' },
-      { type: 'segmentbytes', isDuplicate, cause, listenerEpisode: 'le4', digest: 'd4' },
+      { type: "antebytes", isDuplicate, cause, listenerEpisode: "le1", digest: "d1" },
+      { type: "bytes", isDuplicate, cause, listenerEpisode: "le3", digest: "d3" },
+      { type: "segmentbytes", isDuplicate, cause, listenerEpisode: "le4", digest: "d4" },
     ]);
 
     expect(Object.keys(ddb.payloads).length).to.equal(1);
     expect(Object.keys(ddb.segments).length).to.equal(0);
   });
 
-  it('encodes payload keys', () => {
+  it("encodes payload keys", () => {
     const ddb = new DynamodbData();
-    const data = { listenerEpisode: 'a', digest: 'b' };
+    const data = { listenerEpisode: "a", digest: "b" };
 
-    expect(ddb.encodeKey(data)).to.eql(['a.b', {}]);
-    expect(ddb.encodeKey({ any: [9, 'data'], ...data })).to.eql(['a.b', { any: [9, 'data'] }]);
+    expect(ddb.encodeKey(data)).to.eql(["a.b", {}]);
+    expect(ddb.encodeKey({ any: [9, "data"], ...data })).to.eql(["a.b", { any: [9, "data"] }]);
   });
 
-  it('decodes payload keys', () => {
+  it("decodes payload keys", () => {
     const ddb = new DynamodbData();
-    const data = { any: [9, 'data'] };
+    const data = { any: [9, "data"] };
 
-    expect(ddb.decodeKey('a.b', data)).to.eql({ listenerEpisode: 'a', digest: 'b', ...data });
-    expect(ddb.decodeKey('a.b.c', data)).to.eql({ listenerEpisode: 'a', digest: 'b.c', ...data });
+    expect(ddb.decodeKey("a.b", data)).to.eql({ listenerEpisode: "a", digest: "b", ...data });
+    expect(ddb.decodeKey("a.b.c", data)).to.eql({ listenerEpisode: "a", digest: "b.c", ...data });
   });
 
-  it('encodes segments', () => {
+  it("encodes segments", () => {
     const ddb = new DynamodbData();
 
-    expect(ddb.encodeSegment({ type: 'bytes', timestamp: 99 })).to.equal('99');
-    expect(ddb.encodeSegment({ type: 'bytes' })).to.match(/^[0-9]+$/);
-    expect(ddb.encodeSegment({ timestamp: 99 })).to.equal('99');
+    expect(ddb.encodeSegment({ type: "bytes", timestamp: 99 })).to.equal("99");
+    expect(ddb.encodeSegment({ type: "bytes" })).to.match(/^[0-9]+$/);
+    expect(ddb.encodeSegment({ timestamp: 99 })).to.equal("99");
     expect(ddb.encodeSegment({})).to.match(/^[0-9]+$/);
 
-    expect(ddb.encodeSegment({ type: 'segmentbytes', timestamp: 99, segment: 4 })).to.equal('99.4');
-    expect(ddb.encodeSegment({ type: 'segmentbytes', segment: 4 })).to.match(/^[0-9]+\.4$/);
+    expect(ddb.encodeSegment({ type: "segmentbytes", timestamp: 99, segment: 4 })).to.equal("99.4");
+    expect(ddb.encodeSegment({ type: "segmentbytes", segment: 4 })).to.match(/^[0-9]+\.4$/);
   });
 
-  it('decodes segments', () => {
+  it("decodes segments", () => {
     const ddb = new DynamodbData();
-    const isoString = '2021-06-17T18:20:03.879Z';
+    const isoString = "2021-06-17T18:20:03.879Z";
     const epochMs = Date.parse(isoString);
 
-    expect(ddb.decodeSegment(`${epochMs}`)).to.eql(['20210617', epochMs, 'DOWNLOAD']);
-    expect(ddb.decodeSegment(`${epochMs}.0`)).to.eql(['20210617', epochMs, 0]);
-    expect(ddb.decodeSegment(`${epochMs}.4`)).to.eql(['20210617', epochMs, 4]);
-    expect(ddb.decodeSegment(`${epochMs}.whatev`)).to.eql(['20210617', epochMs, 'whatev']);
+    expect(ddb.decodeSegment(`${epochMs}`)).to.eql(["20210617", epochMs, "DOWNLOAD"]);
+    expect(ddb.decodeSegment(`${epochMs}.0`)).to.eql(["20210617", epochMs, 0]);
+    expect(ddb.decodeSegment(`${epochMs}.4`)).to.eql(["20210617", epochMs, 4]);
+    expect(ddb.decodeSegment(`${epochMs}.whatev`)).to.eql(["20210617", epochMs, "whatev"]);
   });
 
-  describe('#insert', () => {
-    const led = { listenerEpisode: 'le1', digest: 'd1' };
-    const download = { the: 'download' };
+  describe("#insert", () => {
+    const led = { listenerEpisode: "le1", digest: "d1" };
+    const download = { the: "download" };
     const imp1 = { segment: 1, num: 1 };
     const imp3 = { segment: 3, num: 3 };
     const impressions = [imp1, imp3];
-    const redirect = { type: 'antebytes', timestamp: 1000, download, impressions, ...led };
+    const redirect = { type: "antebytes", timestamp: 1000, download, impressions, ...led };
     const durations = [12.85924, 948.9482285, 1.5846666666];
-    const types = 'aoi';
-    const bytes1 = { type: 'segmentbytes', timestamp: 1001, segment: 3, ...led };
-    const bytes2 = { type: 'bytes', timestamp: 1002, durations, types, ...led };
-    const bytes3 = { type: 'bytes', timestamp: 100000, durations, types, ...led };
+    const types = "aoi";
+    const bytes1 = { type: "segmentbytes", timestamp: 1001, segment: 3, ...led };
+    const bytes2 = { type: "bytes", timestamp: 1002, durations, types, ...led };
+    const bytes3 = { type: "bytes", timestamp: 100000, durations, types, ...led };
 
-    it('logs kinesis impressions', async () => {
-      sinon.stub(logger, 'info');
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+    it("logs kinesis impressions", async () => {
+      sinon.stub(logger, "info");
+      sinon.stub(dynamo, "updateItemPromise").callsFake(async () => ({}));
 
       const ddb = new DynamodbData([redirect, bytes1, bytes2, bytes3]);
       const result = await ddb.insert();
       expect(result).to.eql([
-        { count: 1, dest: 'dynamodb' },
-        { count: 2, dest: 'kinesis' },
+        { count: 1, dest: "dynamodb" },
+        { count: 2, dest: "kinesis" },
       ]);
 
       expect(dynamo.updateItemPromise).to.have.callCount(1);
-      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d1' } });
+      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: "le1.d1" } });
 
       expect(logger.info).to.have.callCount(2);
-      expect(logger.info.args[0][0]).to.equal('impression');
+      expect(logger.info.args[0][0]).to.equal("impression");
       expect(logger.info.args[0][1]).to.eql({
-        type: 'postbytes',
+        type: "postbytes",
         timestamp: 1002,
         download,
         durations,
@@ -142,9 +142,9 @@ describe('dynamodb-data', () => {
         impressions: [imp3],
         ...led,
       });
-      expect(logger.info.args[1][0]).to.equal('impression');
+      expect(logger.info.args[1][0]).to.equal("impression");
       expect(logger.info.args[1][1]).to.eql({
-        type: 'postbytes',
+        type: "postbytes",
         timestamp: 100000,
         download,
         durations,
@@ -154,61 +154,63 @@ describe('dynamodb-data', () => {
       });
     });
 
-    it('overrides any msg stored on the redirect', async () => {
-      sinon.stub(console, 'info');
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async () => ({}));
+    it("overrides any msg stored on the redirect", async () => {
+      sinon.stub(console, "info");
+      sinon.stub(dynamo, "updateItemPromise").callsFake(async () => ({}));
 
-      const ddb = new DynamodbData([{ ...redirect, msg: 'blah' }, bytes3]);
+      const ddb = new DynamodbData([{ ...redirect, msg: "blah" }, bytes3]);
       const result = await ddb.insert();
       expect(result).to.eql([
-        { count: 1, dest: 'dynamodb' },
-        { count: 1, dest: 'kinesis' },
+        { count: 1, dest: "dynamodb" },
+        { count: 1, dest: "kinesis" },
       ]);
 
       // look directly at console.info, to see the resolved lambda-log json
       expect(console.info).to.have.callCount(1);
       const obj = JSON.parse(console.info.args[0][0]);
-      expect(obj['_logLevel']).to.equal('info');
-      expect(obj['msg']).to.equal('impression');
-      expect(obj['listenerEpisode']).to.equal('le1');
-      expect(obj['digest']).to.equal('d1');
+      expect(obj._logLevel).to.equal("info");
+      expect(obj.msg).to.equal("impression");
+      expect(obj.listenerEpisode).to.equal("le1");
+      expect(obj.digest).to.equal("d1");
     });
 
-    it('handles the redirect coming after the byte downloads', async () => {
-      sinon.stub(logger, 'info');
+    it("handles the redirect coming after the byte downloads", async () => {
+      sinon.stub(logger, "info");
 
       // pretend we're storing/returning DDB attributes
-      let attrs = {};
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
+      const attrs = {};
+      sinon.stub(dynamo, "updateItemPromise").callsFake(async (params) => {
         const prev = { Attributes: { ...attrs } };
         const updates = params.AttributeUpdates;
-        Object.keys(updates).forEach(k => (attrs[k] = updates[k].Value));
+        Object.keys(updates).forEach((k) => {
+          attrs[k] = updates[k].Value;
+        });
         return prev;
       });
 
       const ddb = new DynamodbData([bytes2, bytes3]);
       const result = await ddb.insert();
-      expect(result).to.eql([{ count: 1, dest: 'dynamodb' }]);
+      expect(result).to.eql([{ count: 1, dest: "dynamodb" }]);
       expect(dynamo.updateItemPromise).to.have.callCount(1);
       expect(logger.info).to.have.callCount(0);
 
       const ddb2 = new DynamodbData([redirect, bytes1]);
       const result2 = await ddb2.insert();
       expect(result2).to.eql([
-        { count: 1, dest: 'dynamodb' },
-        { count: 2, dest: 'kinesis' },
+        { count: 1, dest: "dynamodb" },
+        { count: 2, dest: "kinesis" },
       ]);
       expect(dynamo.updateItemPromise).to.have.callCount(2);
       expect(logger.info).to.have.callCount(2);
     });
 
-    it('throws an error on any ddb failures', async () => {
-      sinon.stub(logger, 'error');
-      sinon.stub(logger, 'warn');
-      sinon.stub(logger, 'info');
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
-        if (params.Key.id.S.includes('.d2')) {
-          throw new Error('terrible things');
+    it("throws an error on any ddb failures", async () => {
+      sinon.stub(logger, "error");
+      sinon.stub(logger, "warn");
+      sinon.stub(logger, "info");
+      sinon.stub(dynamo, "updateItemPromise").callsFake(async (params) => {
+        if (params.Key.id.S.includes(".d2")) {
+          throw new Error("terrible things");
         } else {
           return {};
         }
@@ -216,7 +218,7 @@ describe('dynamodb-data', () => {
 
       let err = null;
       try {
-        const ddb = new DynamodbData([redirect, bytes1, { ...bytes2, digest: 'd2' }]);
+        const ddb = new DynamodbData([redirect, bytes1, { ...bytes2, digest: "d2" }]);
         await ddb.insert();
       } catch (e) {
         err = e;
@@ -225,7 +227,7 @@ describe('dynamodb-data', () => {
         expect(err.message).to.match(/DDB retrying/);
         expect(err.skipLogging).to.equal(true);
       } else {
-        expect.fail('should have thrown an error');
+        expect.fail("should have thrown an error");
       }
 
       expect(logger.error).to.have.callCount(1);
@@ -238,16 +240,16 @@ describe('dynamodb-data', () => {
       expect(logger.info.args[0][1].timestamp).to.eql(bytes1.timestamp);
 
       expect(dynamo.updateItemPromise).to.have.callCount(2);
-      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d2' } });
-      expect(dynamo.updateItemPromise.args[1][0].Key).to.eql({ id: { S: 'le1.d1' } });
+      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: "le1.d2" } });
+      expect(dynamo.updateItemPromise.args[1][0].Key).to.eql({ id: { S: "le1.d1" } });
     });
 
-    it('only warns on throughput exceeded errors', async () => {
-      sinon.stub(logger, 'error');
-      sinon.stub(logger, 'warn');
-      sinon.stub(dynamo, 'updateItemPromise').callsFake(async params => {
-        const err = new Error('terrible things');
-        err.name = 'ProvisionedThroughputExceededException';
+    it("only warns on throughput exceeded errors", async () => {
+      sinon.stub(logger, "error");
+      sinon.stub(logger, "warn");
+      sinon.stub(dynamo, "updateItemPromise").callsFake(async (_params) => {
+        const err = new Error("terrible things");
+        err.name = "ProvisionedThroughputExceededException";
         throw err;
       });
 
@@ -262,7 +264,7 @@ describe('dynamodb-data', () => {
         expect(err.message).to.match(/DDB retrying/);
         expect(err.skipLogging).to.equal(true);
       } else {
-        expect.fail('should have thrown an error');
+        expect.fail("should have thrown an error");
       }
 
       expect(logger.error).to.have.callCount(0);
@@ -272,22 +274,22 @@ describe('dynamodb-data', () => {
       expect(logger.warn.args[1][0]).to.match(/DDB retrying/);
 
       expect(dynamo.updateItemPromise).to.have.callCount(1);
-      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: 'le1.d1' } });
+      expect(dynamo.updateItemPromise.args[0][0].Key).to.eql({ id: { S: "le1.d1" } });
     });
   });
 
-  describe('updateAll', () => {
-    it('limits concurrent dynamo updates', async () => {
+  describe("updateAll", () => {
+    it("limits concurrent dynamo updates", async () => {
       const ddb = new DynamodbData();
-      sinon.stub(logger, 'error');
-      sinon.stub(dynamo, 'client').callsFake(async () => 'my-client');
-      sinon.stub(ddb, 'format').callsFake(() => []);
+      sinon.stub(logger, "error");
+      sinon.stub(dynamo, "client").callsFake(async () => "my-client");
+      sinon.stub(ddb, "format").callsFake(() => []);
 
       // stub promises as update is called
       const promises = [],
         resolvers = [],
         rejectors = [];
-      sinon.stub(dynamo, 'update').callsFake(() => {
+      sinon.stub(dynamo, "update").callsFake(() => {
         const p = new Promise((res, rej) => {
           resolvers.push(res);
           rejectors.push(rej);
@@ -297,22 +299,22 @@ describe('dynamodb-data', () => {
       });
 
       // to start, we should see 5 calls
-      const args = ['my-id', { my: 'data' }, ['my', 'segments']];
+      const args = ["my-id", { my: "data" }, ["my", "segments"]];
       const updateAllPromise = ddb.updateAll(Array(10).fill(args), 5);
-      await new Promise(r => process.nextTick(r));
+      await new Promise((r) => process.nextTick(r));
       expect(promises.length).to.equal(5);
 
       // resolving any picks up new
       resolvers[0](0);
       resolvers[3](3);
       resolvers[4](4);
-      await new Promise(r => process.nextTick(r));
+      await new Promise((r) => process.nextTick(r));
       expect(promises.length).to.equal(8);
 
       // as do errors
       rejectors[1](1);
       rejectors[5](5);
-      await new Promise(r => process.nextTick(r));
+      await new Promise((r) => process.nextTick(r));
       expect(promises.length).to.equal(10);
       expect(logger.error).to.have.callCount(2);
       expect(logger.error.args[0][0]).to.match(/DDB Error/);
@@ -332,38 +334,38 @@ describe('dynamodb-data', () => {
     });
   });
 
-  describe('#format', () => {
+  describe("#format", () => {
     const ddb = new DynamodbData();
 
-    it('handles empty inputs', () => {
-      expect(ddb.format(['le.d', null, { 1: true }])).to.eql([]);
-      expect(ddb.format(['le.d', {}, null])).to.eql([]);
-      expect(ddb.format(['le.d', {}, {}])).to.eql([]);
+    it("handles empty inputs", () => {
+      expect(ddb.format(["le.d", null, { 1: true }])).to.eql([]);
+      expect(ddb.format(["le.d", {}, null])).to.eql([]);
+      expect(ddb.format(["le.d", {}, {}])).to.eql([]);
     });
 
-    it('formats postbyte records', () => {
+    it("formats postbyte records", () => {
       const segments = { 1000: true, 100000: true, 200000: false };
-      const records = ddb.format(['le.d', { download: 'something' }, segments]);
+      const records = ddb.format(["le.d", { download: "something" }, segments]);
 
       expect(records.length).to.equal(2);
       expect(records[0]).to.eql({
-        type: 'postbytes',
-        listenerEpisode: 'le',
-        digest: 'd',
+        type: "postbytes",
+        listenerEpisode: "le",
+        digest: "d",
         timestamp: 1000,
-        download: 'something',
+        download: "something",
       });
       expect(records[1]).to.eql({
-        type: 'postbytes',
-        listenerEpisode: 'le',
-        digest: 'd',
+        type: "postbytes",
+        listenerEpisode: "le",
+        digest: "d",
         timestamp: 100000,
-        download: 'something',
+        download: "something",
       });
     });
 
-    it('filters downloads', () => {
-      const download = { the: 'download' };
+    it("filters downloads", () => {
+      const download = { the: "download" };
       const impressions = [{ segment: 1 }, { segment: 2 }];
       const segments = {
         1000: true,
@@ -372,7 +374,7 @@ describe('dynamodb-data', () => {
         200000: true,
         200000.2: true,
       };
-      const records = ddb.format(['le.d', { download, impressions }, segments]);
+      const records = ddb.format(["le.d", { download, impressions }, segments]);
 
       expect(records.length).to.equal(3);
       expect(records[0].download).to.eql(download);
@@ -380,23 +382,23 @@ describe('dynamodb-data', () => {
       expect(records[2].download).to.eql(download);
     });
 
-    it('filters impressions', () => {
-      const download = { the: 'download' };
+    it("filters impressions", () => {
+      const download = { the: "download" };
       const impressions = [
-        { segment: 0, num: 'imp0' },
-        { segment: 3, num: 'imp3' },
-        { segment: 2, num: 'imp2' },
+        { segment: 0, num: "imp0" },
+        { segment: 3, num: "imp3" },
+        { segment: 2, num: "imp2" },
       ];
       const segments = {
         1000: true,
         100000.2: true,
-        '100001.0': false,
-        '100002.0': true,
-        '200000.0': true,
+        "100001.0": false,
+        "100002.0": true,
+        "200000.0": true,
         200001.2: false,
         200002.3: true,
       };
-      const records = ddb.format(['le.d', { download, impressions }, segments]);
+      const records = ddb.format(["le.d", { download, impressions }, segments]);
 
       expect(records.length).to.equal(3);
       expect(records[0].timestamp).to.equal(1000);
@@ -407,8 +409,8 @@ describe('dynamodb-data', () => {
       expect(records[2].impressions).to.eql([impressions[0], impressions[1]]);
     });
 
-    it('removes records with no download and 0 impressions', () => {
-      const download = { the: 'download' };
+    it("removes records with no download and 0 impressions", () => {
+      const download = { the: "download" };
       const impressions = [{ segment: 1 }, { segment: 2 }];
       const segments = {
         1000: false,
@@ -417,15 +419,15 @@ describe('dynamodb-data', () => {
         100000.9: true,
         200000.9: true,
       };
-      const records = ddb.format(['le.d', { download, impressions }, segments]);
+      const records = ddb.format(["le.d", { download, impressions }, segments]);
       expect(records.length).to.equal(0);
     });
   });
 
-  describe('#dedupSegments', () => {
+  describe("#dedupSegments", () => {
     const ddb = new DynamodbData();
 
-    it('filters old segments', () => {
+    it("filters old segments", () => {
       const [segments] = ddb.dedupSegments({
         1000: true,
         1000.1: false,
@@ -433,10 +435,10 @@ describe('dynamodb-data', () => {
         1000.3: true,
         1000.4: true,
       });
-      expect(segments).to.eql({ 19700101: ['DOWNLOAD', 3, 4] });
+      expect(segments).to.eql({ 19700101: ["DOWNLOAD", 3, 4] });
     });
 
-    it('returns the max timestamp per segment per day', () => {
+    it("returns the max timestamp per segment per day", () => {
       const [, timestamps] = ddb.dedupSegments({
         1000: true,
         3000.1: true,
@@ -447,7 +449,7 @@ describe('dynamodb-data', () => {
       expect(timestamps).to.eql({ 19700101: 5000 });
     });
 
-    it('dedups segments by utc day', () => {
+    it("dedups segments by utc day", () => {
       const [segments, timestamps] = ddb.dedupSegments({
         1000: true,
         2000: false,
@@ -458,7 +460,7 @@ describe('dynamodb-data', () => {
         200001.2: true,
         200000.4: true,
       });
-      expect(segments).to.eql({ 19700102: ['DOWNLOAD'], 19700103: [2, 4] });
+      expect(segments).to.eql({ 19700102: ["DOWNLOAD"], 19700103: [2, 4] });
       expect(timestamps).to.eql({ 19700102: 100000, 19700103: 200001 });
     });
   });
