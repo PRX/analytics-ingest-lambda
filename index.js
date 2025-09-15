@@ -1,10 +1,10 @@
-const { getRecordsFromEvent } = require("./lib/get-records");
-const logger = require("./lib/logger");
-const loadenv = require("./lib/loadenv");
-const timestamp = require("./lib/timestamp");
-const { BigqueryInputs, DynamoInputs, PingbackInputs, FrequencyInputs } = require("./lib/inputs");
+import { getRecordsFromEvent } from "./lib/get-records";
+import { BigqueryInputs, DynamoInputs, FrequencyInputs, PingbackInputs } from "./lib/inputs";
+import loadenv from "./lib/loadenv";
+import logger from "./lib/logger";
+import timestamp from "./lib/timestamp";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   let records = [];
 
   // debug timeouts
