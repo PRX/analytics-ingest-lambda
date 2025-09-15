@@ -44,3 +44,7 @@ jspm_packages
 .env
 build
 *.zip
+
+# sublimetext
+*.sublime-project
+*.sublime-workspace
