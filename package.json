@@ -31,10 +31,13 @@
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
-    "jest": "^30.1.3"
+    "jest": "^30.1.3",
+    "nock": "^14.0.10"
   },
   "dependencies": {
+    "follow-redirects": "^1.15.11",
     "ipaddr.js": "^2.2.0",
+    "lambda-log": "^3.1.0",
     "url-template": "^3.1.1",
     "uuid": "^13.0.0"
   },
