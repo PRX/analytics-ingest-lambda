@@ -1,8 +1,6 @@
 # bigquery mode
-BQ_CLIENT_EMAIL=
-BQ_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----STUFF-----END PRIVATE KEY-----\n"
-BQ_PROJECT_ID=
-BQ_DATASET=
+BQ_DATASET=production
+BQ_CREDENTIALS={"json":"creds"}
 # dynamodb mode
 DYNAMODB=
 DDB_TABLE=
