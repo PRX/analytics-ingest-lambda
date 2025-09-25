@@ -1,7 +1,9 @@
+import { createHash } from "node:crypto";
 import log from "lambda-log";
 import { v4 } from "uuid";
-import { insert } from "./lib/bigquery";
+import * as bigquery from "./lib/bigquery";
 import { decodeRecords } from "./lib/decoder";
+import { clean, mask } from "./lib/iputil";
 import { toEpochSeconds } from "./lib/timestamp";
 
 /**
@@ -12,19 +14,22 @@ export const handler = async (event) => {
   const downs = records.filter((r) => r.type === "postbytes" && !!r.download);
   const imps = records
     .filter((r) => r.type === "postbytes")
-    .flatMap(() => (r.impressions || []).map((i) => [r, i]));
+    .flatMap((r) => (r.impressions || []).map((i) => [r, i]));
 
-  const info = { records: records.length, downloads: downs.length, impressions: imps.lengths };
+  const info = { records: records.length, downloads: downs.length, impressions: imps.length };
   log.info("Starting BigQuery", info);
 
-  const client = await bigquery.client();
+  // ugh, needed for testing, because you can't mock ES module exports
+  const client = event.bigqueryClient || (await bigquery.client());
+
   const downRows = downs.map((r) => formatDownload(r));
-  const downCount = await insert({ client, table: "dt_downloads", rows: downRows });
+  const downCount = await bigquery.insert({ client, table: "dt_downloads", rows: downRows });
 
-  const impRows = imps.map((r) => formatImpression(r, i));
-  const impCount = await insert({ client, table: "dt_impressions", rows: impRows });
+  const impRows = imps.map((r, i) => formatImpression(r, i));
+  const impCount = await bigquery.insert({ client, table: "dt_impressions", rows: impRows });
 
-  log.info("Finished BigQuery", { downloads: downCount, impressions: impCount });
+  const info2 = { records: records.length, downloads: downCount, impressions: impCount };
+  log.info("Finished BigQuery", info2);
 };
 
 /**
@@ -58,14 +63,14 @@ export const formatDownload = (rec) => {
     insertId: `${rec.listenerEpisode}/${row.timestamp}`,
     json: {
       ...row,
-      is_duplicate: !!rec.download.isDuplicate,
-      cause: rec.download.cause,
-      ad_count: rec.download.adCount,
+      is_duplicate: !!rec.download?.isDuplicate,
+      cause: rec.download?.cause,
+      ad_count: rec.download?.adCount,
       url: rec.url,
       listener_episode: rec.listenerEpisode,
       remote_referrer: rec.remoteReferrer,
       remote_agent: rec.remoteAgent,
-      remote_ip: iputil.mask(iputil.clean(rec.remoteIp)),
+      remote_ip: mask(clean(rec.remoteIp)),
       zones_filled_pre: rec.filled?.paid?.[0],
       zones_filled_mid: rec.filled?.paid?.[1],
       zones_filled_post: rec.filled?.paid?.[2],
@@ -85,13 +90,13 @@ export const formatDownload = (rec) => {
 /**
  * Raw insert for dt_impressions (including insert ids for BQ de-duping)
  */
-export const formatImpression = (rec, imp) => {
+export const formatImpression = ([rec, imp]) => {
   const row = format(rec);
 
   // unique insert id for this ad within the download
   const parts = [rec.listenerEpisode, row.timestamp];
   parts.push(imp.adId, imp.campaignId, imp.creativeId, imp.flightId);
-  const id = crypto.createHash("md5").update(parts).digest("hex");
+  const id = createHash("md5").update(parts.join("-")).digest("hex");
 
   return {
     insertId: id,
@@ -110,9 +115,9 @@ export const formatImpression = (rec, imp) => {
       vast_advertiser: imp.vast?.advertiser,
       vast_ad_id: imp.vast?.ad?.id,
       vast_creative_id: imp.vast?.creative?.id,
-      vast_price_value: parseFloat(imp.vast?.pricing?.value),
-      vast_price_currency: parseFloat(imp.vast?.pricing?.currency),
-      vast_price_model: parseFloat(imp.vast?.pricing?.model),
+      vast_price_value: parseFloat(imp.vast?.pricing?.value) || null,
+      vast_price_currency: imp.vast?.pricing?.currency,
+      vast_price_model: imp.vast?.pricing?.model,
     },
   };
 };
