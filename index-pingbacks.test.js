@@ -7,7 +7,10 @@ import testRecs from "./test/support/test-records";
 
 describe("index-pingbacks", () => {
   describe(".handler", () => {
-    it("pings pingbacks", async () => {
+    it("pings and increments", async () => {
+      process.env.DOVETAIL_ROUTER_HOSTS = "host1.dt.test,host2.dt.test";
+      process.env.DOVETAIL_ROUTER_API_TOKENS = "tok1,tok2";
+
       jest.spyOn(log, "info").mockReturnValue();
       jest.spyOn(log, "warn").mockReturnValue();
 
@@ -16,6 +19,10 @@ describe("index-pingbacks", () => {
       const ping3 = nock("http://www.foo.bar").get("/ping3").reply(200);
       const ping4 = nock("http://www.adzerk.bar").get("/ping4").reply(200);
       const ping5 = nock("http://www.adzerk.bar").get("/ping5").reply(404);
+
+      const path = "/api/v1/flight_increments/2017-02-21";
+      const incr1 = nock("https://host1.dt.test").post(path, '{"78":2,"107":1}').reply(202);
+      const incr2 = nock("https://host2.dt.test").post(path, '{"78":2,"107":1}').reply(404);
 
       await index.handler(await buildEvent(testRecs));
 
@@ -27,19 +34,28 @@ describe("index-pingbacks", () => {
       expect(log.info.mock.calls[2][0]).toEqual("PINGED");
       expect(log.info.mock.calls[2][1]).toEqual({ url: "http://www.adzerk.bar/ping4" });
       expect(log.info.mock.calls[3][0]).toEqual("Finished Pingbacks");
-      expect(log.info.mock.calls[3][1]).toEqual({ records: 7, pingbacks: 2, pingfails: 2 });
+      expect(log.info.mock.calls[3][1]).toEqual({
+        records: 7,
+        pingbacks: 2,
+        pingfails: 2,
+        increments: 3,
+      });
 
-      expect(log.warn.mock.calls.length).toEqual(2);
+      expect(log.warn.mock.calls.length).toEqual(3);
       expect(log.warn.mock.calls[0][0]).toMatch(/PINGFAIL error: http 404/i);
       expect(log.warn.mock.calls[0][1]).toEqual({ url: "http://www.foo.bar/ping2" });
       expect(log.warn.mock.calls[1][0]).toMatch(/PINGFAIL error: http 404/i);
       expect(log.warn.mock.calls[1][1]).toEqual({ url: "http://www.adzerk.bar/ping5" });
+      expect(log.warn.mock.calls[2][0]).toMatch(/INCRFAIL error: http 404/i);
+      expect(log.warn.mock.calls[2][1].url).toMatch("host2.dt.test");
 
       expect(ping1.isDone()).toEqual(true);
       expect(ping2.isDone()).toEqual(true);
       expect(ping3.isDone()).toEqual(false);
       expect(ping4.isDone()).toEqual(true);
       expect(ping5.isDone()).toEqual(true);
+      expect(incr1.isDone()).toEqual(true);
+      expect(incr2.isDone()).toEqual(true);
     });
   });
 });
