@@ -79,6 +79,26 @@ describe("index-bigquery", () => {
       expect(i4.vast_price_currency).toEqual("USD");
       expect(i4.vast_price_model).toEqual("CPM");
     });
+
+    it("ignores unknown types", async () => {
+      jest.spyOn(log, "info").mockReturnValue();
+
+      const event = await buildEvent([
+        { type: "postbytes", timestamp: 1 },
+        { type: "postbytes", timestamp: 1, impressions: [] },
+        { type: "bytes", timestamp: 1, download: {}, impressions: [{}] },
+        { type: "whatev", timestamp: 1, download: {}, impressions: [{}] },
+      ]);
+      event.bigqueryClient = mockClient;
+
+      await index.handler(event);
+      expect(inserts.length).toEqual(0);
+      expect(log.info.mock.calls.length).toEqual(2);
+      expect(log.info.mock.calls[0][0]).toEqual("Starting BigQuery");
+      expect(log.info.mock.calls[0][1]).toEqual({ records: 4, downloads: 0, impressions: 0 });
+      expect(log.info.mock.calls[1][0]).toEqual("Finished BigQuery");
+      expect(log.info.mock.calls[1][1]).toEqual({ records: 4, downloads: 0, impressions: 0 });
+    });
   });
 
   describe(".format", () => {
