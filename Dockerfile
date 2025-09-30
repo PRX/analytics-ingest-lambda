@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/nodejs:16
+FROM public.ecr.aws/lambda/nodejs:22
 
 MAINTAINER PRX <sysadmin@prx.org>
 LABEL org.prx.lambda="true"
@@ -12,7 +12,7 @@ CMD [ "test" ]
 RUN yum install -y rsync zip tar xz && yum clean all && rm -rf /var/cache/yum
 ADD yarn.lock ./
 ADD package.json ./
-RUN npm install --quiet --global yarn && yarn install
+RUN yarn install
 
 # finish building
 ADD . .

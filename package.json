@@ -8,6 +8,10 @@
   "description": "Process dovetail kinesis metric streams",
   "main": "index.js",
   "scripts": {
+    "build": "yarn run build-sync && yarn run build-prune && yarn run build-zip",
+    "build-sync": "rsync -crl --delete --exclude-from .lambdaignore . build",
+    "build-prune": "cd build && yarn --production && rm -rf node_modules/aws-sdk",
+    "build-zip": "rm -f build.zip && cd build && zip -rq ../build.zip .",
     "lint": "biome check",
     "lint-ci": "biome ci",
     "lint-fix": "biome check --write --unsafe",
