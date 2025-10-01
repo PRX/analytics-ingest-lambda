@@ -17,8 +17,8 @@ export const handler = async (event) => {
   const antebytes = records.filter((r) => r.type === "antebytes");
 
   // overall downloads and segments from counts-lambda
-  const bytes = records.filter((r) => r.type === "bytes");
-  const segmentbytes = records.filter((r) => r.type === "segmentbytes");
+  const bytes = records.filter((r) => r.type === "bytes" && !r.isDuplicate);
+  const segmentbytes = records.filter((r) => r.type === "segmentbytes" && !r.isDuplicate);
   const inputs = antebytes.concat(bytes).concat(segmentbytes);
 
   const info = {
@@ -33,12 +33,9 @@ export const handler = async (event) => {
   const grouped = Object.groupBy(inputs, (r) => `${r.listenerEpisode}.${r.digest}`);
   const formatted = Object.values(grouped).map((recs) => formatUpsert(recs));
 
-  // ugh, needed for testing, because you can't mock ES module exports
-  const client = event.dynamoClient || (await dynamo.client());
-  const concurrency = event.dynamoConcurrency || 25;
-
-  // spin up N workers and upsert
-  const threads = Array(concurrency).fill(true);
+  // spin up workers and upsert
+  const client = await dynamo.client();
+  const threads = Array(event.dynamoConcurrency || 25).fill(true);
   const counts = await Promise.all(threads.map(() => upsertAndLog(formatted, client)));
 
   const info2 = {
@@ -47,7 +44,14 @@ export const handler = async (event) => {
     failures: counts.reduce((sum, [_s, f, _l]) => sum + f, 0),
     logged: counts.reduce((sum, [_s, _f, l]) => sum + l, 0),
   };
-  log.info("Finished DynamoDB", info2);
+
+  // retry entire batch on failure (any successful upserts will just no-op next time)
+  if (info2.failures > 0) {
+    log.warn("Retrying DynamoDB", info2);
+    throw new Error(`Retrying ${info2.failures} DynamoDB failures`);
+  } else {
+    log.info("Finished DynamoDB", info2);
+  }
 };
 
 /**
@@ -69,9 +73,9 @@ export const upsertAndLog = async (upserts, client) => {
       }
     } catch (err) {
       if (err.name === "ProvisionedThroughputExceededException") {
-        log.warn(`DDB throughput exceeded [${process.env.DDB_TABLE}]: ${err}`, { err, data });
+        log.warn(`DDB throughput exceeded [${process.env.DDB_TABLE}]: ${err}`, { err, args });
       } else {
-        log.error(`DDB Error [${process.env.DDB_TABLE}]: ${err}`, { err, data });
+        log.error(`DDB Error [${process.env.DDB_TABLE}]: ${err}`, { err, args });
       }
       failure++;
     }
@@ -98,6 +102,9 @@ export const formatUpsert = (records) => {
         data.extras = { durations: rec.durations, types: rec.types || "" };
       }
     }
+
+    // dedup segments
+    data.segments = [...new Set(data.segments)];
 
     return data;
   }, {});
