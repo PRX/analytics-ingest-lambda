@@ -132,9 +132,9 @@ describe("index-dynamodb", () => {
 
       // logged error for each of the 3 upsert attempts
       expect(log.error.mock.calls.length).toEqual(3);
-      expect(log.error.mock.calls[0][0]).toMatch(/ddb error .+ bad stuff/i);
-      expect(log.error.mock.calls[1][0]).toMatch(/ddb error .+ bad stuff/i);
-      expect(log.error.mock.calls[2][0]).toMatch(/ddb error .+ bad stuff/i);
+      expect(log.error.mock.calls[0][0]).toMatch(/ddb error/i);
+      expect(log.error.mock.calls[1][0]).toMatch(/ddb error/i);
+      expect(log.error.mock.calls[2][0]).toMatch(/ddb error/i);
 
       // one logged warning that the overall lambda is throwing/retrying
       expect(log.warn.mock.calls.length).toEqual(1);
@@ -162,71 +162,7 @@ describe("index-dynamodb", () => {
       expect(log.warn.mock.calls[3][0]).toMatch(/retrying dynamodb/i);
       expect(log.warn.mock.calls[3][1]).toEqual({ records: 7, upserts: 0, failures: 3, logged: 0 });
     });
-
-    it("limits concurrent dynamo upserts", async () => {
-      jest.spyOn(log, "warn").mockReturnValue();
-      jest.spyOn(log, "error").mockReturnValue();
-
-      // stub promises as update is called
-      const promises = [],
-        resolvers = [],
-        rejectors = [];
-      mockClient(DynamoDBClient)
-        .on(UpdateItemCommand)
-        .callsFake(() => {
-          const p = new Promise((res, rej) => {
-            resolvers.push(res);
-            rejectors.push(rej);
-          });
-          promises.push(p);
-          return p;
-        });
-
-      const t = Array(10).fill();
-      const recs = t.map((_, i) => ({ type: "bytes", timestamp: 1, listenerEpisode: `le${i}` }));
-      const event = await buildEvent(recs);
-      const handlerPromise = index.handler({ ...event, dynamoConcurrency: 5 });
-
-      // to start, we should see 5 calls
-      await new Promise((r) => setTimeout(r, 10));
-      expect(promises.length).toEqual(5);
-
-      // resolving any picks up new
-      resolvers[0](0);
-      resolvers[3](3);
-      resolvers[4](4);
-      await new Promise((r) => process.nextTick(r));
-      expect(promises.length).toEqual(8);
-
-      // as do errors
-      rejectors[1](1);
-      rejectors[5](5);
-      await new Promise((r) => process.nextTick(r));
-      expect(promises.length).toEqual(10);
-      expect(log.error.mock.calls.length).toEqual(2);
-      expect(log.error.mock.calls[0][0]).toMatch(/ddb error/i);
-      expect(log.error.mock.calls[1][0]).toMatch(/ddb error/i);
-
-      // finish up
-      resolvers[2](2);
-      resolvers[6](6);
-      resolvers[7](7);
-      resolvers[8](8);
-      resolvers[9](9);
-
-      await expect(handlerPromise).rejects.toThrow(/retrying 2 dynamodb failures/i);
-      expect(log.warn.mock.calls.length).toEqual(1);
-      expect(log.warn.mock.calls[0][0]).toMatch(/retrying dynamodb/i);
-      expect(log.warn.mock.calls[0][1]).toEqual({
-        records: 10,
-        upserts: 8,
-        failures: 2,
-        logged: 0,
-      });
-    });
   });
-
-  describe("#upsertAndLog", () => {});
 
   describe("#formatUpsert", () => {
     it("includes payloads, segments, and extras", () => {

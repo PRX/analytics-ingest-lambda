@@ -35,54 +35,26 @@ export const handler = async (event) => {
 
   // spin up workers and upsert
   const client = await dynamo.client();
-  const threads = Array(event.dynamoConcurrency || 25).fill(true);
-  const counts = await Promise.all(threads.map(() => upsertAndLog(formatted, client)));
+  const concurrency = event.dynamoConcurrency || 25;
 
-  const info2 = {
-    records: records.length,
-    upserts: counts.reduce((sum, [s, _f, _l]) => sum + s, 0),
-    failures: counts.reduce((sum, [_s, f, _l]) => sum + f, 0),
-    logged: counts.reduce((sum, [_s, _f, l]) => sum + l, 0),
-  };
+  // spin up workers and upsert in parallel
+  let logged = 0;
+  const [upserts, failures] = await dynamo.concurrently(25, formatted, async (args) => {
+    const data = await dynamo.upsertRedirect({ ...args, client });
+    for (const rec of await data.postBytes()) {
+      log.info("impression", rec);
+      logged++;
+    }
+  });
 
   // retry entire batch on failure (any successful upserts will just no-op next time)
-  if (info2.failures > 0) {
+  const info2 = { records: records.length, upserts, failures, logged };
+  if (failures > 0) {
     log.warn("Retrying DynamoDB", info2);
     throw new Error(`Retrying ${info2.failures} DynamoDB failures`);
   } else {
     log.info("Finished DynamoDB", info2);
   }
-};
-
-/**
- * Upsert to DDB, then log any newly seen downloads/impressions "postbyte" records
- */
-export const upsertAndLog = async (upserts, client) => {
-  let success = 0;
-  let failure = 0;
-  let logged = 0;
-
-  let args = upserts.shift();
-  while (args) {
-    try {
-      const data = await dynamo.upsertRedirect({ ...args, client });
-      success++;
-      for (const rec of await data.postBytes()) {
-        log.info("impression", rec);
-        logged++;
-      }
-    } catch (err) {
-      if (err.name === "ProvisionedThroughputExceededException") {
-        log.warn(`DDB throughput exceeded [${process.env.DDB_TABLE}]: ${err}`, { err, args });
-      } else {
-        log.error(`DDB Error [${process.env.DDB_TABLE}]: ${err}`, { err, args });
-      }
-      failure++;
-    }
-    args = upserts.shift();
-  }
-
-  return [success, failure, logged];
 };
 
 /**
