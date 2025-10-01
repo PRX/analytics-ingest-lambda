@@ -33,12 +33,9 @@ export const handler = async (event) => {
   const grouped = Object.groupBy(inputs, (r) => `${r.listenerEpisode}.${r.digest}`);
   const formatted = Object.values(grouped).map((recs) => formatUpsert(recs));
 
-  // spin up workers and upsert
-  const client = await dynamo.client();
-  const concurrency = event.dynamoConcurrency || 25;
-
   // spin up workers and upsert in parallel
   let logged = 0;
+  const client = await dynamo.client();
   const [upserts, failures] = await dynamo.concurrently(25, formatted, async (args) => {
     const data = await dynamo.upsertRedirect({ ...args, client });
     for (const rec of await data.postBytes()) {
