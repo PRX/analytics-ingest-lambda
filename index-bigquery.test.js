@@ -30,8 +30,8 @@ describe("index-bigquery", () => {
       expect(log.info.mock.calls[1][1]).toEqual({ records: 7, downloads: 1, impressions: 4 });
 
       expect(inserts[0].length).toEqual(1);
-      expect(inserts[0][0].insertId).toEqual("listener-episode-1/1487703699");
-      expect(inserts[0][0].json.timestamp).toEqual(1487703699);
+      expect(inserts[0][0].insertId).toEqual("listener-episode-1/1487703699000");
+      expect(inserts[0][0].json.timestamp).toEqual("2017-02-21T19:01:39Z");
       expect(inserts[0][0].json.request_uuid).toEqual("req-uuid");
 
       // all impressions should have different insert ids
@@ -42,7 +42,7 @@ describe("index-bigquery", () => {
       expect([...new Set(inserts[1].map((i) => i.insertId))].length).toEqual(4);
 
       const i1 = inserts[1].find((i) => i.json.ad_id === 12).json;
-      expect(i1.timestamp).toEqual(1487703699);
+      expect(i1.timestamp).toEqual("2017-02-21T19:01:39Z");
       expect(i1.request_uuid).toEqual("req-uuid");
       expect(i1.segment).toEqual(0);
       expect(i1.is_confirmed).toEqual(false);
@@ -50,7 +50,7 @@ describe("index-bigquery", () => {
       expect(i1.cause).toBeNull();
 
       const i2 = inserts[1].find((i) => i.json.ad_id === 98).json;
-      expect(i2.timestamp).toEqual(1487703699);
+      expect(i2.timestamp).toEqual("2017-02-21T19:01:39.777Z");
       expect(i2.request_uuid).toEqual("req-uuid");
       expect(i2.segment).toEqual(0);
       expect(i2.is_confirmed).toEqual(true);
@@ -58,7 +58,7 @@ describe("index-bigquery", () => {
       expect(i2.cause).toEqual("something");
 
       const i3 = inserts[1].find((i) => i.json.ad_id === 76).json;
-      expect(i3.timestamp).toEqual(1487703699);
+      expect(i3.timestamp).toEqual("2017-02-21T19:01:39.777Z");
       expect(i3.request_uuid).toEqual("req-uuid");
       expect(i3.segment).toEqual(3);
       expect(i3.is_confirmed).toEqual(true);
@@ -66,7 +66,7 @@ describe("index-bigquery", () => {
       expect(i3.cause).toBeNull();
 
       const i4 = inserts[1].find((i) => i.json.ad_id === 104).json;
-      expect(i4.timestamp).toEqual(1487703699);
+      expect(i4.timestamp).toEqual("2017-02-21T19:01:39.888Z");
       expect(i4.request_uuid).toEqual("req-uuid-vast");
       expect(i4.segment).toEqual(3);
       expect(i4.is_confirmed).toEqual(true);
@@ -132,13 +132,13 @@ describe("index-bigquery", () => {
       expect(data.listener_id).toEqual("the-listener");
       expect(data.postal_code).toEqual("the-postal");
       expect(data.request_uuid).toEqual("abcd1234");
-      expect(data.timestamp).toEqual(12345678);
+      expect(data.timestamp).toEqual("1970-05-23T21:21:18Z");
     });
 
     it("handles epoch seconds and milliseconds", () => {
-      expect(index.format({}).timestamp).toEqual(0);
-      expect(index.format({ timestamp: 1758811111 }).timestamp).toEqual(1758811111);
-      expect(index.format({ timestamp: 1758811111000 }).timestamp).toEqual(1758811111);
+      expect(index.format({}).timestamp).toEqual("1970-01-01T00:00:00Z");
+      expect(index.format({ timestamp: 1758811111 }).timestamp).toEqual("2025-09-25T14:38:31Z");
+      expect(index.format({ timestamp: 1758811111000 }).timestamp).toEqual("2025-09-25T14:38:31Z");
     });
   });
 
@@ -208,6 +208,15 @@ describe("index-bigquery", () => {
       expect(checkIp({ remoteIp: " 1.2.3.4, 5.6.7.8 " })).toEqual("1.2.3.0");
       expect(checkIp({ remoteIp: " foo, 5.6.7.8 " })).toEqual("5.6.7.0");
     });
+
+    it("prefers download timestamps", () => {
+      const checkTime = (d) => index.formatDownload({ timestamp: 0, download: d }).json.timestamp;
+
+      expect(checkTime(null)).toEqual("1970-01-01T00:00:00Z");
+      expect(checkTime({})).toEqual("1970-01-01T00:00:00Z");
+      expect(checkTime({ timestamp: null })).toEqual("1970-01-01T00:00:00Z");
+      expect(checkTime({ timestamp: 1 })).toEqual("1970-01-01T00:16:40Z");
+    });
   });
 
   describe(".formatImpression", () => {
@@ -270,6 +279,14 @@ describe("index-bigquery", () => {
       expect(checkPrice({ vast: { pricing: { value: "" } } })).toBeNull();
       expect(checkPrice({ vast: { pricing: { value: "1.23" } } })).toEqual(1.23);
       expect(checkPrice({ vast: { pricing: { value: 1.23 } } })).toEqual(1.23);
+    });
+
+    it("prefers impression timestamps", () => {
+      const checkTime = (i) => index.formatImpression([{ timestamp: 0 }, i]).json.timestamp;
+
+      expect(checkTime({})).toEqual("1970-01-01T00:00:00Z");
+      expect(checkTime({ timestamp: null })).toEqual("1970-01-01T00:00:00Z");
+      expect(checkTime({ timestamp: 1 })).toEqual("1970-01-01T00:16:40Z");
     });
   });
 });

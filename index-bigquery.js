@@ -4,7 +4,7 @@ import { v4 } from "uuid";
 import * as bigquery from "./lib/bigquery";
 import { decodeRecords } from "./lib/decoder";
 import { clean, mask } from "./lib/iputil";
-import { toEpochSeconds } from "./lib/timestamp";
+import { toEpochMilliseconds, toISOExtendedZ } from "./lib/timestamp";
 
 /**
  * Insert counted Kinesis records into BigQuery
@@ -37,7 +37,7 @@ export const handler = async (event) => {
  */
 export const format = (rec) => {
   return {
-    timestamp: toEpochSeconds(rec.timestamp || 0),
+    timestamp: toISOExtendedZ(rec.timestamp || 0),
     request_uuid: rec.requestUuid || v4(),
     feeder_podcast: rec.feederPodcast,
     feeder_feed: rec.feederFeed || null,
@@ -58,9 +58,10 @@ export const format = (rec) => {
  * Raw insert for dt_downloads (including insert ids for BQ de-duping)
  */
 export const formatDownload = (rec) => {
-  const row = format(rec);
+  const ts = toEpochMilliseconds(rec.download?.timestamp || rec.timestamp || 0);
+  const row = format({ ...rec, timestamp: ts });
   return {
-    insertId: `${rec.listenerEpisode}/${row.timestamp}`,
+    insertId: `${rec.listenerEpisode}/${ts}`,
     json: {
       ...row,
       is_duplicate: !!rec.download?.isDuplicate,
@@ -91,11 +92,11 @@ export const formatDownload = (rec) => {
  * Raw insert for dt_impressions (including insert ids for BQ de-duping)
  */
 export const formatImpression = ([rec, imp]) => {
-  const row = format(rec);
+  const ts = toEpochMilliseconds(imp.timestamp || rec.timestamp || 0);
+  const row = format({ ...rec, timestamp: ts });
 
   // unique insert id for this ad within the download
-  const parts = [rec.listenerEpisode, row.timestamp];
-  parts.push(imp.adId, imp.campaignId, imp.creativeId, imp.flightId);
+  const parts = [rec.listenerEpisode, ts, imp.adId, imp.campaignId, imp.creativeId, imp.flightId];
   const id = createHash("md5").update(parts.join("-")).digest("hex");
 
   return {
