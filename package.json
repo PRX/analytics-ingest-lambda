@@ -16,7 +16,9 @@
     "lint-ci": "biome ci",
     "lint-fix": "biome check --write --unsafe",
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings=ExperimentalWarning' jest",
-    "watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings=ExperimentalWarning' jest --watch"
+    "watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings=ExperimentalWarning' jest --watch",
+    "integration": "NODE_OPTIONS='--experimental-vm-modules --no-warnings=ExperimentalWarning' jest --config test/integration.config.json",
+    "integration-watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings=ExperimentalWarning' jest --config test/integration.config.json --watch"
   },
   "repository": {
     "type": "git",
@@ -55,6 +57,10 @@
     "restoreMocks": true,
     "moduleNameMapper": {
       "^aws-sdk-client-mock-jest$": "<rootDir>/node_modules/aws-sdk-client-mock-jest/dist/cjs/jest.js"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "integration"
+    ]
   }
 }

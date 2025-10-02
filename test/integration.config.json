@@ -1,0 +1,8 @@
+{
+  "restoreMocks": true,
+  "moduleNameMapper": {
+    "^aws-sdk-client-mock-jest$": "<rootDir>/node_modules/aws-sdk-client-mock-jest/dist/cjs/jest.js"
+  },
+  "globalSetup": "./integration.setup.js",
+  "testTimeout": 10000
+}
