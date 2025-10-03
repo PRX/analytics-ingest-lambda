@@ -127,4 +127,4 @@ template. Valid parameters are:
 
 # Contributing
 
-See the [Contributing]() file.
+See the [Contributing](CONTRIBUTING.md) file.
