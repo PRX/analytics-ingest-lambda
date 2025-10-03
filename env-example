@@ -1,15 +1,15 @@
 # bigquery mode
 BQ_DATASET=production
 BQ_CREDENTIALS={"json":"creds"}
+
 # dynamodb mode
-DYNAMODB=
 DDB_TABLE=
 DDB_ROLE=
 DDB_TTL=
-# pingbacks mode
-PINGBACKS=
-DOVETAIL_ROUTER_HOSTS=
-DOVETAIL_ROUTER_API_TOKENS=
+
 # frequency mode
 DDB_FREQUENCY_TABLE=
-DDB_LOCAL=
+
+# pingbacks mode
+DOVETAIL_ROUTER_HOSTS=
+DOVETAIL_ROUTER_API_TOKENS=
