@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import log from "lambda-log";
 import { v4 } from "uuid";
-import * as bigquery from "./lib/bigquery";
-import { decodeRecords } from "./lib/decoder";
-import { clean, mask } from "./lib/iputil";
-import { toEpochMilliseconds, toISOExtendedZ } from "./lib/timestamp";
+import * as bigquery from "./lib/bigquery.js";
+import { decodeRecords } from "./lib/decoder.js";
+import { clean, mask } from "./lib/iputil.js";
+import { toEpochMilliseconds, toISOExtendedZ } from "./lib/timestamp.js";
 
 /**
  * Insert counted Kinesis records into BigQuery

@@ -1,7 +1,7 @@
 import log from "lambda-log";
-import { decodeRecords } from "./lib/decoder";
-import * as dynamo from "./lib/dynamo";
-import DynamoData from "./lib/dynamo-data";
+import { decodeRecords } from "./lib/decoder.js";
+import * as dynamo from "./lib/dynamo.js";
+import DynamoData from "./lib/dynamo-data.js";
 
 /**
  * Cache redirect-data (from DTR) and segment-bytes-downloaded (from dovetail-counts-lambda)

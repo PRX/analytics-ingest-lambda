@@ -1,10 +1,10 @@
 import http from "node:http";
 import https from "node:https";
 import log from "lambda-log";
-import { decodeRecords } from "./lib/decoder";
-import * as pingurl from "./lib/pingurl";
-import * as timestamp from "./lib/timestamp";
-import * as urlutil from "./lib/urlutil";
+import { decodeRecords } from "./lib/decoder.js";
+import * as pingurl from "./lib/pingurl.js";
+import * as timestamp from "./lib/timestamp.js";
+import * as urlutil from "./lib/urlutil.js";
 
 /**
  * GET impression pingbacks and POST impression increments to dovetail router,

@@ -1,7 +1,7 @@
 import log from "lambda-log";
-import { decodeRecords } from "./lib/decoder";
-import * as dynamo from "./lib/dynamo";
-import { toEpochMilliseconds } from "./lib/timestamp";
+import { decodeRecords } from "./lib/decoder.js";
+import * as dynamo from "./lib/dynamo.js";
+import { toEpochMilliseconds } from "./lib/timestamp.js";
 
 // Assume the longest we keep data is 30 days
 // Use this to calculate ttl as updated_at + 30 days in seconds
