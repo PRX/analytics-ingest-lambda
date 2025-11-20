@@ -1274,6 +1274,14 @@
     "@smithy/types" "^4.5.0"
     tslib "^2.6.2"
 
+"@smithy/abort-controller@^4.2.5":
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/@smithy/abort-controller/-/abort-controller-4.2.5.tgz#3386e8fff5a8d05930996d891d06803f2b7e5e2c"
+  integrity sha512-j7HwVkBw68YW8UmFRcjZOmssE77Rvk0GWAIN1oFBhsaovQmZWYCIcGa9/pwRB0ExI8Sk9MWNALTjftjHZea7VA==
+  dependencies:
+    "@smithy/types" "^4.9.0"
+    tslib "^2.6.2"
+
 "@smithy/config-resolver@^4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@smithy/config-resolver/-/config-resolver-4.2.2.tgz#3f6a3c163f9b5b7f852d7d1817bc9e3b2136fa5f"
@@ -1433,6 +1441,17 @@
     "@smithy/types" "^4.5.0"
     tslib "^2.6.2"
 
+"@smithy/node-http-handler@^4.4.5":
+  version "4.4.5"
+  resolved "https://registry.yarnpkg.com/@smithy/node-http-handler/-/node-http-handler-4.4.5.tgz#2aea598fdf3dc4e32667d673d48abd4a073665f4"
+  integrity sha512-CMnzM9R2WqlqXQGtIlsHMEZfXKJVTIrqCNoSd/QpAyp+Dw0a1Vps13l6ma1fH8g7zSPNsA59B/kWgeylFuA/lw==
+  dependencies:
+    "@smithy/abort-controller" "^4.2.5"
+    "@smithy/protocol-http" "^5.3.5"
+    "@smithy/querystring-builder" "^4.2.5"
+    "@smithy/types" "^4.9.0"
+    tslib "^2.6.2"
+
 "@smithy/property-provider@^4.1.1":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@smithy/property-provider/-/property-provider-4.1.1.tgz#6e11ae6729840314afed05fd6ab48f62c654116b"
@@ -1449,6 +1468,14 @@
     "@smithy/types" "^4.5.0"
     tslib "^2.6.2"
 
+"@smithy/protocol-http@^5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@smithy/protocol-http/-/protocol-http-5.3.5.tgz#a8f4296dd6d190752589e39ee95298d5c65a60db"
+  integrity sha512-RlaL+sA0LNMp03bf7XPbFmT5gN+w3besXSWMkA8rcmxLSVfiEXElQi4O2IWwPfxzcHkxqrwBFMbngB8yx/RvaQ==
+  dependencies:
+    "@smithy/types" "^4.9.0"
+    tslib "^2.6.2"
+
 "@smithy/querystring-builder@^4.1.1":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@smithy/querystring-builder/-/querystring-builder-4.1.1.tgz#4d35c1735de8214055424045a117fa5d1d5cdec1"
@@ -1456,6 +1483,15 @@
   dependencies:
     "@smithy/types" "^4.5.0"
     "@smithy/util-uri-escape" "^4.1.0"
+    tslib "^2.6.2"
+
+"@smithy/querystring-builder@^4.2.5":
+  version "4.2.5"
+  resolved "https://registry.yarnpkg.com/@smithy/querystring-builder/-/querystring-builder-4.2.5.tgz#00cafa5a4055600ab8058e26db42f580146b91f3"
+  integrity sha512-y98otMI1saoajeik2kLfGyRp11e5U/iJYH/wLCh3aTV/XutbGT9nziKGkgCaMD1ghK7p6htHMm6b6scl9JRUWg==
+  dependencies:
+    "@smithy/types" "^4.9.0"
+    "@smithy/util-uri-escape" "^4.2.0"
     tslib "^2.6.2"
 
 "@smithy/querystring-parser@^4.1.1":
@@ -1512,6 +1548,13 @@
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/@smithy/types/-/types-4.5.0.tgz#850e334662a1ef1286c35814940c80880400a370"
   integrity sha512-RkUpIOsVlAwUIZXO1dsz8Zm+N72LClFfsNqf173catVlvRZiwPy0x2u0JLEA4byreOPKDZPGjmPDylMoP8ZJRg==
+  dependencies:
+    tslib "^2.6.2"
+
+"@smithy/types@^4.9.0":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@smithy/types/-/types-4.9.0.tgz#c6636ddfa142e1ddcb6e4cf5f3e1a628d420486f"
+  integrity sha512-MvUbdnXDTwykR8cB1WZvNNwqoWVaTRA0RLlLmf/cIFNMM2cKWz01X4Ly6SMC4Kks30r8tT3Cty0jmeWfiuyHTA==
   dependencies:
     tslib "^2.6.2"
 
@@ -1645,6 +1688,13 @@
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@smithy/util-uri-escape/-/util-uri-escape-4.1.0.tgz#ed4a5c498f1da07122ca1e3df4ca3e2c67c6c18a"
   integrity sha512-b0EFQkq35K5NHUYxU72JuoheM6+pytEVUGlTwiFxWFpmddA+Bpz3LgsPRIpBk8lnPE47yT7AF2Egc3jVnKLuPg==
+  dependencies:
+    tslib "^2.6.2"
+
+"@smithy/util-uri-escape@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@smithy/util-uri-escape/-/util-uri-escape-4.2.0.tgz#096a4cec537d108ac24a68a9c60bee73fc7e3a9e"
+  integrity sha512-igZpCKV9+E/Mzrpq6YacdTQ0qTiLm85gD6N/IrmyDvQFA4UnU3d5g3m8tMT/6zG/vVkWSU+VxeUyGonL62DuxA==
   dependencies:
     tslib "^2.6.2"
 
