@@ -13,7 +13,7 @@ These lambdas subscribe to kinesis streams, containing metric event records. The
 
 Because of differences in retry logic, this repo is deployed as 4 different lambdas with different handlers - DynamoDB, Frequency, Pingbacks and BigQuery. This diagram generally describes the data flow around these 4 lambdas (along with the separate [dovetail-counts-lambda](https://github.com/PRX/dovetail-counts-lambda):
 
-<img width="3052" height="2656" alt="image" src="https://github.com/user-attachments/assets/4943cee1-63b6-441d-89ba-d58cbc454a75" />
+<img alt="Dovetail analytics data-flow diagram" src="https://raw.githubusercontent.com/PRX/analytics-ingest-lambda/refs/heads/main/dovetail-analytics-drawio.svg" />
 
 ## DynamoDB Lambda
 
