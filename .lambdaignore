@@ -9,6 +9,7 @@
 biome.json
 Dockerfile
 docker-compose.yml
+dovetail-analytics-drawio.svg
 env-example
 /build*
 /test
