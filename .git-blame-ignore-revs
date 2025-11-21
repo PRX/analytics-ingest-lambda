@@ -1,0 +1,3 @@
+# .git-blame-ignore-revs
+# biome check --write --unsafe
+2905e711bcd47376c1a474888eda4dc274bf2485

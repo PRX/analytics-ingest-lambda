@@ -1,86 +1,30 @@
-# PRX Metrics Ingest
+# PRX Analytics Ingest Lambda
 
-Lambda to process metrics data coming from one or more kinesis streams, and
-send that data to multiple destinations.
+Lambdas for processing podcast downloads/impressions for PRX Dovetail.
 
 # Description
 
-The lambda subscribes to kinesis streams, containing metric event records. These
-various metric records are either recognized by an input source in `lib/inputs`,
-or ignored and logged as a warning at the end of the lambda execution.
+These lambdas subscribe to kinesis streams, containing metric event records. The types of records seen are:
 
-Because of differences in retry logic, this repo
-is actually deployed as **3 different lambdas**, subscribed to one or more kinesis streams.
+- `antebytes` - From [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org), this record has information about a request, which ads were inserted, and listener metadata. These requests are normally redirected to the CDN, so we don't know if the listener downloaded the actual bytes of the file yet.
+- `bytes` - From the [Counts Lambda](https://github.com/PRX/dovetail-counts-lambda), this indicates that the listener downloaded more than 1 minute of audio and can be counted as an IAB download.
+- `segmentbytes` - Similar to bytes, but indicates 100% of a specific ad segment in the audio file was downloaded, and can be counted as an IAB impression.
+- `postbytes` - The intersection of the antebytes and bytes/segmentbytes records, indicating we can count downloads/impressions using this upfront redirect metadata.
 
-## BigQuery
+Because of differences in retry logic, this repo is deployed as 4 different lambdas with different handlers - DynamoDB, Frequency, Pingbacks and BigQuery. This diagram generally describes the data flow around these 4 lambdas (along with the separate [dovetail-counts-lambda](https://github.com/PRX/dovetail-counts-lambda):
 
-Records with type `postbytes` will be parsed
-into BigQuery table formats, and inserted into their corresponding BigQuery
-tables in parallel. This is called [streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery),
-and in case the insert fails, it will be attempted 2 more times before the Lambda
-fails with an error. And since each insert includes a unique `insertId`, we
-don't have any data consistency issues with re-running the inserts.
+<img width="3052" height="2656" alt="image" src="https://github.com/user-attachments/assets/4943cee1-63b6-441d-89ba-d58cbc454a75" />
 
-BigQuery now supports partitioning based on a [specific timestamp field](https://cloud.google.com/bigquery/docs/partitioned-tables#partitioned_tables),
-so any inserts streamed to a table will be automatically moved to the correct
-daily partition.
+## DynamoDB Lambda
 
-## Pingbacks
+This lambda temporarily stores Dovetail Router redirect data, and unites it with the
+actual counted bytes of CDN downloads. Once all or part of the audio file is downloaded,
+we filter the redirect download/impressions to what actually happened and fire a `postbytes`
+back onto kinesis.  Which is consumed by the other 3 lambdas.
 
-Records with type `postbytes` and an `impressions[]` array will POST those
-impressions count to the [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org)
-Flight Increments API, at `/api/v1/flight_increments/:date`. This gives some
-semblance of live flight-impression counts so we can stop serving flights as
-close to their goals as possible.
-
-Additionally, records with a special `impression[].pings` array will be pinged via
-an HTTP GET. This "ping" does follow redirects, but expects to land on a 200
-response afterwards. Although 500 errors will be retried internally in the
-code, any ping failures will be allowed to fail after error/timeout.
-
-Unlike BigQuery, these operations are not idempotent, so we don't want to
-over-ping a url. All errors will be handled internally so Kinesis doesn't
-attempt to re-exec the batch of records.
-
-### URI Templates
-
-Pingback urls should be valid [RFC 6570](https://tools.ietf.org/html/rfc6570) URI
-template. Valid parameters are:
-
-| Parameter Name    | Description                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| `ad`              | Ad id (intersection of creative and flight)                                                     |
-| `agent`           | Requester user-agent string                                                                     |
-| `agentmd5`        | An md5'd user-agent string                                                                      |
-| `episode`         | Feeder episode guid                                                                             |
-| `campaign`        | Campaign id                                                                                     |
-| `creative`        | Creative id                                                                                     |
-| `flight`          | Flight id                                                                                       |
-| `ip`              | Request ip address                                                                              |
-| `ipmask`          | Masked ip, with the last octet changed to 0s                                                    |
-| `listener`        | Unique string for this "listener"                                                               |
-| `listenerepisode` | Unique string for "listener + url"                                                              |
-| `podcast`         | Feeder podcast id                                                                               |
-| `randomstr`       | Random string                                                                                   |
-| `randomint`       | Random integer                                                                                  |
-| `referer`         | Requester http referer                                                                          |
-| `timestamp`       | Epoch milliseconds of request                                                                   |
-| `url`             | Full url of request, including host and query parameters, but _without_ the protocol `https://` |
-
-## DynamoDB
-
-When a listener requests an episode from [Dovetail Router](https://github.com/PRX/dovetail-router.prx.org),
-it will emit kinesis records of type `antebytes`. Meaning
-the bytes haven't been downloaded yet. These records are inserted into DynamoDB,
-and saved until the CDN-bytes are actually downloaded.
-
-This lambda also picks up type `bytes` and `segmentbytes` records, meaning that
-the [dovetail-counts-lambda](https://github.com/PRX/dovetail-counts-lambda) has
-decided enough of the segment/file-as-a-whole has been downloaded to be counted.
-
-As both of those records are keyed by the `<listener_episode>.<digest>` of the
-request, we avoid a race condition by waiting for _both_ to be present before
-logging the real download/impressions. Some example DynamoDB data:
+DynamoDB rows are keyed on the `listenerEpisode` (a hash of IP address, user agent, and the episode guid)
+and `digest` (a hash of the specific segments in the audio arrangement they got). The row also
+has a `payload` which is just the compressed data receieved from Dovetail Router.
 
 ```
 +-----------+-----------------------+-------------------------+
@@ -102,85 +46,85 @@ never double-count the same `bytes/segmentbytes` on the same UTC day.
 different UTC days, if the listener downloaded the episode from the CDN twice
 just before and after midnight).
 
-Once we decide to count a segment impression or overall download, the original
-`antebytes` is unzipped from the `payload`, we change the type of the record
-to `postbytes` and the timestamp to match when the CDN bytes were downloaded,
-then re-emit the record to kinesis.
+Any failures/errors writing to DynamoDB will result in the entire kinesis batch retrying. But since
+the output `postbytes` are logged to STDOUT synchronously (and picked up via a
+[Subscription Filter](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html))
+it's fine to rerun them - they'll no-op the second time.
 
-These `postbytes` records are then processed by the previous 2 lambdas.
+## BigQuery Lambda
 
-## Frequency Impressions
+After requests are counted, this lambda inserts them into the `dt_downloads` and `dt_impressions` tables
+in BigQuery using [streaming inserts](https://cloud.google.com/bigquery/streaming-data-into-bigquery).
 
-Records with type `postbytes` will have their impressions looked at and if
-there is a frequency cap, then the impression will be recorded to DynamoDB
-to allow Dovetail Router to check how many impressions exist already for this
-campaign and listener.
+Any errors inserting will result in the entire kinesis batch retrying. To avoid duplicate inserted
+rows, they each have a unique [insertId](https://cloud.google.com/dotnet/docs/reference/Google.Cloud.BigQuery.V2/latest/Google.Cloud.BigQuery.V2.BigQueryInsertRow#Google_Cloud_BigQuery_V2_BigQueryInsertRow_InsertId)
+which BigQuery will de-duplicate on a best effort basis.
 
-# Installation
+## Frequency Lambda
 
-To get started, just run `yarn`.
+After requests are counted, this lambda looks for impressions occurring on frequency capped campaigns.
+These are inserted into a DynamoDB table that Dovetail Router uses to restrict how often a listener
+gets a campaign across any number of requests/episodes.
 
-## Unit Tests
-
-And hey, to just run the unit tests locally, you don't need anything! Just
-`yarn test` to your heart's content.
-
-There are some dynamodb tests that use an actual table, and will be skipped. To
-also run these, set `TEST_DDB_TABLE` and `TEST_DDB_ROLE` to something in AWS you
-have access to.
-
-## Integration Tests
-
-The integration test simply runs the lambda function against a test-event (the
-same way you might in the lambda web console), and outputs the result.
-
-Copy `env-example` to `.env`, and fill in your information. Now when you run
-`yarn start`, you should see the test event run 3 times, and do some work for
-all of the lambda functions.
-
-## BigQuery
-
-To enable BigQuery inserts, you'll need to first [create a Google Cloud Platform Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects),
-create a BigQuery dataset, and create the tables referenced by your `lib/inputs`.
-Sorry -- no help on creating the correct table scheme yet!
-
-Then [create a Service Account](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount) for this app. Make sure it has BigQuery Data Editor permissions.
-
-## DynamoDB
-
-To enable DynamoDB gets/writes, you'll need to setup a [DynamoDB table](https://docs.aws.amazon.com/dynamodb/index.html#lang/en_us)
-that your account has access to. You can use your local AWS cli credentials, or
-setup AWS client/secret environment variables.
-
-You can also optionally access a DynamoDB table in a different account by specifying
-a `DDB_ROLE` that the lambda should assume while doing gets/writes.
-
-# Deployment
-
-The 3 lambdas functions are deployed via a Cloudformation stack in the [Infrastructure repo](https://github.com/PRX/Infrastructure/blob/master/stacks/apps/dovetail-analytics.yml):
-
-- `AnalyticsBigqueryFunction` - insert downloads/impressions into BigQuery
-- `AnalyticsPingbacksFunction` - increment flight impressions and 3rd-party pingbacks
-- `AnalyticsDynamoDbFunction` - temporary store for IAB compliant downloads
-
-# Docker
-
-This repo is now dockerized!
+The frequency table is keyed on Listener ID and Campaign ID, and contains an epoch-milliseconds set
+of each impression the listener got this campaign.
 
 ```
-docker-compose build
-docker-compose run test
-docker-compose run start
++----------+---------------+-------------------------+
+| campaign | listener      | impressions             |
++----------+---------------+-------------------------+
+|   1234   | <some-hash-A> | [1624299980 1624299942] |
+|   5678   | <some-hash-B> | [1624300094]            |
+|   5678   | <some-hash-B> | [1624300094]            |
++----------+---------------+-------------------------+
 ```
 
-And you can easily-ish get the lambda zip built by the Dockerfile:
+Since that list of timestamps is a Set, operations here are idempotent, and any failures will retry
+the entire kinesis batch.
 
-```
-docker ps -a | grep analyticsingestlambda
-docker cp {{container-id-here}}:/app/build.zip myzipfile.zip
-unzip -l myzipfile.zip
-```
+## Pingbacks Lambda
 
-# License
+After requests are counted, this lambda looks for any non-duplicate impressions.
 
-[AGPL License](https://www.gnu.org/licenses/agpl-3.0.html)
+The Flight IDs and counts of those impressions are POST-ed to Dovetail Router, to give it a very
+up-to-the-minute idea of how often things served. So it can precisely reach flight goals, and
+balance between which flights it serves throughout the day.
+
+Additionally, records with an `impression[].pings` url array will be pinged via
+an HTTP GET. This "ping" does follow redirects, but expects to land on a 200
+response afterwards. Although 500 errors will be retried internally in the
+code, any ping failures will be allowed to fail after error/timeout.
+
+Unlike the other lambdas, these operations are not idempotent, so we don't want to
+over-ping a url. All errors will be handled internally so Kinesis doesn't
+attempt to re-exec the batch of records.
+
+### URI Templates
+
+Pingback urls should be valid [RFC 6570](https://tools.ietf.org/html/rfc6570) URI
+template. Valid parameters are:
+
+| Parameter Name    | Description                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `ad`              | Ad id (intersection of creative and flight)                                                     |
+| `agent`           | Requester user-agent string                                                                     |
+| `agentmd5`        | An md5'd user-agent string                                                                      |
+| `campaign`        | Campaign id                                                                                     |
+| `creative`        | Creative id                                                                                     |
+| `episode`         | Feeder episode guid                                                                             |
+| `flight`          | Flight id                                                                                       |
+| `ip`              | Request ip address                                                                              |
+| `ipmask`          | Masked ip, with the last octet changed to 0s                                                    |
+| `ipv4`            | Request ip address, but blank for any ipv6 requests                                             |
+| `listener`        | Unique string for this "listener"                                                               |
+| `listenerepisode` | Unique string for "listener + url"                                                              |
+| `podcast`         | Feeder podcast id                                                                               |
+| `randomstr`       | Random string                                                                                   |
+| `randomint`       | Random integer                                                                                  |
+| `referer`         | Requester http referer                                                                          |
+| `timestamp`       | Epoch milliseconds of request                                                                   |
+| `url`             | Full url of request, including host and query parameters, but _without_ the protocol `https://` |
+
+# Contributing
+
+See the [Contributing](CONTRIBUTING.md) file.

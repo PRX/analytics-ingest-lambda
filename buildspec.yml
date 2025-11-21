@@ -5,6 +5,7 @@ env:
     PRX_LAMBDA_ARCHIVE_BUILD_PATH: '/app/build.zip'
     PRX_SPIRE_S3_PKG_PARAMETERS: LAMBDA_ZIP=/prx/stag/Spire/Dovetail-Analytics/pkg/s3-object-key
     PRX_S3_ARCHIVE_BUILD_PATH: /app/build.zip
+    PRX_BUILD_AARCH64: "true"
   parameter-store:
     CODECOV_TOKEN: /prx/test/analytics-ingest-lambda/CODECOV_TOKEN
   exported-variables:

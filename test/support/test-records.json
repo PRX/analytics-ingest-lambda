@@ -96,6 +96,7 @@
   },
   {
     "type": "antebytes",
+    "timestamp": 1487703704,
     "download": {
       "isDuplicate": false,
       "cause": null,
