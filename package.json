@@ -36,8 +36,6 @@
   },
   "homepage": "https://github.com/PRX/analytics-ingest-lambda#readme",
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.891.0",
-    "@aws-sdk/client-sts": "^3.891.0",
     "@biomejs/biome": "2.2.4",
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
@@ -46,6 +44,8 @@
     "nock": "^14.0.10"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.940.0",
+    "@aws-sdk/client-sts": "^3.940.0",
     "@google-cloud/bigquery": "^8.1.1",
     "@smithy/node-http-handler": "^4.4.5",
     "follow-redirects": "^1.15.11",
