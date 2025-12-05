@@ -84,6 +84,64 @@ describe("index-pingbacks", () => {
         pingfails: 0,
       });
     });
+
+    it("checks full IP permissions", async () => {
+      jest.spyOn(log, "info").mockReturnValue();
+
+      process.env.DOVETAIL_ROUTER_HOSTS = "host1.dt.test";
+      nock("https://host1.dt.test")
+        .post(/.+/, () => true)
+        .reply(202);
+
+      // mock requests, recording xff and query params
+      const pings = [];
+      const ips = [];
+      const ipmasks = [];
+      const xffs = [];
+      ["one", "two", "three", "four"].forEach((num, idx) => {
+        pings.push(`http://ping.${num}{?ip,ipmask}`);
+        nock(`http://ping.${num}`)
+          .get("/")
+          .query((q) => {
+            ips[idx] = q.ip;
+            ipmasks[idx] = q.ipmask;
+            return true;
+          })
+          .reply(200, function () {
+            xffs[idx] = this.req.headers["x-forwarded-for"];
+          });
+      });
+
+      const impressions = [
+        { pings: [pings[0], pings[1], pings[2]], pingFullIps: [false, true, null] },
+        { pings: [pings[3]] },
+      ];
+      const remoteIp = "12.34.56.78";
+      const event = await buildEvent([
+        { type: "postbytes", timestamp: 1, download: {}, remoteIp, impressions },
+      ]);
+      await index.handler(event);
+
+      // one should get downgraded
+      expect(ips[0]).toEqual("12.34.56.0");
+      expect(ipmasks[0]).toEqual("12.34.56.0");
+      expect(xffs[0]).toEqual("12.34.56.0");
+
+      // two gets full ips for all but the mask
+      expect(ips[1]).toEqual("12.34.56.78");
+      expect(ipmasks[1]).toEqual("12.34.56.0");
+      expect(xffs[1]).toEqual("12.34.56.78");
+
+      // three is also downgraded
+      expect(ips[2]).toEqual("12.34.56.0");
+      expect(ipmasks[2]).toEqual("12.34.56.0");
+      expect(xffs[2]).toEqual("12.34.56.0");
+
+      // four has no "pingFullIps" array - revert to old mask-XFF functionality
+      expect(ips[3]).toEqual("12.34.56.78");
+      expect(ipmasks[3]).toEqual("12.34.56.0");
+      expect(xffs[3]).toEqual("12.34.56.0");
+    });
   });
 
   describe(".formatIncrements", () => {
