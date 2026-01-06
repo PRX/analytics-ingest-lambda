@@ -18,7 +18,12 @@ export const handler = async (event) => {
     .filter((r) => r.type === "postbytes")
     .flatMap((r) => (r.impressions || []).map((i) => ({ ...r, ...i })))
     .filter((r) => !r.isDuplicate);
-  const pings = imps.flatMap((r) => (r.pings || []).map((pingUrl) => ({ ...r, pingUrl })));
+  const pings = imps.flatMap((rec) => {
+    return (rec.pings || []).map((pingUrl, idx) => {
+      const fullIp = rec.pingFullIps ? rec.pingFullIps[idx] : undefined;
+      return { ...rec, pingUrl, fullIp };
+    });
+  });
 
   const info = { records: records.length, pingbacks: pings.length, increments: imps.length };
   log.info("Starting Pingbacks", info);
