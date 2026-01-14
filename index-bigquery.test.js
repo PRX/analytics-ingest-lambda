@@ -27,7 +27,14 @@ describe("index-bigquery", () => {
       expect(log.info.mock.calls[0][0]).toEqual("Starting BigQuery");
       expect(log.info.mock.calls[0][1]).toEqual({ records: 7, downloads: 1, impressions: 4 });
       expect(log.info.mock.calls[1][0]).toEqual("Finished BigQuery");
-      expect(log.info.mock.calls[1][1]).toEqual({ records: 7, downloads: 1, impressions: 4 });
+      expect(log.info.mock.calls[1][1].records).toEqual(7);
+      expect(log.info.mock.calls[1][1].downloads).toEqual(1);
+      expect(log.info.mock.calls[1][1].impressions).toEqual(4);
+
+      // test record timestamps are on 2017-02-21
+      const lagDate = new Date(Date.now() - log.info.mock.calls[1][1].lag);
+      expect(lagDate.getTime()).toBeGreaterThan(new Date("2017-02-21").getTime());
+      expect(lagDate.getTime()).toBeLessThan(new Date("2017-02-22").getTime());
 
       expect(inserts[0].length).toEqual(1);
       expect(inserts[0][0].insertId).toEqual("listener-episode-1/1487703699000");
