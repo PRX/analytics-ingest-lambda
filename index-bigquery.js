@@ -28,7 +28,10 @@ export const handler = async (event) => {
   const impRows = imps.map((r, i) => formatImpression(r, i));
   const impCount = await bigquery.insert({ client, table: "dt_impressions", rows: impRows });
 
-  const info2 = { records: records.length, downloads: downCount, impressions: impCount };
+  const times = downRows.concat(impRows).map((r) => new Date(r.json.timestamp).getTime());
+  const lag = times.length ? Date.now() - Math.min(...times) : undefined;
+
+  const info2 = { records: records.length, downloads: downCount, impressions: impCount, lag };
   log.info("Finished BigQuery", info2);
 };
 
