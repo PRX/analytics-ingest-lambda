@@ -51,6 +51,7 @@ export const format = (rec) => {
     agent_name_id: rec.agentName,
     agent_type_id: rec.agentType,
     agent_os_id: rec.agentOs,
+    asn: rec.asn,
     city_geoname_id: rec.city,
     country_geoname_id: rec.country,
     postal_code: rec.postalCode,

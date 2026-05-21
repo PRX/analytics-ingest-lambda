@@ -114,6 +114,7 @@ describe("index-bigquery", () => {
         agentName: 11,
         agentOs: 22,
         agentType: 33,
+        asn: 9999,
         city: 44,
         country: 55,
         digest: "the-digest",
@@ -129,6 +130,7 @@ describe("index-bigquery", () => {
       expect(data.agent_name_id).toEqual(11);
       expect(data.agent_os_id).toEqual(22);
       expect(data.agent_type_id).toEqual(33);
+      expect(data.asn).toEqual(9999);
       expect(data.city_geoname_id).toEqual(44);
       expect(data.country_geoname_id).toEqual(55);
       expect(data.digest).toEqual("the-digest");
